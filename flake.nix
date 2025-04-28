@@ -1,0 +1,290 @@
+{
+  description = "Minimal NixOS installation media";
+  nixConfig = {
+    extra-substituters = [
+      "https://nix-community.cachix.org"
+    ];
+    extra-trusted-public-keys = [
+      "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
+    ];
+  };
+
+  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.05";
+  inputs.disko.url = "github:nix-community/disko/latest";
+  inputs.disko.inputs.nixpkgs.follows = "nixpkgs";
+
+  outputs = {
+    self,
+    nixpkgs,
+    disko,
+    ...
+  } @ inputs: let
+    system = "x86_64-linux";
+    pkgs = nixpkgs.legacyPackages.${system};
+  in {
+    devShells.${system}.default = pkgs.mkShell {
+      packages = with pkgs; [
+        git
+        qemu
+        neovim
+        alejandra
+      ];
+    };
+
+    nixosConfigurations = {
+      headnode = nixpkgs.lib.nixosSystem {
+        inherit system;
+        modules = [
+          ./common
+          ./roles/headnode/headnode-configuration.nix
+          {config._module.args = {flake = self;};}
+          disko.nixosModules.disko
+          ({modulesPath, ...}: {
+            imports = [
+              (modulesPath + "/installer/scan/not-detected.nix")
+              (modulesPath + "/profiles/all-hardware.nix")
+            ];
+          })
+          {
+            boot.loader.systemd-boot.enable = true;
+            boot.loader.efi.canTouchEfiVariables = true;
+            boot.initrd.availableKernelModules = ["xhci_pci" "ahci" "nvme" "usbhid" "uas" "sd_mod" "rtsx_pci_sdmmc"];
+            system.stateVersion = "24.05";
+          }
+          {
+            disko.devices = {
+              disk = {
+                main = {
+                  # When using disko-install, we will overwrite this value from the commandline
+                  device = "/dev/disk/by-id/some-disk-id";
+                  type = "disk";
+                  content = {
+                    type = "gpt";
+                    partitions = {
+                      MBR = {
+                        type = "EF02"; # for grub MBR
+                        size = "1M";
+                        priority = 1; # Needs to be first partition
+                      };
+                      ESP = {
+                        type = "EF00";
+                        size = "500M";
+                        content = {
+                          type = "filesystem";
+                          format = "vfat";
+                          mountpoint = "/boot";
+                          mountOptions = ["umask=0077"];
+                        };
+                      };
+                      root = {
+                        size = "100%";
+                        content = {
+                          type = "filesystem";
+                          format = "ext4";
+                          mountpoint = "/";
+                        };
+                      };
+                    };
+                  };
+                };
+              };
+            };
+          }
+        ];
+      };
+
+      workernode = nixpkgs.lib.nixosSystem {
+        system = "x86_64-linux";
+        modules = [
+          ./common
+          ./roles/workernode/workernode-configuration.nix
+        ];
+      };
+    };
+    packages.x86_64-linux = rec {
+      default = headnode.config.system.build.isoImage;
+      head = headnode.config.system.build.isoImage;
+      worker = workernode.config.system.build.isoImage;
+
+      headnode = nixpkgs.lib.nixosSystem {
+        inherit system;
+        modules = [
+          ./common
+          ./roles/headnode/headnode-configuration.nix
+          {config._module.args = {flake = self;};}
+          ({modulesPath, ...}: {
+            imports = [
+              (modulesPath + "/installer/cd-dvd/installation-cd-minimal.nix")
+            ];
+          })
+          {
+            boot.kernelParams = ["copytoram"];
+            isoImage = {
+              makeEfiBootable = true;
+              makeUsbBootable = true;
+              # compressImage = true; #TURN ON FOR VM TODO
+              isoName = nixpkgs.lib.mkForce "headnode.iso";
+              appendToMenuLabel = " Headnode";
+              squashfsCompression = "zstd -Xcompression-level 6";
+              contents = [
+                {
+                  source = ./.; #mount the whole repo inside the iso for disko install with grub
+                  target = "/repo/small-data-cluster";
+                }
+              ];
+            };
+          }
+        ];
+      };
+      workernode = nixpkgs.lib.nixosSystem {
+        inherit system;
+        modules = [
+          ./common
+          ./roles/workernode/workernode-configuration.nix
+          ({config, ...}: {
+            networking.hostName = "";
+          })
+        ];
+      };
+
+      vm_headnode =
+        (nixpkgs.lib.nixosSystem {
+          inherit system;
+          modules = [
+            ./common
+            ./roles/headnode/headnode-configuration.nix
+            (nixpkgs + "/nixos/modules/virtualisation/qemu-vm.nix")
+            (nixpkgs + "/nixos/modules/profiles/qemu-guest.nix")
+            ({
+              config,
+              pkgs,
+              ...
+            }: let
+              isoimage = pkgs.runCommandLocal "headnode.iso" {} ''
+                set -Eeuf -o pipefail
+                set -x
+                headnode=${self.outputs.packages.x86_64-linux.default}/iso/headnode.iso
+                if [ "${toString config.isoImage.compressImage}" ]; then
+                  ${pkgs.zstd}/bin/zstd --decompress --keep --stdout "''${headnode}.zst" > $out
+                else
+                  ln -s "$headnode" $out
+                fi
+              '';
+            in {
+              virtualisation = {
+                memorySize = 4096;
+                cores = 4;
+                useDefaultFilesystems = false;
+                diskImage = "/dev/null";
+                # useBootLoader = true;
+                graphics = false;
+                fileSystems."/" = {
+                  fsType = "tmpfs";
+                  options = ["mode=0755"];
+                };
+                forwardPorts = [
+                  {
+                    from = "host";
+                    host.port = 2222;
+                    guest.port = 22;
+                  }
+                ];
+                qemu = {
+                  options = [
+                  ];
+                  drives = [
+                    {
+                      file = "${isoimage}";
+                      driveExtraOpts = {
+                        media = "cdrom";
+                        format = "raw";
+                        readonly = "on";
+                      };
+                    }
+                  ];
+                };
+              };
+            })
+          ];
+        })
+        .config
+        .system
+        .build
+        .vm;
+
+      vm_workernode =
+        (nixpkgs.lib.nixosSystem {
+          inherit system;
+          modules = [
+            ./common
+            ./roles/workernode/workernode-configuration.nix
+            (nixpkgs + "/nixos/modules/virtualisation/qemu-vm.nix")
+            (nixpkgs + "/nixos/modules/profiles/qemu-guest.nix")
+            ({
+              config,
+              pkgs,
+              ...
+            }: let
+              isoimage = pkgs.runCommandLocal "workernode.iso" {} ''
+                set -Eeuf -o pipefail
+                set -x
+                workernode=${self.outputs.packages.x86_64-linux.worker}/iso/workernode.iso
+                if [ "${toString config.isoImage.compressImage}" ]; then
+                  ${pkgs.zstd}/bin/zstd --decompress --keep --stdout "''${workernode}.zst" > $out
+                else
+                  ln -s "$workernode" $out
+                fi
+              '';
+            in {
+              virtualisation = {
+                memorySize = 4096;
+                cores = 4;
+                useDefaultFilesystems = false;
+                #diskImage = "/dev/null";
+                # useBootLoader = true;
+                graphics = false;
+                fileSystems."/" = {
+                  fsType = "tmpfs";
+                  options = ["mode=0755"];
+                };
+                forwardPorts = [
+                  {
+                    from = "host";
+                    host.port = 2223;
+                    guest.port = 22;
+                  }
+                ];
+                qemu = {
+                  drives = [
+                    {
+                      file = "${isoimage}";
+                      driveExtraOpts = {
+                        media = "cdrom";
+                        format = "raw";
+                        readonly = "on";
+                      };
+                    }
+                  ];
+                };
+              };
+            })
+          ];
+        })
+        .config
+        .system
+        .build
+        .vm;
+    };
+    apps.x86_64-linux = {
+      default = {
+        type = "app";
+        program = "${self.outputs.packages.x86_64-linux.vm_headnode}/bin/run-headnode-vm";
+      };
+
+      worker = {
+        type = "app";
+        program = "${self.outputs.packages.x86_64-linux.vm_workernode}/bin/run-worker-vm";
+      };
+    };
+  };
+}

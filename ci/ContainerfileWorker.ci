@@ -1,0 +1,16 @@
+FROM docker.io/nixos/nix:latest
+
+ENV NIXPKGS_ALLOW_UNFREE=1
+ENV NIX_BUILD_SHELL=/bin/bash
+
+RUN mkdir -p "$HOME/.config/nix"
+RUN echo 'experimental-features = nix-command flakes' > "$HOME/.config/nix/nix.conf"
+
+WORKDIR /app
+
+COPY ../. .
+
+RUN echo "building now"
+RUN nix build .#worker1 --accept-flake-config
+
+CMD ["bash"]

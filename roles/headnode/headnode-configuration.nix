@@ -1,0 +1,76 @@
+({
+  pkgs,
+  modulesPath,
+  lib,
+  config,
+  flake,
+  ...
+}: let
+  tomlConfig = builtins.fromTOML (builtins.readFile ../../config.toml);
+  persistToDisk = pkgs.writeShellScriptBin "persist-to-disk" ''
+    set -euo pipefail
+
+    usage() {
+      echo "Usage: persist-to-disk <disk-path>"
+      echo "Example: persist-to-disk /dev/disk/by-id/disk1id"
+      exit 1
+    }
+
+    if [ "$#" -ne 1 ]; then
+      echo "Error: Missing disk path argument."
+      usage
+    fi
+
+    DISK_PATH="$1"
+
+    if [ ! -b "$DISK_PATH" ]; then
+      echo "Error: '$DISK_PATH' is not a valid block device."
+      exit 1
+    fi
+
+    echo "Preparing to persist configuration to disk at: $DISK_PATH"
+    echo "This will erase all data on the specified disk."
+    read -r -p "Are you sure you want to continue? [y/N] " confirm
+    case "$confirm" in
+      [yY][eE][sS]|[yY])
+        ;;
+      *)
+        echo "Aborted by user."
+        exit 0
+        ;;
+    esac
+
+    echo "Running disko-install with flake 'small-data-cluster#headnode'..."
+    nix run 'github:nix-community/disko/latest#disko-install' -- --flake '/iso/repo/small-data-cluster#headnode' --disk main "$DISK_PATH"
+    status=$?
+
+    if [ "$status" -eq 0 ]; then
+      echo "Disk installation completed successfully."
+    else
+      echo "Error: Disk installation failed with exit code $status."
+      exit "$status"
+    fi
+  '';
+in {
+  imports = [
+    (import ./services/dask-scheduler.nix {tomlConf = tomlConfig;})
+    (import ./services/jupyterhub.nix {tomlConf = tomlConfig;})
+    (import ./services/userhomes.nix {tomlConf = tomlConfig;})
+    ./services/grafana.nix
+    (import ./services/dashboard.nix {tomlConf = tomlConfig;})
+    (import ./services/tailscale-api.nix {tomlConf = tomlConfig;})
+    (import ./services/telemetry.nix {tomlConf = tomlConfig;})
+  ];
+  environment.systemPackages = [
+    persistToDisk
+  ];
+
+  networking = {
+    hostName = "headnode";
+    useDHCP = true;
+    wireless = {
+      enable = true;
+      userControlled.enable = true;
+    };
+  };
+})

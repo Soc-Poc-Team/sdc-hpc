@@ -1,0 +1,36 @@
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "config.json"
+      - "roles/headnode/**/*"
+      - "common/**/*"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "config.json"
+      - "roles/headnode/**/*"
+      - "common/**/*"
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build-headnode:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - uses: cachix/install-nix-action@v31
+        with:
+          github_access_token: ${{ secrets.GITHUB_TOKEN }}
+      - run: nix shell nixpkgs#gnused -c sed -i "s/\"TS_AUTHKEY\"/\"$TAILSCALE_AUTHKEY\"/" config.json
+      - run: nix build --accept-flake-config
+      - name: Upload headnode ISO as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: headnode-iso.iso
+          path: result/iso/headnode.iso
