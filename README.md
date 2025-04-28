@@ -1,5 +1,11 @@
 
 ![login screen](./docs/login-screen.png)
+
+## Disclaimer
+* ⚠️ The project is under active development.
+* ⚠️ Expect bugs and breaking changes.
+* ⚠️ Please backup your code and data.
+
 ## Description
 Dynamic on-demand cluster for small and medium sized enterprises on commercial off-the-shelf hardware.
 
@@ -101,6 +107,49 @@ This project provides a developer shell. You can enter it with `nix develop`.
 
 ## Requirements
 - headnode and workernode ISO must be build from the same pc. This is because of /nix/store/
+
+## Research project
+This is a research project. Thus we are interested in gathering basic, anonymous usage data to measure interest in this project.
+
+Example datapoint that we periodically send on each deployed cluster to our backend: 
+```json
+{
+  "type": "de.fh-aachen.bigdata.hpc-on-demand-telemetry",
+  "cluster": "1745849932",
+  "nodes": [
+    {
+      "cores": 2,
+      "cpu_load": 27,
+      "free_mem": 7527,
+      "cpus": 2,
+      "sockets": 1,
+      "last_busy": 1745849940,
+      "hostname": "headnode",
+      "real_memory": 11679,
+      "alloc_memory": 0,
+      "alloc_cpus": 0,
+      "alloc_idle_cpus": 2,
+      "slurmd_start_time": 1745849940,
+      "tres": "cpu=2,mem=11679M,billing=2",
+      "version": "23.11.10",
+      "state": [
+        "IDLE",
+        "DYNAMIC_NORM"
+      ],
+      "reason": "",
+      "reason_set_by_user": "root",
+      "reason_changed_at": {
+        "set": true,
+        "infinite": false,
+        "number": 0
+      }
+    }
+  ]
+}
+```
+We do not gather any other data.
+
+Telemetry can be opted out by setting `telemetry = false` in your config.toml.
 
 ## Acknowledgements
 We acknowledge the support by the Federal Ministry of Education and Research (BMBF) under grant number 02L19C602 (project WIRKsam)
