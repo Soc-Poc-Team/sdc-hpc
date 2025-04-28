@@ -16,7 +16,7 @@ ci-image:
   variables:
     RUNNER_SCRIPT_TIMEOUT: 3h
   tags:
-    - proxmox
+    - hpc-on-demand
   image: quay.io/containers/podman:$PODMAN_VERSION
   #before_script:
   #  - podman login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
@@ -34,7 +34,7 @@ ci-image:
 ci-worker-image:
   stage: dependencies
   tags:
-    - proxmox
+    - hpc-on-demand
   image: quay.io/containers/podman:$PODMAN_VERSION
   before_script:
     - podman login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
@@ -51,7 +51,7 @@ ci-worker-image:
 ci-curl-image:
   stage: dependencies
   tags:
-    - proxmox
+    - hpc-on-demand
   image: quay.io/containers/podman:$PODMAN_VERSION
   before_script:
     - podman login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
@@ -70,7 +70,7 @@ build-headnode:
   stage: build
   image: $CI_REGISTRY_IMAGE/ci-image:latest
   tags:
-    - proxmox
+    - hpc-on-demand
   rules:
     - changes:
         - roles/headnode/**/*
@@ -91,7 +91,7 @@ build-workernode:
   #image: $CI_REGISTRY_IMAGE/ci-worker-image:latest
   image: $CI_REGISTRY_IMAGE/ci-image:latest
   tags:
-    - proxmox
+    - hpc-on-demand
   rules:
     - changes:
         - roles/workernode/**/*
@@ -111,7 +111,7 @@ redeploy-headnode:
   stage: deploy
   image: $CI_REGISTRY_IMAGE/ci-curl-image:latest
   tags:
-    - proxmox
+    - hpc-on-demand
   script:
     - sh ci/redeploy.sh 201 local:iso/nixos_headnode.iso
   rules:
@@ -126,7 +126,7 @@ redeploy-workernode:
   stage: deploy
   image: $CI_REGISTRY_IMAGE/ci-curl-image:latest
   tags:
-    - proxmox
+    - hpc-on-demand
   script:
     - sh ci/redeploy.sh 202 local:iso/nixos_workernode.iso
   rules:
@@ -140,7 +140,7 @@ creation-headnode-job:
   stage: create
   image: $CI_REGISTRY_IMAGE/ci-curl-image:latest
   tags:
-    - proxmox
+    - hpc-on-demand
   script:
     - bash ci/create.sh "Headnode" 201 "local:iso/nixos_headnode.iso"
 
@@ -152,7 +152,7 @@ creation-workernode-job:
   stage: create
   image: $CI_REGISTRY_IMAGE/ci-curl-image:latest
   tags:
-    - proxmox
+    - hpc-on-demand
   script:
     - bash ci/create.sh "Worker1" 202 "local:iso/nixos_workernode.iso"
 
