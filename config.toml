@@ -5,11 +5,11 @@ apiKey = "TS_APIKEY"
 
 [users.alice]
 passwordHash = "$6$niENrHi8EzNkxcQb$s0.Dc5HiGj3RyUEHIbi8sLZNBjA7Ibz1P2.odljSjYLlbjmX6n4d8B0lGEffjMEApf5rWqoU2Iq8fQiqWYGj71"
-uuid = 5001
+uid = 5001
 
 [users.bob]
 passwordHash = "$6$niENrHi8EzNkxcQb$s0.Dc5HiGj3RyUEHIbi8sLZNBjA7Ibz1P2.odljSjYLlbjmX6n4d8B0lGEffjMEApf5rWqoU2Iq8fQiqWYGj71"
-uuid = 5002
+uid = 5002
 
 [telemetry]
 enabled = true
