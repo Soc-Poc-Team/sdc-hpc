@@ -13,7 +13,7 @@
       home = "/homes/${userName}";
       createHome = true;
       hashedPassword = userData.passwordHash;
-      uid = userData.uuid;
+      uid = userData.uid;
     })
     tomlConfig.users;
 
