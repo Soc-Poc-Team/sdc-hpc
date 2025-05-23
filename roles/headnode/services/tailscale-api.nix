@@ -78,7 +78,7 @@ in {
 
     # make sure tailscale is running before trying to connect to tailscale
     after = ["network-online.target"];
-    wants = ["wpa_supplicant" "network-online.target"];
+    wants = ["wpa_supplicant.service" "network-online.target"];
     wantedBy = ["multi-user.target"];
     before = ["tailscale-autoconnect.service" "slurmctld.service" "slurmd.service"];
     serviceConfig.Type = "oneshot";
