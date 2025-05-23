@@ -69,6 +69,10 @@ in {
 
   networking.enableIPv6 = false; # we want to be able to handle networking easy
   networking.firewall.enable = true;
+    
+  # TODO: make this configurable via config.toml
+  networking.wireless.networks."<ssid>".psk = "<psk>";
+
   # networking.extraHosts = ''
   # ${builtins.concatStringsSep "\n" hostsEntries}
   # '';
