@@ -4,6 +4,7 @@
   ...
 }: let
   tomlConfig = builtins.fromTOML (builtins.readFile ../config.toml);
+  enabled = tomlConfig.wifi.enabled;
 
   # Map the users into the required Nix user structure
   nixUsers =
@@ -69,9 +70,10 @@ in {
 
   networking.enableIPv6 = false; # we want to be able to handle networking easy
   networking.firewall.enable = true;
-    
+
   # TODO: make this configurable via config.toml
-  networking.wireless.networks."<ssid>".psk = "<psk>";
+  networking.wireless.enable = enabled;
+  networking.wireless.networks."${tomlConfig.wifi.ssid}".psk = "${tomlConfig.wifi.pwd}";
 
   # networking.extraHosts = ''
   # ${builtins.concatStringsSep "\n" hostsEntries}

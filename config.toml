@@ -1,3 +1,8 @@
+[wifi]
+enabled = true
+ssid = "SSID"
+pwd = "PASSWORD"
+
 [tailscale]
 domain = "tailscale domain here"
 authKey = "TS_AUTHKEY"
