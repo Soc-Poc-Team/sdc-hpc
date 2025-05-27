@@ -4,7 +4,7 @@ ssid = "SSID"
 pwd = "PASSWORD"
 
 [tailscale]
-domain = "tailscale domain here"
+domain = "TS_DOMAIN"
 authKey = "TS_AUTHKEY"
 apiKey = "TS_APIKEY"
 
