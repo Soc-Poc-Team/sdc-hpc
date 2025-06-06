@@ -5,6 +5,7 @@
 }: let
   tailscaleDomain = tomlConf.tailscale.domain;
   userDataDir = "/homes";
+  quotedUserNames = map (u: ''"${u}"'') (builtins.attrNames tomlConf.users);
   jupyterhubEnv = pkgs.python3.withPackages (p:
     with p; [
       jupyterhub
@@ -58,11 +59,11 @@
 
     c.JupyterHub.hub_ip = "headnode.${tailscaleDomain}"
     c.JupyterHub.ip = "0.0.0.0"
-    c.JupyterHub.authenticator_class = "jupyterhub.auth.DummyAuthenticator"
+    c.JupyterHub.authenticator_class = "jupyterhub.auth.PAMAuthenticator"
     #c.JupyterHub.spawner_class = 'batchspawner.SlurmSpawner'
     c.JupyterHub.spawner_class = 'wrapspawner.ProfilesSpawner'
 
-    c.Authenticator.allowed_users = set(["nixos","bigdata","oskar","max","marcel","ingo","michel"])
+    c.Authenticator.allowed_users = set(${"[${builtins.concatStringsSep ", " quotedUserNames}]"})
 
 
     c.Spawner.notebook_dir = '${userDataDir}/{username}'
