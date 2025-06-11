@@ -170,6 +170,8 @@ We do not gather any other data.
 
 Telemetry can be opted out by setting `telemetry = false` in your config.toml.
 
+## Publications
+* ISC HPC 2025, [HPC On-Demand: Dynamic On-Demand Cluster - Computing For SMEs on COTS Computers](./docs/poster_isc.pdf)
 ## Acknowledgements
 
 We acknowledge the support by the Federal Ministry of Education and Research (BMBF) under grant number 02L19C602 (project WIRKsam)
