@@ -9,6 +9,7 @@ fi
 
 VMID=$1
 ISO_PATH=$2
+NODE=deimos
 
 # Authenticate and get the ticket and CSRF token
 response=$(curl -s -k -X POST "$PROXMOX_HOST/api2/json/access/ticket" \
@@ -19,7 +20,7 @@ ticket=$(echo "$response" | jq -r '.data.ticket')
 csrf_token=$(echo "$response" | jq -r '.data.CSRFPreventionToken')
 
 echo -e "\nVM $VMID changing boot iso to $ISO_PATH"
-curl -k -X POST "$PROXMOX_HOST/api2/json/nodes/pve/qemu/$VMID/config" \
+curl -k -X POST "$PROXMOX_HOST/api2/json/nodes/$NODE/qemu/$VMID/config" \
   -H "Authorization: PVEAuthCookie=$ticket" \
   -H "CSRFPreventionToken: $csrf_token" \
   -d "ide2=$ISO_PATH,media%3Dcdrom"
@@ -27,7 +28,7 @@ curl -k -X POST "$PROXMOX_HOST/api2/json/nodes/pve/qemu/$VMID/config" \
 sleep 2
 
 echo -e "\nRebooting VM $VMID"
-curl -k -X POST "$PROXMOX_HOST/api2/json/nodes/pve/qemu/$VMID/status/reboot" \
+curl -k -X POST "$PROXMOX_HOST/api2/json/nodes/$NODE/qemu/$VMID/status/reboot" \
   -H "Authorization: PVEAuthCookie=$ticket" \
   -H "CSRFPreventionToken: $csrf_token"
 

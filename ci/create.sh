@@ -10,6 +10,7 @@ fi
 VM_NAME=$1      # VM Name
 VMID=$2         # VMID
 ISO_PATH=$3     # Path to the uploaded ISO
+NODE=deimos
 
 # Authentication and getting the ticket and CSRF token
 response=$(curl -s -k -X POST "$PROXMOX_HOST/api2/json/access/ticket" \
@@ -26,14 +27,14 @@ STORAGE="local-lvm"    # Storage where the disk will be created (e.g., 'local')
 
 # Create the internal networking bridge
 echo "Creating vmbr1 for internal networking."
-curl -k -X POST "$PROXMOX_HOST/api2/extjs/nodes/pve/network" \
+curl -k -X POST "$PROXMOX_HOST/api2/extjs/nodes/$NODE/network" \
   -H "Authorization: PVEAuthCookie=$ticket" \
   -H "CSRFPreventionToken: $csrf_token" \
   --data-raw 'type=bridge&iface=vmbr3&autostart=1&bridge_ports=&comments='
 
 # Create the VM
 echo "Creating VM $VMID with $MEMORY MB memory, $CORES CPU cores, and $DISK_SIZE disk..."
-curl -k -X POST "$PROXMOX_HOST/api2/extjs/nodes/pve/qemu" \
+curl -k -X POST "$PROXMOX_HOST/api2/extjs/nodes/$NODE/qemu" \
   -H "Authorization: PVEAuthCookie=$ticket" \
   -H "CSRFPreventionToken: $csrf_token" \
   -d "vmid=$VMID" \
@@ -52,7 +53,7 @@ curl -k -X POST "$PROXMOX_HOST/api2/extjs/nodes/pve/qemu" \
 
 # Start the VM
 echo -e "\nStarting the VM $VMID..."
-curl -k -X POST "$PROXMOX_HOST/api2/json/nodes/pve/qemu/$VMID/status/start" \
+curl -k -X POST "$PROXMOX_HOST/api2/json/nodes/$NODE/qemu/$VMID/status/start" \
   -H "Authorization: PVEAuthCookie=$ticket" \
   -H "CSRFPreventionToken: $csrf_token"
 

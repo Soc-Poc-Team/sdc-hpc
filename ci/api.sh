@@ -8,6 +8,7 @@ fi
 
 
 ISO_PATH="$1" 
+NODE=deimos
 
 # Authenticate and get the ticket and CSRF token
 response=$(curl -s -k -X POST "$PROXMOX_HOST/api2/json/access/ticket" \
@@ -26,21 +27,21 @@ curl -k -X GET "$PROXMOX_HOST/api2/json/nodes" \
 
 
 echo "listing storages"
-curl -k -X GET "$PROXMOX_HOST/api2/json/nodes/pve/storage" \
+curl -k -X GET "$PROXMOX_HOST/api2/json/nodes/$NODE/storage" \
   -H "Authorization: PVEAuthCookie=$ticket" \
   -H "CSRFPreventionToken: $csrf_token" 
 
 
 echo "storage status"
 
-curl -k -X GET "$PROXMOX_HOST/api2/json/nodes/pve/storage/status" \
+curl -k -X GET "$PROXMOX_HOST/api2/json/nodes/$NODE/storage/status" \
   -H "Authorization: PVEAuthCookie=$ticket" \
   -H "CSRFPreventionToken: $csrf_token" 
 
 
 echo "uploading iso"
 
-curl -k -X POST "$PROXMOX_HOST/api2/json/nodes/pve/storage/local/upload" \
+curl -k -X POST "$PROXMOX_HOST/api2/json/nodes/$NODE/storage/local/upload" \
   -H "Authorization: PVEAuthCookie=$ticket" \
   -H "CSRFPreventionToken: $csrf_token" \
   -H "Content-Type: multipart/form-data" \
