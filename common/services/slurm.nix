@@ -1,26 +1,16 @@
-{tomlConf, ...}: {
+{ tomlConf, ... }:
+{
   config,
   pkgs,
   lib,
   ...
-}: let
-  slurmNodes = builtins.attrValues tomlConf.slurm;
+}:
+let
   tailscaleDomain = tomlConf.tailscale.domain;
   isHeadnode = config.networking.hostName == "headnode"; # Check if the current hostname is "headnode"
-
-  slurmd = pkgs.writeShellScriptBin "slurm-dynamic" ''
-    # Get the current hostname
-    hn=$(hostname)
-
-    # Construct the NodeAddr
-    node_addr="$hn.tail2953a.ts.net"
-
-    sleep 2
-    # Execute the slurmd command with the necessary parameters
-    slurmd -Z --conf "NodeAddr=$node_addr" --conf-server "headnode.${tailscaleDomain}"
-  '';
-in {
-  disabledModules = ["services/security/munge.nix"];
+in
+{
+  disabledModules = [ "services/security/munge.nix" ];
   imports = [
     ./custom/munge.nix
   ];
@@ -65,12 +55,17 @@ in {
       "network-online.target"
       "remote-fs.target"
     ];
-    wants = ["network-online.target"];
-    wantedBy = ["multi-user.target"];
+    wants = [ "network-online.target" ];
+    wantedBy = [ "multi-user.target" ];
 
-    path = [pkgs.bash pkgs.slurm pkgs.hostname pkgs.libcgroup pkgs.coreutils];
+    path = [
+      pkgs.bash
+      pkgs.slurm
+      pkgs.hostname
+      pkgs.libcgroup
+      pkgs.coreutils
+    ];
     serviceConfig = {
-      # ExecStart = "${slurmd}/bin/slurm-dynamic";
       ExecStart = "/bin/sh -c 'sleep 3 && ${pkgs.slurm}/bin/slurmd -Z --conf NodeAddr=$(hostname).${tailscaleDomain} --conf-server headnode.${tailscaleDomain}'";
       ExecReload = "${pkgs.coreutils}/bin/kill -HUP $MAINPID";
       PIDFile = "/run/slurmd.pid";
@@ -96,10 +91,10 @@ in {
       }
     ];
     allowedTCPPorts = [
-      6817 #slurmctld
-      6818 #slurmd
-      6819 #slurmdbd
-      6820 #slurmdbd
+      6817 # slurmctld
+      6818 # slurmd
+      6819 # slurmdbd
+      6820 # slurmdbd
     ];
   };
 }
