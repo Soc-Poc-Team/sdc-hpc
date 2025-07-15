@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Ensure the required parameters are passed (VMID and ISO_PATH)
 if [[ -z "$1" || -z "$2" ]]; then
