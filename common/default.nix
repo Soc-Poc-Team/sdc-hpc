@@ -74,9 +74,6 @@ in {
   networking.wireless.enable = enabled;
   networking.wireless.networks."${tomlConfig.wifi.ssid}".psk = "${tomlConfig.wifi.pwd}";
 
-  # networking.extraHosts = ''
-  # ${builtins.concatStringsSep "\n" hostsEntries}
-  # '';
   services.openssh.enable = true;
   services.avahi = {
     enable = true;
