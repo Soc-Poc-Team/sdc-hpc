@@ -12,11 +12,13 @@ WORKDIR /app
 COPY ../. .
 
 RUN nix build --accept-flake-config
+RUN rm -r result/iso/*
 
 
 
 RUN echo "building worker now"
 RUN nix build .#worker --accept-flake-config
+RUN rm -r result/iso/*
 
 RUN nix shell nixpkgs#jq
 
