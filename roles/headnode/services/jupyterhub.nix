@@ -1,28 +1,31 @@
-{tomlConf, ...}: {
+{ tomlConf, ... }:
+{
   config,
   pkgs,
   ...
-}: let
+}:
+let
   tailscaleDomain = tomlConf.tailscale.domain;
   userDataDir = "/homes";
   quotedUserNames = map (u: ''"${u}"'') (builtins.attrNames tomlConf.users);
-  jupyterhubEnv = pkgs.python3.withPackages (p:
-    with p; [
+  jupyterhubEnv = pkgs.python3.withPackages (
+    p: with p; [
       jupyterhub
       jupyterlab
       batchspawner
-      (callPackage ../modules/wrapspawner/BAKdefault.nix {})
+      (callPackage ../modules/wrapspawner/BAKdefault.nix { })
       jupyter
       jupyter-core
       notebook
-    ]);
+    ]
+  );
 
   jlabKernels = pkgs.jupyter-kernel.create {
     definitions = {
       python312Kernel = (
         let
-          env = pkgs.python312.withPackages (p:
-            with p; [
+          env = pkgs.python312.withPackages (
+            p: with p; [
               ipykernel
               dask-gateway
               numpy
@@ -41,10 +44,18 @@
               plotly
               pyarrow
               beautifulsoup4
-            ]);
-        in {
+            ]
+          );
+        in
+        {
           displayName = "Python 3.12";
-          argv = ["${env.interpreter}" "-m" "ipykernel_launcher" "-f" "{connection_file}"];
+          argv = [
+            "${env.interpreter}"
+            "-m"
+            "ipykernel_launcher"
+            "-f"
+            "{connection_file}"
+          ];
           language = "python";
           logo32 = "${env}/${env.sitePackages}/ipykernel/resources/logo-32x32.png";
           logo64 = "${env}/${env.sitePackages}/ipykernel/resources/logo-64x64.png";
@@ -75,6 +86,7 @@
         'JUPYTER_PATH': '${jlabKernels}'
     }
 
+    c.SlurmSpawner.batch_submit_cmd = ['sbatch', '--parsable']
     c.SlurmSpawner.batchspawner_singleuser_cmd = '${jupyterhubEnv}/bin/.batchspawner-singleuser-wrapped'
     c.SlurmSpawner.cmd = "${jupyterhubEnv}/bin/.jupyterhub-singleuser-wrapped"
     c.ProfilesSpawner.profiles = [
@@ -124,7 +136,9 @@
     echo $JUPYTERHUB_SERVICE_URL
     echo $JUPYTERHUB_SERVICE_URL
 
-    export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:${pkgs.lib.makeLibraryPath [pkgs.stdenv.cc.cc]}:${pkgs.lib.makeLibraryPath [pkgs.zlib]}";
+    export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:${pkgs.lib.makeLibraryPath [ pkgs.stdenv.cc.cc ]}:${
+      pkgs.lib.makeLibraryPath [ pkgs.zlib ]
+    }";
 
     export TMPDIR=/homes/{{username}}/.tmp
     export PIP_CACHE_DIR=/homes/{{username}}/.pip-cache
@@ -138,21 +152,26 @@
 
     """
   '';
-in {
+in
+{
   systemd.services.jupyterhub = {
     description = "Jupyterhub development server";
 
-    after = ["network.target" "tailscale-autoconnect.service"];
-    wantedBy = ["multi-user.target"];
+    after = [
+      "network.target"
+      "tailscale-autoconnect.service"
+    ];
+    wantedBy = [ "multi-user.target" ];
     path = with pkgs; [
       python3Packages.jupyterlab
       python3Packages.jupyterhub
       python3Packages.jupyter
       python3Packages.notebook
+      sudo
     ];
 
     environment = {
-      LD_LIBRARY_PATH = "$LD_LIBRARY_PATH:${pkgs.lib.makeLibraryPath [pkgs.stdenv.cc.cc]}";
+      LD_LIBRARY_PATH = "$LD_LIBRARY_PATH:${pkgs.lib.makeLibraryPath [ pkgs.stdenv.cc.cc ]}";
     };
     serviceConfig = {
       Restart = "always";
