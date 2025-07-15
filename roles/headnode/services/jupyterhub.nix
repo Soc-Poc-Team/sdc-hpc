@@ -86,7 +86,7 @@ let
         'JUPYTER_PATH': '${jlabKernels}'
     }
 
-    c.SlurmSpawner.batch_submit_cmd = ['sbatch', '--parsable']
+    # c.SlurmSpawner.batch_submit_cmd = ['sbatch', '--parsable']
     c.SlurmSpawner.batchspawner_singleuser_cmd = '${jupyterhubEnv}/bin/.batchspawner-singleuser-wrapped'
     c.SlurmSpawner.cmd = "${jupyterhubEnv}/bin/.jupyterhub-singleuser-wrapped"
     c.ProfilesSpawner.profiles = [
