@@ -2,472 +2,501 @@
   config,
   pkgs,
   ...
-}: let
+}:
+let
   # this dashboard has to be exported from grafana
   # Steps:
   # 1. sign in with admin:admin
   # 2. edit the dashboard
-  ourDashboard2 =
-    pkgs.writeText "config.json"
-    ''
-            {
-        "annotations": {
-          "list": [
-            {
-              "builtIn": 1,
-              "datasource": {
-                "type": "grafana",
-                "uid": "-- Grafana --"
-              },
-              "enable": true,
-              "hide": true,
-              "iconColor": "rgba(0, 211, 255, 1)",
-              "name": "Annotations & Alerts",
-              "type": "dashboard"
-            }
-          ]
-        },
-        "editable": true,
-        "fiscalYearStartMonth": 0,
-        "graphTooltip": 0,
-        "id": 1,
-        "links": [],
-        "panels": [
+  ourDashboard2 = pkgs.writeText "config.json" ''
           {
-            "datasource": {
-              "type": "loki",
-              "uid": "loki"
-            },
-            "gridPos": {
-              "h": 8,
-              "w": 12,
-              "x": 0,
-              "y": 0
-            },
-            "id": 1,
-            "options": {
-              "dedupStrategy": "none",
-              "enableLogDetails": true,
-              "prettifyLogMessage": false,
-              "showCommonLabels": false,
-              "showLabels": false,
-              "showTime": false,
-              "sortOrder": "Descending",
-              "wrapLogMessage": false
-            },
-            "targets": [
-              {
-                "datasource": {
-                  "type": "loki",
-                  "uid": "loki"
-                },
-                "editorMode": "builder",
-                "expr": "{unit=\"slurmctld.service\"} |= ``",
-                "queryType": "range",
-                "refId": "A"
-              }
-            ],
-            "title": "slurmctld",
-            "type": "logs"
-          },
+      "annotations": {
+        "list": [
           {
+            "builtIn": 1,
             "datasource": {
-              "type": "loki",
-              "uid": "loki"
+              "type": "grafana",
+              "uid": "-- Grafana --"
             },
-            "gridPos": {
-              "h": 8,
-              "w": 12,
-              "x": 12,
-              "y": 0
-            },
-            "id": 2,
-            "options": {
-              "dedupStrategy": "none",
-              "enableLogDetails": true,
-              "prettifyLogMessage": false,
-              "showCommonLabels": false,
-              "showLabels": false,
-              "showTime": false,
-              "sortOrder": "Descending",
-              "wrapLogMessage": false
-            },
-            "targets": [
-              {
-                "datasource": {
-                  "type": "loki",
-                  "uid": "loki"
-                },
-                "editorMode": "builder",
-                "expr": "{unit=\"slurm-dynamic.service\"} |= ``",
-                "queryType": "range",
-                "refId": "A"
-              }
-            ],
-            "title": "Slurmd",
-            "type": "logs"
-          },
-          {
-            "datasource": {
-              "type": "loki",
-              "uid": "loki"
-            },
-            "gridPos": {
-              "h": 8,
-              "w": 12,
-              "x": 0,
-              "y": 8
-            },
-            "id": 4,
-            "options": {
-              "dedupStrategy": "none",
-              "enableLogDetails": true,
-              "prettifyLogMessage": false,
-              "showCommonLabels": false,
-              "showLabels": false,
-              "showTime": false,
-              "sortOrder": "Descending",
-              "wrapLogMessage": false
-            },
-            "targets": [
-              {
-                "datasource": {
-                  "type": "loki",
-                  "uid": "loki"
-                },
-                "editorMode": "builder",
-                "expr": "{unit=\"munged.service\"} |= ``",
-                "queryType": "range",
-                "refId": "A"
-              }
-            ],
-            "title": "munged",
-            "type": "logs"
-          },
-          {
-            "datasource": {
-              "type": "loki",
-              "uid": "loki"
-            },
-            "gridPos": {
-              "h": 8,
-              "w": 12,
-              "x": 12,
-              "y": 8
-            },
-            "id": 5,
-            "options": {
-              "dedupStrategy": "none",
-              "enableLogDetails": true,
-              "prettifyLogMessage": false,
-              "showCommonLabels": false,
-              "showLabels": false,
-              "showTime": false,
-              "sortOrder": "Descending",
-              "wrapLogMessage": false
-            },
-            "targets": [
-              {
-                "datasource": {
-                  "type": "loki",
-                  "uid": "loki"
-                },
-                "editorMode": "builder",
-                "expr": "{unit=\"tailscale-autoconnect.service\"} |= ``",
-                "queryType": "range",
-                "refId": "A"
-              }
-            ],
-            "title": "tailscale-autoconnect",
-            "type": "logs"
-          },
-          {
-            "datasource": {
-              "type": "loki",
-              "uid": "loki"
-            },
-            "gridPos": {
-              "h": 14,
-              "w": 12,
-              "x": 0,
-              "y": 16
-            },
-            "id": 3,
-            "options": {
-              "dedupStrategy": "none",
-              "enableLogDetails": true,
-              "prettifyLogMessage": false,
-              "showCommonLabels": false,
-              "showLabels": false,
-              "showTime": false,
-              "sortOrder": "Descending",
-              "wrapLogMessage": false
-            },
-            "targets": [
-              {
-                "datasource": {
-                  "type": "loki",
-                  "uid": "loki"
-                },
-                "editorMode": "builder",
-                "expr": "{unit=\"jupyterhub.service\"} |= ``",
-                "queryType": "range",
-                "refId": "A"
-              }
-            ],
-            "title": "jupyterhub",
-            "type": "logs"
-          },
-          {
-            "datasource": {
-              "type": "loki",
-              "uid": "loki"
-            },
-            "gridPos": {
-              "h": 8,
-              "w": 12,
-              "x": 12,
-              "y": 16
-            },
-            "id": 6,
-            "options": {
-              "dedupStrategy": "none",
-              "enableLogDetails": true,
-              "prettifyLogMessage": false,
-              "showCommonLabels": false,
-              "showLabels": false,
-              "showTime": false,
-              "sortOrder": "Descending",
-              "wrapLogMessage": false
-            },
-            "targets": [
-              {
-                "datasource": {
-                  "type": "loki",
-                  "uid": "loki"
-                },
-                "editorMode": "builder",
-                "expr": "{unit=\"tailscaled.service\"} |= ``",
-                "queryType": "range",
-                "refId": "A"
-              }
-            ],
-            "title": "tailscaled service",
-            "type": "logs"
+            "enable": true,
+            "hide": true,
+            "iconColor": "rgba(0, 211, 255, 1)",
+            "name": "Annotations & Alerts",
+            "type": "dashboard"
           }
-        ],
-        "refresh": "5s",
-        "schemaVersion": 39,
-        "tags": [],
-        "templating": {
-          "list": []
-        },
-        "time": {
-          "from": "now-1h",
-          "to": "now"
-        },
-        "timepicker": {},
-        "timezone": "browser",
-        "title": "small-data-cluster",
-        "uid": "cefeq4w1vgu80f",
-        "version": 1,
-        "weekStart": ""
-      }
-    '';
-  ourDashboard =
-    pkgs.writeText "config.json"
-    ''
-      {
-        "annotations": {
-          "list": [
+        ]
+      },
+      "editable": true,
+      "fiscalYearStartMonth": 0,
+      "graphTooltip": 0,
+      "id": 1,
+      "links": [],
+      "panels": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 0
+          },
+          "id": 1,
+          "options": {
+            "dedupStrategy": "none",
+            "enableLogDetails": true,
+            "prettifyLogMessage": false,
+            "showCommonLabels": false,
+            "showLabels": false,
+            "showTime": false,
+            "sortOrder": "Descending",
+            "wrapLogMessage": false
+          },
+          "targets": [
             {
-              "builtIn": 1,
               "datasource": {
-                "type": "grafana",
-                "uid": "-- Grafana --"
+                "type": "loki",
+                "uid": "loki"
               },
-              "enable": true,
-              "hide": true,
-              "iconColor": "rgba(0, 211, 255, 1)",
-              "name": "Annotations & Alerts",
-              "type": "dashboard"
+              "editorMode": "builder",
+              "expr": "{unit=\"slurmctld.service\"} |= ``",
+              "queryType": "range",
+              "refId": "A"
             }
-          ]
+          ],
+          "title": "slurmctld",
+          "type": "logs"
         },
-        "editable": true,
-        "fiscalYearStartMonth": 0,
-        "graphTooltip": 0,
-        "id": 1,
-        "links": [],
-        "panels": [
-          {
-            "datasource": {
-              "type": "loki",
-              "uid": "loki"
-            },
-            "gridPos": {
-              "h": 8,
-              "w": 12,
-              "x": 0,
-              "y": 0
-            },
-            "id": 1,
-            "options": {
-              "dedupStrategy": "none",
-              "enableLogDetails": true,
-              "prettifyLogMessage": false,
-              "showCommonLabels": false,
-              "showLabels": false,
-              "showTime": false,
-              "sortOrder": "Descending",
-              "wrapLogMessage": false
-            },
-            "targets": [
-              {
-                "datasource": {
-                  "type": "loki",
-                  "uid": "loki"
-                },
-                "editorMode": "builder",
-                "expr": "{unit=\"slurmctld.service\"} |= ``",
-                "queryType": "range",
-                "refId": "A"
-              }
-            ],
-            "title": "slurmctld",
-            "type": "logs"
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
           },
-          {
-            "datasource": {
-              "type": "loki",
-              "uid": "loki"
-            },
-            "gridPos": {
-              "h": 8,
-              "w": 12,
-              "x": 12,
-              "y": 0
-            },
-            "id": 2,
-            "options": {
-              "dedupStrategy": "none",
-              "enableLogDetails": true,
-              "prettifyLogMessage": false,
-              "showCommonLabels": false,
-              "showLabels": false,
-              "showTime": false,
-              "sortOrder": "Descending",
-              "wrapLogMessage": false
-            },
-            "targets": [
-              {
-                "datasource": {
-                  "type": "loki",
-                  "uid": "loki"
-                },
-                "editorMode": "builder",
-                "expr": "{unit=\"slurmd.service\"} |= ``",
-                "queryType": "range",
-                "refId": "A"
-              }
-            ],
-            "title": "Slurmd",
-            "type": "logs"
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 0
           },
-          {
-            "datasource": {
-              "type": "loki",
-              "uid": "loki"
-            },
-            "gridPos": {
-              "h": 8,
-              "w": 12,
-              "x": 0,
-              "y": 8
-            },
-            "id": 4,
-            "options": {
-              "dedupStrategy": "none",
-              "enableLogDetails": true,
-              "prettifyLogMessage": false,
-              "showCommonLabels": false,
-              "showLabels": false,
-              "showTime": false,
-              "sortOrder": "Descending",
-              "wrapLogMessage": false
-            },
-            "targets": [
-              {
-                "datasource": {
-                  "type": "loki",
-                  "uid": "loki"
-                },
-                "editorMode": "builder",
-                "expr": "{unit=\"munged.service\"} |= ``",
-                "queryType": "range",
-                "refId": "A"
-              }
-            ],
-            "title": "munged",
-            "type": "logs"
+          "id": 2,
+          "options": {
+            "dedupStrategy": "none",
+            "enableLogDetails": true,
+            "prettifyLogMessage": false,
+            "showCommonLabels": false,
+            "showLabels": false,
+            "showTime": false,
+            "sortOrder": "Descending",
+            "wrapLogMessage": false
           },
+          "targets": [
+            {
+              "datasource": {
+                "type": "loki",
+                "uid": "loki"
+              },
+              "editorMode": "builder",
+              "expr": "{unit=\"slurm-dynamic.service\"} |= ``",
+              "queryType": "range",
+              "refId": "A"
+            }
+          ],
+          "title": "Slurmd",
+          "type": "logs"
+        },
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 8
+          },
+          "id": 4,
+          "options": {
+            "dedupStrategy": "none",
+            "enableLogDetails": true,
+            "prettifyLogMessage": false,
+            "showCommonLabels": false,
+            "showLabels": false,
+            "showTime": false,
+            "sortOrder": "Descending",
+            "wrapLogMessage": false
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "loki",
+                "uid": "loki"
+              },
+              "editorMode": "builder",
+              "expr": "{unit=\"munged.service\"} |= ``",
+              "queryType": "range",
+              "refId": "A"
+            }
+          ],
+          "title": "munged",
+          "type": "logs"
+        },
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 8
+          },
+          "id": 5,
+          "options": {
+            "dedupStrategy": "none",
+            "enableLogDetails": true,
+            "prettifyLogMessage": false,
+            "showCommonLabels": false,
+            "showLabels": false,
+            "showTime": false,
+            "sortOrder": "Descending",
+            "wrapLogMessage": false
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "loki",
+                "uid": "loki"
+              },
+              "editorMode": "builder",
+              "expr": "{unit=\"tailscale-autoconnect.service\"} |= ``",
+              "queryType": "range",
+              "refId": "A"
+            }
+          ],
+          "title": "tailscale-autoconnect",
+          "type": "logs"
+        },
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "gridPos": {
+            "h": 14,
+            "w": 12,
+            "x": 0,
+            "y": 16
+          },
+          "id": 3,
+          "options": {
+            "dedupStrategy": "none",
+            "enableLogDetails": true,
+            "prettifyLogMessage": false,
+            "showCommonLabels": false,
+            "showLabels": false,
+            "showTime": false,
+            "sortOrder": "Descending",
+            "wrapLogMessage": false
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "loki",
+                "uid": "loki"
+              },
+              "editorMode": "builder",
+              "expr": "{unit=\"jupyterhub.service\"} |= ``",
+              "queryType": "range",
+              "refId": "A"
+            }
+          ],
+          "title": "jupyterhub",
+          "type": "logs"
+        },
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 16
+          },
+          "id": 6,
+          "options": {
+            "dedupStrategy": "none",
+            "enableLogDetails": true,
+            "prettifyLogMessage": false,
+            "showCommonLabels": false,
+            "showLabels": false,
+            "showTime": false,
+            "sortOrder": "Descending",
+            "wrapLogMessage": false
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "loki",
+                "uid": "loki"
+              },
+              "editorMode": "builder",
+              "expr": "{unit=\"tailscaled.service\"} |= ``",
+              "queryType": "range",
+              "refId": "A"
+            }
+          ],
+          "title": "tailscaled service",
+          "type": "logs"
+        }
+      ],
+      "refresh": "5s",
+      "schemaVersion": 39,
+      "tags": [],
+      "templating": {
+        "list": []
+      },
+      "time": {
+        "from": "now-1h",
+        "to": "now"
+      },
+      "timepicker": {},
+      "timezone": "browser",
+      "title": "small-data-cluster",
+      "uid": "cefeq4w1vgu80f",
+      "version": 1,
+      "weekStart": ""
+    }
+  '';
+  ourDashboard = pkgs.writeText "config.json" ''
+    {
+      "annotations": {
+        "list": [
           {
+            "builtIn": 1,
             "datasource": {
-              "type": "loki",
-              "uid": "loki"
+              "type": "grafana",
+              "uid": "-- Grafana --"
             },
-            "gridPos": {
-              "h": 14,
-              "w": 12,
-              "x": 0,
-              "y": 16
-            },
-            "id": 3,
-            "options": {
-              "dedupStrategy": "none",
-              "enableLogDetails": true,
-              "prettifyLogMessage": false,
-              "showCommonLabels": false,
-              "showLabels": false,
-              "showTime": false,
-              "sortOrder": "Descending",
-              "wrapLogMessage": false
-            },
-            "targets": [
-              {
-                "datasource": {
-                  "type": "loki",
-                  "uid": "loki"
-                },
-                "editorMode": "builder",
-                "expr": "{unit=\"jupyterhub.service\"} |= ``",
-                "queryType": "range",
-                "refId": "A"
-              }
-            ],
-            "title": "jupyterhub",
-            "type": "logs"
+            "enable": true,
+            "hide": true,
+            "iconColor": "rgba(0, 211, 255, 1)",
+            "name": "Annotations & Alerts",
+            "type": "dashboard"
           }
-        ],
-        "refresh": "auto",
-        "schemaVersion": 39,
-        "tags": [],
-        "templating": {
-          "list": []
+        ]
+      },
+      "editable": true,
+      "fiscalYearStartMonth": 0,
+      "graphTooltip": 0,
+      "id": 1,
+      "links": [],
+      "panels": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 0
+          },
+          "id": 1,
+          "options": {
+            "dedupStrategy": "none",
+            "enableLogDetails": true,
+            "prettifyLogMessage": false,
+            "showCommonLabels": false,
+            "showLabels": false,
+            "showTime": false,
+            "sortOrder": "Descending",
+            "wrapLogMessage": false
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "loki",
+                "uid": "loki"
+              },
+              "editorMode": "builder",
+              "expr": "{unit=\"slurmctld.service\"} |= ``",
+              "queryType": "range",
+              "refId": "A"
+            }
+          ],
+          "title": "slurmctld",
+          "type": "logs"
         },
-        "time": {
-          "from": "now-1h",
-          "to": "now"
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 0
+          },
+          "id": 2,
+          "options": {
+            "dedupStrategy": "none",
+            "enableLogDetails": true,
+            "prettifyLogMessage": false,
+            "showCommonLabels": false,
+            "showLabels": false,
+            "showTime": false,
+            "sortOrder": "Descending",
+            "wrapLogMessage": false
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "loki",
+                "uid": "loki"
+              },
+              "editorMode": "builder",
+              "expr": "{unit=\"slurmd.service\"} |= ``",
+              "queryType": "range",
+              "refId": "A"
+            }
+          ],
+          "title": "Slurmd",
+          "type": "logs"
         },
-        "timepicker": {},
-        "timezone": "browser",
-        "title": "small-data-cluster",
-        "uid": "cefeq4w1vgu80f",
-        "version": 1,
-        "weekStart": ""
-      }
-    '';
-in {
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 8
+          },
+          "id": 4,
+          "options": {
+            "dedupStrategy": "none",
+            "enableLogDetails": true,
+            "prettifyLogMessage": false,
+            "showCommonLabels": false,
+            "showLabels": false,
+            "showTime": false,
+            "sortOrder": "Descending",
+            "wrapLogMessage": false
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "loki",
+                "uid": "loki"
+              },
+              "editorMode": "builder",
+              "expr": "{unit=\"munged.service\"} |= ``",
+              "queryType": "range",
+              "refId": "A"
+            }
+          ],
+          "title": "munged",
+          "type": "logs"
+        },
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "gridPos": {
+            "h": 14,
+            "w": 12,
+            "x": 0,
+            "y": 16
+          },
+          "id": 3,
+          "options": {
+            "dedupStrategy": "none",
+            "enableLogDetails": true,
+            "prettifyLogMessage": false,
+            "showCommonLabels": false,
+            "showLabels": false,
+            "showTime": false,
+            "sortOrder": "Descending",
+            "wrapLogMessage": false
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "loki",
+                "uid": "loki"
+              },
+              "editorMode": "builder",
+              "expr": "{unit=\"jupyterhub.service\"} |= ``",
+              "queryType": "range",
+              "refId": "A"
+            }
+          ],
+          "title": "jupyterhub",
+          "type": "logs"
+        }
+      ],
+      "refresh": "auto",
+      "schemaVersion": 39,
+      "tags": [],
+      "templating": {
+        "list": []
+      },
+      "time": {
+        "from": "now-1h",
+        "to": "now"
+      },
+      "timepicker": {},
+      "timezone": "browser",
+      "title": "small-data-cluster",
+      "uid": "cefeq4w1vgu80f",
+      "version": 1,
+      "weekStart": ""
+    }
+  '';
+
+  prometheusSlurmExporter = pkgs.buildGoModule (finalAttrs: {
+    pname = "prometheus-slurm-exporter";
+    version = "0.20";
+
+    src = pkgs.fetchFromGitHub {
+      owner = "vpenso";
+      repo = "prometheus-slurm-exporter";
+      tag = finalAttrs.version;
+      hash = "sha256-KS9LoDuLQFq3KoKpHd8vg1jw20YCNRJNJrnBnu5vxvs=";
+    };
+
+    vendorHash = "sha256-A1dd9T9SIEHDCiVT2UwV6T02BSLh9ej6LC/2l54hgwI=";
+
+    doCheck = false;
+
+  });
+in
+{
+  systemd.services.slurm-exporter = {
+    description = "Slurm Prometheus Exporter";
+    wantedBy = [ "multi-user.target" ];
+    after = [ "network.target" ];
+    path = [
+      pkgs.slurm
+      pkgs.coreutils
+    ];
+    serviceConfig = {
+      ExecStart = "${prometheusSlurmExporter}/bin/prometheus-slurm-exporter";
+      Restart = "always";
+      DynamicUser = true;
+    };
+  };
   # grafana configuration
   services.grafana = {
     enable = true;
@@ -514,7 +543,7 @@ in {
     exporters = {
       node = {
         enable = true;
-        enabledCollectors = ["systemd"];
+        enabledCollectors = [ "systemd" ];
         port = 9002;
       };
     };
@@ -523,7 +552,15 @@ in {
         job_name = "headnode";
         static_configs = [
           {
-            targets = ["127.0.0.1:${toString config.services.prometheus.exporters.node.port}"];
+            targets = [ "127.0.0.1:${toString config.services.prometheus.exporters.node.port}" ];
+          }
+        ];
+      }
+      {
+        job_name = "SlurmExporter";
+        static_configs = [
+          {
+            targets = [ "127.0.0.1:8080" ];
           }
         ];
       }
@@ -614,7 +651,7 @@ in {
           };
           relabel_configs = [
             {
-              source_labels = ["__journal__systemd_unit"];
+              source_labels = [ "__journal__systemd_unit" ];
               target_label = "unit";
             }
           ];
