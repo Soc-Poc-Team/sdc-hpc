@@ -82,10 +82,6 @@ let
 
     c.Spawner.default_url = '/lab'
 
-    c.SlurmSpawner.environment = {
-        'JUPYTER_PATH': '${jlabKernels}'
-    }
-
     c.SlurmSpawner.batch_submit_cmd = "${pkgs.slurm}/bin/sbatch --parsable"
     c.SlurmSpawner.exec_prefix = "${pkgs.sudo}/bin/sudo -E -u {username}"
     c.SlurmSpawner.batchspawner_singleuser_cmd = '${jupyterhubEnv}/bin/.batchspawner-singleuser-wrapped'
@@ -120,6 +116,8 @@ let
     export JUPYTERHUB_USER=$JUPYTERHUB_USER
     export JUPYTERHUB_BASE_URL=$JUPYTERHUB_BASE_URL
     export JUPYTERHUB_SERVICE_PREFIX=$JUPYTERHUB_SERVICE_PREFIX
+
+    export JUPYTER_PATH=${jlabKernels}
 
     echo $JUPYTERHUB_API_TOKEN
     echo $JUPYTERHUB_API_URL
