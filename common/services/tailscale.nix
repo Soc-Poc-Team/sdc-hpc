@@ -1,11 +1,14 @@
-{tomlConf, ...}: {
+{ tomlConf, ... }:
+{
   config,
   pkgs,
   ...
-}: let
+}:
+let
   tailscaleDomain = tomlConf.tailscale.domain;
   authKey = tomlConf.tailscale.authKey;
-in {
+in
+{
   services.tailscale.enable = true;
   services.resolved.enable = true;
 
@@ -14,13 +17,27 @@ in {
     description = "Automatic connection to Tailscale";
 
     # make sure tailscale is running before trying to connect to tailscale
-    after = ["network-online.target" "tailscale-headnode-tidy.service" "tailscaled.service"];
-    wants = ["network-online.target" "tailscale-headnode-tidy.service" "tailscaled.service"];
-    wantedBy = ["multi-user.target"];
-    before = ["slurmctld.service" "slurmd.service"];
+    after = [
+      "network-online.target"
+      "tailscale-headnode-tidy.service"
+      "tailscaled.service"
+    ];
+    wants = [
+      "network-online.target"
+      "tailscale-headnode-tidy.service"
+      "tailscaled.service"
+    ];
+    wantedBy = [ "multi-user.target" ];
+    before = [
+      "slurmctld.service"
+      "slurmd.service"
+    ];
     serviceConfig.Type = "oneshot";
 
-    path = [pkgs.curl pkgs.hostname];
+    path = [
+      pkgs.curl
+      pkgs.hostname
+    ];
     # have the job run this shell script
     script = with pkgs; ''
       # wait for tailscaled to settle
@@ -37,7 +54,7 @@ in {
       ${tailscale}/bin/tailscale up -authkey ${authKey} --hostname=$(hostname)
       sleep 2
 
-      if [ "$(hostname)" = "localhost" ]; then
+      if [ "$(hostname)" = "nixos" ]; then
         echo "Running on a worker, getting hostname from headnode.."
 
         hn=$(curl -s http://headnode.${tailscaleDomain}:9100/get-hostname)
@@ -65,8 +82,8 @@ in {
 
   networking.firewall = {
     # always allow traffic from your Tailscale network
-    trustedInterfaces = ["tailscale0"];
+    trustedInterfaces = [ "tailscale0" ];
     # allow the Tailscale UDP port through the firewall
-    allowedUDPPorts = [config.services.tailscale.port];
+    allowedUDPPorts = [ config.services.tailscale.port ];
   };
 }
