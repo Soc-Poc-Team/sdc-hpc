@@ -28,6 +28,7 @@ in
     ];
 
     extraConfig = ''
+      SlurmdTimeout=30
       SlurmctldParameters=enable_configless
       TreeWidth=65533
       MaxNodeCount=300

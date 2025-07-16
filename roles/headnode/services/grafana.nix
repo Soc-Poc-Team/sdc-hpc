@@ -486,7 +486,7 @@ in
   systemd.services.slurm-exporter = {
     description = "Slurm Prometheus Exporter";
     wantedBy = [ "multi-user.target" ];
-    after = [ "network.target" ];
+    after = [ "slurm-dynamic.service" ];
     path = [
       pkgs.slurm
       pkgs.coreutils
