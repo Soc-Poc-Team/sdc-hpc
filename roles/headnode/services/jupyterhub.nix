@@ -86,7 +86,8 @@ let
         'JUPYTER_PATH': '${jlabKernels}'
     }
 
-    # c.SlurmSpawner.batch_submit_cmd = ['sbatch', '--parsable']
+    c.SlurmSpawner.batch_submit_cmd = "${pkgs.slurm}/bin/sbatch --parsable"
+    c.SlurmSpawner.exec_prefix = "${pkgs.sudo}/bin/sudo -E -u {username}"
     c.SlurmSpawner.batchspawner_singleuser_cmd = '${jupyterhubEnv}/bin/.batchspawner-singleuser-wrapped'
     c.SlurmSpawner.cmd = "${jupyterhubEnv}/bin/.jupyterhub-singleuser-wrapped"
     c.ProfilesSpawner.profiles = [
@@ -130,11 +131,6 @@ let
     echo $JUPYTERHUB_SERVICE_PREFIX
 
     echo $JUPYTERHUB_SERVICE_URL
-    echo $JUPYTERHUB_SERVICE_URL
-    echo $JUPYTERHUB_SERVICE_URL
-    echo $JUPYTERHUB_SERVICE_URL
-    echo $JUPYTERHUB_SERVICE_URL
-    echo $JUPYTERHUB_SERVICE_URL
 
     export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:${pkgs.lib.makeLibraryPath [ pkgs.stdenv.cc.cc ]}:${
       pkgs.lib.makeLibraryPath [ pkgs.zlib ]
@@ -167,7 +163,6 @@ in
       python3Packages.jupyterhub
       python3Packages.jupyter
       python3Packages.notebook
-      sudo
     ];
 
     environment = {
