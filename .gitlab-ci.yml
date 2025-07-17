@@ -81,6 +81,7 @@ build-headnode:
     - echo "Building headnode ISO"
     - nix shell nixpkgs#gnused -c sed -i "s/\"TS_AUTHKEY\"/\"$TAILSCALE_AUTHKEY\"/" config.toml
     - nix shell nixpkgs#gnused -c sed -i "s/\"TS_APIKEY\"/\"$TAILSCALE_APIKEY\"/" config.toml
+    - nix shell nixpkgs#gnused -c sed -i "s/\"TS_DOMAIN\"/\"$TAILSCALE_DOMAIN\"/" config.toml
     - nix build --accept-flake-config
     - mv result/iso/*.iso /tmp/nixos_headnode.iso # Move the headnode ISO to /tmp
     - nix shell nixpkgs#jq -c bash ci/api.sh /tmp/nixos_headnode.iso # Upload the workernode ISO
@@ -102,6 +103,7 @@ build-workernode:
     - echo "Building workernode ISO"
     - nix shell nixpkgs#gnused -c sed -i "s/\"TS_AUTHKEY\"/\"$TAILSCALE_AUTHKEY\"/" config.toml
     - nix shell nixpkgs#gnused -c sed -i "s/\"TS_APIKEY\"/\"$TAILSCALE_APIKEY\"/" config.toml
+    - nix shell nixpkgs#gnused -c sed -i "s/\"TS_DOMAIN\"/\"$TAILSCALE_DOMAIN\"/" config.toml
     - nix build .#worker --accept-flake-config
     - mv result/iso/*.iso /tmp/nixos_workernode.iso # Move the workernode ISO to /tmp
     - nix shell nixpkgs#jq -c bash ci/api.sh /tmp/nixos_workernode.iso # Upload the workernode ISO

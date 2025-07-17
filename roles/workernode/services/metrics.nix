@@ -1,16 +1,19 @@
-{tomlConf, ...}: {
+{ tomlConf, ... }:
+{
   pkgs,
   config,
   ...
-}: let
+}:
+let
   tailscaleDomain = tomlConf.tailscale.domain;
-in {
+in
+{
   services.prometheus = {
     enable = false;
     exporters = {
       node = {
         enable = true;
-        enabledCollectors = ["systemd"];
+        enabledCollectors = [ "systemd" ];
         port = 9002;
       };
     };
@@ -19,7 +22,7 @@ in {
         job_name = "worker1";
         static_configs = [
           {
-            targets = ["headnode.${tailscaleDomain}:9001"];
+            targets = [ "headnode.${tailscaleDomain}:9001" ];
           }
         ];
       }
@@ -53,7 +56,7 @@ in {
           };
           relabel_configs = [
             {
-              source_labels = ["__journal__systemd_unit"];
+              source_labels = [ "__journal__systemd_unit" ];
               target_label = "unit";
             }
           ];
@@ -65,6 +68,7 @@ in {
     allowedTCPPorts = [
       config.services.promtail.configuration.server.http_listen_port
       config.services.prometheus.exporters.node.port
+      8080
     ];
   };
 }

@@ -1,14 +1,17 @@
-{tomlConf, ...}: {
+{ tomlConf, ... }:
+{
   config,
   lib,
   pkgs,
   ...
-}: let
+}:
+let
   venvPath = "/opt/venv";
   environment = {
-    LD_LIBRARY_PATH = "$LD_LIBRARY_PATH:${pkgs.lib.makeLibraryPath [pkgs.stdenv.cc.cc]}";
+    LD_LIBRARY_PATH = "$LD_LIBRARY_PATH:${pkgs.lib.makeLibraryPath [ pkgs.stdenv.cc.cc ]}";
   };
-in {
+in
+{
   systemd.services.dask-scheduler = {
     enable = true;
     description = "Starts the dask-scheduler";
@@ -16,7 +19,7 @@ in {
       Type = "simple";
     };
     path = [
-      pkgs.python311Packages.bokeh
+      pkgs.python312Packages.bokeh
       pkgs.gcc-unwrapped
     ];
 
@@ -25,8 +28,8 @@ in {
     serviceConfig = {
       ExecStart = "${venvPath}/bin/dask-scheduler --interface tailscale0 --dashboard-address 0.0.0.0:8787";
     };
-    after = ["python-env-setup.service"];
-    wantedBy = ["default.target"];
+    after = [ "python-env-setup.service" ];
+    wantedBy = [ "default.target" ];
   };
 
   networking.firewall = {
