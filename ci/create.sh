@@ -20,10 +20,9 @@ response=$(curl -s -k -X POST "$PROXMOX_HOST/api2/json/access/ticket" \
 ticket=$(echo "$response" | jq -r '.data.ticket')
 csrf_token=$(echo "$response" | jq -r '.data.CSRFPreventionToken')
 
-MEMORY="5048"       # Memory size in MB
-CORES="2"           # Number of CPU cores
-DISK_SIZE="32G"     # Disk size (adjust as needed)
-STORAGE="local-lvm" # Storage where the disk will be created (e.g., 'local')
+MEMORY="5048"   # Memory size in MB
+CORES="2"       # Number of CPU cores
+DISK_SIZE="32G" # Disk size (adjust as needed)
 
 # Create the internal networking bridge
 echo "Creating vmbr1 for internal networking."
