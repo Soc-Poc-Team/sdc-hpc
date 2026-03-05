@@ -1,10 +1,12 @@
-{tomlConf, ...}: {
+{ tomlConf, ... }:
+{
   config,
   lib,
   flake,
   pkgs,
   ...
-}: let
+}:
+let
   enabled = tomlConf.telemetry.enabled;
 
   telemetryScript = pkgs.writeShellScriptBin "telemetry" ''
@@ -27,7 +29,8 @@
         echo "finished sending periodic telemetry data."
         exit 0
   '';
-in {
+in
+{
   systemd.services.telemetry = {
     enable = enabled;
     description = "Periodically sends anonymous telemetry data to FH Aachen";
@@ -36,14 +39,18 @@ in {
       Type = "simple";
       ExecStart = "${telemetryScript}/bin/telemetry";
     };
-    after = ["slurm-dynamic.service"];
-    wantedBy = ["default.target"];
+    after = [ "slurm-dynamic.service" ];
+    wantedBy = [ "default.target" ];
 
-    path = [pkgs.curl pkgs.slurm pkgs.jq];
+    path = [
+      pkgs.curl
+      pkgs.slurm
+      pkgs.jq
+    ];
   };
 
   systemd.timers."telemetry" = {
-    wantedBy = ["timers.target"];
+    wantedBy = [ "timers.target" ];
     timerConfig = {
       OnBootSec = "1m";
       OnUnitActiveSec = "1m";

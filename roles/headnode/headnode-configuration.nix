@@ -1,9 +1,8 @@
-({
+{
   pkgs,
   modulesPath,
   lib,
   config,
-  flake,
   ...
 }: let
   tomlConfig = builtins.fromTOML (builtins.readFile ../../config.toml);
@@ -73,4 +72,4 @@ in {
       userControlled.enable = true;
     };
   };
-})
+}

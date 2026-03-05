@@ -9,15 +9,28 @@
     ];
   };
 
-  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.05";
-  inputs.disko.url = "github:nix-community/disko/latest";
-  inputs.disko.inputs.nixpkgs.follows = "nixpkgs";
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.05";
+    disko = {
+      url = "github:nix-community/disko/latest";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    treefmt-nix = {
+      url = "github:numtide/treefmt-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    systems.url = "github:nix-systems/default";
+
+  };
 
   outputs =
     {
       self,
       nixpkgs,
       disko,
+      systems,
+      treefmt-nix,
       ...
     }@inputs:
     let
@@ -25,6 +38,18 @@
       pkgs = nixpkgs.legacyPackages.${system};
     in
     {
+
+      # for `nix fmt`
+      formatter =
+        let
+          # Small tool to iterate over each systems
+          eachSystem = f: nixpkgs.lib.genAttrs (import systems) (system: f nixpkgs.legacyPackages.${system});
+
+          # Eval the treefmt modules from ./treefmt.nix
+          treefmtEval = eachSystem (pkgs: treefmt-nix.lib.evalModule pkgs ./treefmt.nix);
+        in
+        eachSystem (pkgs: treefmtEval.${pkgs.system}.config.build.wrapper);
+
       devShells.${system}.default = pkgs.mkShell {
         packages = with pkgs; [
           git
