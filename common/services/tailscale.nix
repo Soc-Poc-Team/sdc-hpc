@@ -1,14 +1,9 @@
 { tomlConf, ... }:
-{
-  config,
-  pkgs,
-  ...
-}:
+{ config, pkgs, ... }:
 let
   tailscaleDomain = tomlConf.tailscale.domain;
   authKey = tomlConf.tailscale.authKey;
-in
-{
+in {
   services.tailscale.enable = true;
   services.resolved.enable = true;
 
@@ -28,16 +23,10 @@ in
       "tailscaled.service"
     ];
     wantedBy = [ "multi-user.target" ];
-    before = [
-      "slurmctld.service"
-      "slurmd.service"
-    ];
+    before = [ "slurmctld.service" "slurmd.service" ];
     serviceConfig.Type = "oneshot";
 
-    path = [
-      pkgs.curl
-      pkgs.hostname
-    ];
+    path = [ pkgs.curl pkgs.hostname ];
     # have the job run this shell script
     script = with pkgs; ''
       # wait for tailscaled to settle

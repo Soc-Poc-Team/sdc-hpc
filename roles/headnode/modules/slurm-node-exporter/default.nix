@@ -1,8 +1,4 @@
-{
-  pkgs,
-  lib,
-  ...
-}:
+{ pkgs, ... }:
 pkgs.buildGoModule rec {
   pname = "prometheus-slurm-exporter";
   version = "1.6.10";
@@ -16,13 +12,13 @@ pkgs.buildGoModule rec {
   };
   vendorHash = "sha256-qATQ47ztssQQEWSTXcPtUZnssYFtSCvh5AnldcmgO+M=";
 
-  dependencies = with pkgs; [
-    swig
-  ];
-  buildInputs = with pkgs; [
-    swig # Ensure swig is available during the build process
-  ];
-  nativeBuildInputs = with pkgs; [
-    swig # Ensure swig is available during the build process
-  ];
+  dependencies = with pkgs; [ swig ];
+  buildInputs = with pkgs;
+    [
+      swig # Ensure swig is available during the build process
+    ];
+  nativeBuildInputs = with pkgs;
+    [
+      swig # Ensure swig is available during the build process
+    ];
 }

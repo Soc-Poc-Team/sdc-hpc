@@ -1,16 +1,14 @@
-{tomlConf, ...}: {
-  config,
-  pkgs,
-  ...
-}: let
+{ tomlConf, ... }:
+{ pkgs, ... }:
+let
   tailscaleDomain = tomlConf.tailscale.domain;
   # example: mkNfsMounter nfs:/export/home /home
   #https://github.com/TUM-DSE/doctor-cluster-config/blob/5043a91af26d51fce87fa4b902cd8843671b6ea2/modules/nfs/client.nix#L14
   mkNfsMounter = nfsUrl: mountpoint: {
     description = "Mount ${mountpoint}";
-    after = ["network.target"];
+    after = [ "network.target" ];
     # 1. Mount nfs before making shells available to users:
-    wantedBy = ["multi-user.target"];
+    wantedBy = [ "multi-user.target" ];
     serviceConfig = {
       Type = "oneshot";
       RemainAfterExit = true;
@@ -49,10 +47,10 @@ in {
     nfs-home = mkNfsMounter nfsServerMountPoint workerNodeMountPoint;
   };
   services.nfs.server.enable = true;
-  boot.supportedFilesystems = ["nfs"];
+  boot.supportedFilesystems = [ "nfs" ];
   services.rpcbind.enable = true;
   boot.initrd = {
-    supportedFilesystems = ["nfs"];
-    kernelModules = ["nfs"];
+    supportedFilesystems = [ "nfs" ];
+    kernelModules = [ "nfs" ];
   };
 }

@@ -1,31 +1,20 @@
 { tomlConf, ... }:
-{
-  config,
-  pkgs,
-  lib,
-  ...
-}:
+{ config, pkgs, lib, ... }:
 let
   tailscaleDomain = tomlConf.tailscale.domain;
-  isHeadnode = config.networking.hostName == "headnode"; # Check if the current hostname is "headnode"
-in
-{
+  isHeadnode = config.networking.hostName
+    == "headnode"; # Check if the current hostname is "headnode"
+in {
   disabledModules = [ "services/security/munge.nix" ];
-  imports = [
-    ./custom/munge.nix
-  ];
-  services.munge = {
-    enable = true;
-  };
+  imports = [ ./custom/munge.nix ];
+  services.munge = { enable = true; };
   services.slurm = {
     server.enable = isHeadnode;
     client.enable = false;
     clusterName = "bigdata";
     controlMachine = "headnode";
     controlAddr = "headnode.${tailscaleDomain}";
-    partitionName = [
-      "debug Nodes=ALL Default=YES MaxTime=INFINITE State=UP"
-    ];
+    partitionName = [ "debug Nodes=ALL Default=YES MaxTime=INFINITE State=UP" ];
 
     extraConfig = ''
       SlurmdTimeout=30
@@ -39,9 +28,7 @@ in
     '';
   };
 
-  environment.systemPackages = with pkgs; [
-    slurm
-  ];
+  environment.systemPackages = with pkgs; [ slurm ];
 
   systemd.services.slurm-dynamic = {
     description = "Service to add a node dynamically to slurm";
@@ -59,15 +46,10 @@ in
     wants = [ "network-online.target" ];
     wantedBy = [ "multi-user.target" ];
 
-    path = [
-      pkgs.bash
-      pkgs.slurm
-      pkgs.hostname
-      pkgs.libcgroup
-      pkgs.coreutils
-    ];
+    path = [ pkgs.bash pkgs.slurm pkgs.hostname pkgs.libcgroup pkgs.coreutils ];
     serviceConfig = {
-      ExecStart = "/bin/sh -c 'sleep 3 && ${pkgs.slurm}/bin/slurmd -Z --conf NodeAddr=$(hostname).${tailscaleDomain} --conf-server headnode.${tailscaleDomain}'";
+      ExecStart =
+        "/bin/sh -c 'sleep 3 && ${pkgs.slurm}/bin/slurmd -Z --conf NodeAddr=$(hostname).${tailscaleDomain} --conf-server headnode.${tailscaleDomain}'";
       ExecReload = "${pkgs.coreutils}/bin/kill -HUP $MAINPID";
       PIDFile = "/run/slurmd.pid";
       KillMode = "process";
@@ -79,18 +61,14 @@ in
   #slurm wants to set this to true, the iso wants it false. we have to set a priority via lib.mkForce
   programs.ssh.setXAuthLocation = lib.mkForce true;
   networking.firewall = {
-    allowedTCPPortRanges = [
-      {
-        from = 60001;
-        to = 63000;
-      }
-    ];
-    allowedUDPPortRanges = [
-      {
-        from = 60001;
-        to = 63000;
-      }
-    ];
+    allowedTCPPortRanges = [{
+      from = 60001;
+      to = 63000;
+    }];
+    allowedUDPPortRanges = [{
+      from = 60001;
+      to = 63000;
+    }];
     allowedTCPPorts = [
       6817 # slurmctld
       6818 # slurmd

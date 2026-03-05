@@ -7,9 +7,9 @@ if [ "$#" -ne 3 ]; then
 fi
 
 # Assign the command line arguments to variables
-VM_NAME=$1      # VM Name
-VMID=$2         # VMID
-ISO_PATH=$3     # Path to the uploaded ISO
+VM_NAME=$1  # VM Name
+VMID=$2     # VMID
+ISO_PATH=$3 # Path to the uploaded ISO
 NODE=deimos
 
 # Authentication and getting the ticket and CSRF token
@@ -20,10 +20,10 @@ response=$(curl -s -k -X POST "$PROXMOX_HOST/api2/json/access/ticket" \
 ticket=$(echo "$response" | jq -r '.data.ticket')
 csrf_token=$(echo "$response" | jq -r '.data.CSRFPreventionToken')
 
-MEMORY="5048"      # Memory size in MB
-CORES="2"          # Number of CPU cores
-DISK_SIZE="32G"    # Disk size (adjust as needed)
-STORAGE="local-lvm"    # Storage where the disk will be created (e.g., 'local')
+MEMORY="5048"       # Memory size in MB
+CORES="2"           # Number of CPU cores
+DISK_SIZE="32G"     # Disk size (adjust as needed)
+STORAGE="local-lvm" # Storage where the disk will be created (e.g., 'local')
 
 # Create the internal networking bridge
 echo "Creating vmbr1 for internal networking."
@@ -58,4 +58,3 @@ curl -k -X POST "$PROXMOX_HOST/api2/json/nodes/$NODE/qemu/$VMID/status/start" \
   -H "CSRFPreventionToken: $csrf_token"
 
 echo -e "\nVM $VMID ($VM_NAME) has been created and started successfully."
-

@@ -1,10 +1,5 @@
-{
-  pkgs,
-  modulesPath,
-  lib,
-  config,
-  ...
-}: let
+{ pkgs, ... }:
+let
   tomlConfig = builtins.fromTOML (builtins.readFile ../../config.toml);
   persistToDisk = pkgs.writeShellScriptBin "persist-to-disk" ''
     set -euo pipefail
@@ -52,17 +47,15 @@
   '';
 in {
   imports = [
-    (import ./services/dask-scheduler.nix {tomlConf = tomlConfig;})
-    (import ./services/jupyterhub.nix {tomlConf = tomlConfig;})
-    (import ./services/userhomes.nix {tomlConf = tomlConfig;})
+    (import ./services/dask-scheduler.nix { tomlConf = tomlConfig; })
+    (import ./services/jupyterhub.nix { tomlConf = tomlConfig; })
+    (import ./services/userhomes.nix { tomlConf = tomlConfig; })
     ./services/grafana.nix
-    (import ./services/dashboard.nix {tomlConf = tomlConfig;})
-    (import ./services/tailscale-api.nix {tomlConf = tomlConfig;})
-    (import ./services/telemetry.nix {tomlConf = tomlConfig;})
+    (import ./services/dashboard.nix { tomlConf = tomlConfig; })
+    (import ./services/tailscale-api.nix { tomlConf = tomlConfig; })
+    (import ./services/telemetry.nix { tomlConf = tomlConfig; })
   ];
-  environment.systemPackages = [
-    persistToDisk
-  ];
+  environment.systemPackages = [ persistToDisk ];
 
   networking = {
     hostName = "headnode";

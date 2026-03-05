@@ -1,11 +1,5 @@
 { tomlConf, ... }:
-{
-  config,
-  lib,
-  flake,
-  pkgs,
-  ...
-}:
+{ flake, pkgs, ... }:
 let
   enabled = tomlConf.telemetry.enabled;
 
@@ -29,8 +23,7 @@ let
         echo "finished sending periodic telemetry data."
         exit 0
   '';
-in
-{
+in {
   systemd.services.telemetry = {
     enable = enabled;
     description = "Periodically sends anonymous telemetry data to FH Aachen";
@@ -42,11 +35,7 @@ in
     after = [ "slurm-dynamic.service" ];
     wantedBy = [ "default.target" ];
 
-    path = [
-      pkgs.curl
-      pkgs.slurm
-      pkgs.jq
-    ];
+    path = [ pkgs.curl pkgs.slurm pkgs.jq ];
   };
 
   systemd.timers."telemetry" = {

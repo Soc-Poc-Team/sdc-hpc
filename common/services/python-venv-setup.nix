@@ -1,16 +1,11 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
-}: let
-  venvPath = "/opt/venv";
+{ pkgs, ... }:
+let venvPath = "/opt/venv";
 in {
   systemd.services.python-env-setup = {
     description = "ONESHOT: Installs the python venv for dask";
 
-    wantedBy = ["default.target"];
-    after = ["network.target"];
+    wantedBy = [ "default.target" ];
+    after = [ "network.target" ];
 
     # set this service as a oneshot job
     serviceConfig.Type = "oneshot";

@@ -1,11 +1,6 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
-}:
-with lib; let
-  cfg = config.services.munge;
+{ config, lib, pkgs, ... }:
+with lib;
+let cfg = config.services.munge;
 in {
   ###### interface
 
@@ -26,36 +21,29 @@ in {
   ###### implementation
 
   config = mkIf cfg.enable {
-    environment.systemPackages = [pkgs.munge];
+    environment.systemPackages = [ pkgs.munge ];
 
     users.users.munge = {
       description = "Munge daemon user";
       isSystemUser = true;
       group = "munge";
-      uid = 1400; # THIS CHANGED: this has to be the same across all nodes because we ship it with common.
+      uid =
+        1400; # THIS CHANGED: this has to be the same across all nodes because we ship it with common.
     };
 
-    users.groups.munge = {};
+    users.groups.munge = { };
 
     systemd.services.munged = {
-      wantedBy = ["multi-user.target"];
-      wants = [
-        "network-online.target"
-        "time-sync.target"
-      ];
-      after = [
-        "network-online.target"
-        "time-sync.target"
-      ];
+      wantedBy = [ "multi-user.target" ];
+      wants = [ "network-online.target" "time-sync.target" ];
+      after = [ "network-online.target" "time-sync.target" ];
 
-      path = [
-        pkgs.munge
-        pkgs.coreutils
-      ];
+      path = [ pkgs.munge pkgs.coreutils ];
 
       serviceConfig = {
         ExecStartPre = "+${pkgs.coreutils}/bin/chmod 0400 ${cfg.password}";
-        ExecStart = "${pkgs.munge}/bin/munged --foreground --key-file ${cfg.password}";
+        ExecStart =
+          "${pkgs.munge}/bin/munged --foreground --key-file ${cfg.password}";
         User = "munge";
         Group = "munge";
         StateDirectory = "munge";
