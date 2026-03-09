@@ -41,7 +41,7 @@
       in eachSystem (pkgs: treefmtEval.${pkgs.system}.config.build.wrapper);
 
       devShells.${system}.default =
-        pkgs.mkShell { packages = with pkgs; [ git qemu neovim alejandra ]; };
+        pkgs.mkShell { packages = with pkgs; [ git qemu neovim alejandra mkpasswd ]; };
 
       nixosConfigurations = {
         headnode = nixpkgs.lib.nixosSystem {
@@ -171,8 +171,8 @@
                 '';
               in {
                 virtualisation = {
-                  memorySize = 4096;
-                  cores = 4;
+                  memorySize = 8192;
+                  cores = 6;
                   useDefaultFilesystems = false;
                   diskImage = "/dev/null";
                   # useBootLoader = true;
