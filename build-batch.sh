@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# TODO: move this to a nix package and expose via devshell
 set -euo pipefail
 
 clean=false
