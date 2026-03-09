@@ -17,11 +17,7 @@
     users.groups.slurm.gid = 307;
 
     networking = {
-      useDHCP = true;
-      wireless = {
-        enable = true;
-        userControlled.enable = true;
-      };
+      useDHCP = lib.mkForce true; # networkmanager.nix sets this to false
     };
     image.baseName = lib.mkForce "workernode";
 

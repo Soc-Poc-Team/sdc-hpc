@@ -62,9 +62,10 @@ in {
   networking.enableIPv6 = false; # we want to be able to handle networking easy
   networking.firewall.enable = true;
 
-  networking.wireless.enable = enabled;
-  networking.wireless.networks."${tomlConfig.wifi.ssid}".psk =
-    "${tomlConfig.wifi.pwd}";
+  # networking.wieless alongside networkmanager is no longer supported. TODO: check NM implementation
+  # networking.wireless.enable = enabled;
+  # networking.wireless.networks."${tomlConfig.wifi.ssid}".psk =
+  #   "${tomlConfig.wifi.pwd}";
 
   services.openssh.enable = true;
   services.avahi = {

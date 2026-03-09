@@ -6,10 +6,11 @@ pkgs.python3Packages.buildPythonPackage rec {
   src = pkgs.fetchFromGitHub {
     owner = "jupyterhub";
     repo = pname;
-    #rev = version;
     rev = "refs/tags/v${version}";
     sha256 = "sha256-Dsy3kuEZQsPU7dIvVBZyw7CWY/Jipzye20kuHJDw4ok=";
   };
+
+  pyproject = true;
 
   build-system = with pkgs.python3Packages; [ setuptools wheel ];
 

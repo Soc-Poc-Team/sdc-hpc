@@ -6,7 +6,6 @@ python3Packages.buildPythonPackage rec {
   src = fetchFromGitHub {
     owner = "pandalanax";
     repo = pname;
-    #rev = version;
     rev = "2a366cdce1ada90630e6ac38e8461e508ba7106a";
     sha256 = "sha256-PuCHN2qfBghjyv2OCc57kPCRyJk4wthRSeAO9HbilLQ=";
   };

@@ -60,11 +60,6 @@ in {
 
   networking = {
     hostName = "headnode";
-    useDHCP = true;
-    wireless = {
-      enable = true;
-      userControlled.enable = true;
-    };
   };
 
   isoImage = {
