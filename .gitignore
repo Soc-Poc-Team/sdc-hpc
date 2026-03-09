@@ -7,3 +7,6 @@ munge.key
 common/debug.nix
 config.toml
 .env
+
+# Direnv
+.direnv/
