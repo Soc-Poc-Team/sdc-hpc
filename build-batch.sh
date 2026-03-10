@@ -1,11 +1,29 @@
 #!/usr/bin/env bash
-# TODO: move this to a nix package and expose via devshell
 set -euo pipefail
 
 clean=false
-if [[ ${1:-} == "--clean" ]]; then
-  clean=true
-fi
+nix_opts=()
+
+allowed_opts=(
+  --rebuild
+  --check
+  --repair
+)
+
+for arg in "$@"; do
+  case "$arg" in
+    --clean)
+      clean=true
+      ;;
+    --*)
+      for opt in "${allowed_opts[@]}"; do
+        if [[ "$arg" == "$opt" ]]; then
+          nix_opts+=("$arg")
+        fi
+      done
+      ;;
+  esac
+done
 
 targets=(
   worker
@@ -52,5 +70,6 @@ for target in "${targets[@]}"; do
   echo "Building ${target}"
   nix build ".#${target}" \
     --out-link "results/${target}" \
-    --log-format bar-with-logs
+    --log-format bar-with-logs \
+    "${nix_opts[@]}"
 done
