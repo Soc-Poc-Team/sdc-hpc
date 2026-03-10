@@ -6,7 +6,7 @@ nix_opts=()
 
 allowed_opts=(
   --rebuild
-  --check
+  --rebuild-check
   --repair
 )
 
