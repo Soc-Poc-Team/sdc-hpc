@@ -93,7 +93,7 @@ let
     ##SBATCH --chdir={{homedir}}
     #SBATCH --chdir=/homes/{{username}}
     #SBATCH --export={{keepvars}}
-    #SBATCH --get-user-env=L
+    #SBATCH --get-user-env
     #SBATCH --mem={{memory}}
 
     {% if partition  %}#SBATCH --partition={{partition}}
