@@ -1,6 +1,8 @@
 { pkgs, ... }:
-let venvPath = "/opt/venv";
-in {
+let
+  venvPath = "/opt/venv";
+in
+{
   systemd.services.python-env-setup = {
     description = "ONESHOT: Installs the python venv for dask";
 

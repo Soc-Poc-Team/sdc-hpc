@@ -1,6 +1,9 @@
-({ modulesPath, lib, ... }:
-  let tomlConfig = builtins.fromTOML (builtins.readFile ../../config.toml);
-  in {
+(
+  { modulesPath, lib, ... }:
+  let
+    tomlConfig = builtins.fromTOML (builtins.readFile ../../config.toml);
+  in
+  {
     imports = [
       (modulesPath + "/installer/cd-dvd/installation-cd-minimal.nix")
       (import ./services/mount-nfs.nix { tomlConf = tomlConfig; })
@@ -11,8 +14,7 @@
     users.users.slurm = {
       name = "slurm";
       group = "slurm";
-      uid =
-        307; # https://github.com/NixOS/nixpkgs/blob/0d6d1ce1e3bf7ee9125b42ec42706af8e62f3794/nixos/modules/misc/ids.nix#L341C15-L341C18
+      uid = 307; # https://github.com/NixOS/nixpkgs/blob/0d6d1ce1e3bf7ee9125b42ec42706af8e62f3794/nixos/modules/misc/ids.nix#L341C15-L341C18
     };
     users.groups.slurm.gid = 307;
 
@@ -29,4 +31,5 @@
       appendToMenuLabel = " Workernode";
       squashfsCompression = "zstd -Xcompression-level 6";
     };
-  })
+  }
+)

@@ -4,8 +4,8 @@ let
   tailscaleDomain = tomlConf.tailscale.domain;
   userDataDir = "/homes";
   quotedUserNames = map (u: ''"${u}"'') (builtins.attrNames tomlConf.users);
-  jupyterhubEnv = pkgs.python3.withPackages (p:
-    with p; [
+  jupyterhubEnv = pkgs.python3.withPackages (
+    p: with p; [
       jupyterhub
       jupyterlab
       batchspawner
@@ -13,47 +13,50 @@ let
       jupyter
       jupyter-core
       notebook
-    ]);
+    ]
+  );
 
   jlabKernels = pkgs.jupyter-kernel.create {
     definitions = {
-      python312Kernel = (let
-        env = pkgs.python312.withPackages (p:
-          with p; [
-            ipykernel
-            dask-gateway
-            numpy
-            scipy
-            pandas
-            dask
-            pip
-            distributed
-            torch
-            torchvision
-            # tensorflow #error: tensorflow-2.13.0 not supported for interpreter python3.12
-            # keras #error: tensorflow-2.13.0 not supported for interpreter python3.12
-            #matplotlib
-            scikit-learn
-            skorch
-            plotly
-            pyarrow
-            beautifulsoup4
-          ]);
-      in {
-        displayName = "Python 3.12";
-        argv = [
-          "${env.interpreter}"
-          "-m"
-          "ipykernel_launcher"
-          "-f"
-          "{connection_file}"
-        ];
-        language = "python";
-        logo32 =
-          "${env}/${env.sitePackages}/ipykernel/resources/logo-32x32.png";
-        logo64 =
-          "${env}/${env.sitePackages}/ipykernel/resources/logo-64x64.png";
-      });
+      python312Kernel = (
+        let
+          env = pkgs.python312.withPackages (
+            p: with p; [
+              ipykernel
+              dask-gateway
+              numpy
+              scipy
+              pandas
+              dask
+              pip
+              distributed
+              torch
+              torchvision
+              # tensorflow #error: tensorflow-2.13.0 not supported for interpreter python3.12
+              # keras #error: tensorflow-2.13.0 not supported for interpreter python3.12
+              #matplotlib
+              scikit-learn
+              skorch
+              plotly
+              pyarrow
+              beautifulsoup4
+            ]
+          );
+        in
+        {
+          displayName = "Python 3.12";
+          argv = [
+            "${env.interpreter}"
+            "-m"
+            "ipykernel_launcher"
+            "-f"
+            "{connection_file}"
+          ];
+          language = "python";
+          logo32 = "${env}/${env.sitePackages}/ipykernel/resources/logo-32x32.png";
+          logo64 = "${env}/${env.sitePackages}/ipykernel/resources/logo-64x64.png";
+        }
+      );
     };
   };
 
@@ -67,9 +70,7 @@ let
     #c.JupyterHub.spawner_class = 'batchspawner.SlurmSpawner'
     c.JupyterHub.spawner_class = 'wrapspawner.ProfilesSpawner'
 
-    c.Authenticator.allowed_users = set(${
-      "[${builtins.concatStringsSep ", " quotedUserNames}]"
-    })
+    c.Authenticator.allowed_users = set(${"[${builtins.concatStringsSep ", " quotedUserNames}]"})
 
 
     c.Spawner.notebook_dir = '${userDataDir}/{username}'
@@ -125,9 +126,9 @@ let
 
     echo $JUPYTERHUB_SERVICE_URL
 
-    export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:${
-      pkgs.lib.makeLibraryPath [ pkgs.stdenv.cc.cc ]
-    }:${pkgs.lib.makeLibraryPath [ pkgs.zlib ]}";
+    export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:${pkgs.lib.makeLibraryPath [ pkgs.stdenv.cc.cc ]}:${
+      pkgs.lib.makeLibraryPath [ pkgs.zlib ]
+    }";
 
     export TMPDIR=/homes/{{username}}/.tmp
     export PIP_CACHE_DIR=/homes/{{username}}/.pip-cache
@@ -141,11 +142,15 @@ let
 
     """
   '';
-in {
+in
+{
   systemd.services.jupyterhub = {
     description = "Jupyterhub development server";
 
-    after = [ "network.target" "tailscale-autoconnect.service" ];
+    after = [
+      "network.target"
+      "tailscale-autoconnect.service"
+    ];
     wantedBy = [ "multi-user.target" ];
     path = with pkgs; [
       python3Packages.jupyterlab
@@ -155,24 +160,24 @@ in {
     ];
 
     environment = {
-      LD_LIBRARY_PATH =
-        "$LD_LIBRARY_PATH:${pkgs.lib.makeLibraryPath [ pkgs.stdenv.cc.cc ]}";
+      LD_LIBRARY_PATH = "$LD_LIBRARY_PATH:${pkgs.lib.makeLibraryPath [ pkgs.stdenv.cc.cc ]}";
     };
     serviceConfig = {
       Restart = "always";
-      ExecStart =
-        "${jupyterhubEnv}/bin/jupyterhub --config ${jupyterhubConfig}";
+      ExecStart = "${jupyterhubEnv}/bin/jupyterhub --config ${jupyterhubConfig}";
       User = "root";
       StateDirectory = "jupyterhub";
       WorkingDirectory = "/var/lib/jupyterhub";
-      Environment =
-        "PATH=${jupyterhubEnv}/bin:/run/current-system/sw/bin/:$PATH";
+      Environment = "PATH=${jupyterhubEnv}/bin:/run/current-system/sw/bin/:$PATH";
     };
   };
 
   time.timeZone = "Europe/Amsterdam";
 
   networking.firewall = {
-    allowedTCPPorts = [ config.services.jupyterhub.port 8081 ];
+    allowedTCPPorts = [
+      config.services.jupyterhub.port
+      8081
+    ];
   };
 }

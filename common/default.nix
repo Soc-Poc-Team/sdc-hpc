@@ -1,20 +1,22 @@
 { pkgs, config, ... }:
 let
   tomlConfig = builtins.fromTOML (builtins.readFile ../config.toml);
-  enabled = tomlConfig.wifi.enabled;
 
   # Map the users into the required Nix user structure
   nixUsers = builtins.mapAttrs (userName: userData: {
     isNormalUser = true;
-    extraGroups = [ "wheel" "smalldatacluster" ];
+    extraGroups = [
+      "wheel"
+      "smalldatacluster"
+    ];
     home = "/homes/${userName}";
     createHome = true;
     hashedPassword = userData.passwordHash;
     uid = userData.uid;
   }) tomlConfig.users;
 
-  jupyterhubEnv = pkgs.python3.withPackages (p:
-    with p; [
+  jupyterhubEnv = pkgs.python3.withPackages (
+    p: with p; [
       jupyterhub
       jupyterlab
       batchspawner
@@ -22,8 +24,10 @@ let
       jupyter
       jupyter-core
       notebook
-    ]);
-in {
+    ]
+  );
+in
+{
   imports = [
     (import ./services/dask-worker.nix { tomlConf = tomlConfig; })
     (import ./services/slurm.nix { tomlConf = tomlConfig; })
@@ -31,7 +35,10 @@ in {
     (import ./services/tailscale.nix { tomlConf = tomlConfig; })
   ];
 
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+  nix.settings.experimental-features = [
+    "nix-command"
+    "flakes"
+  ];
 
   environment.systemPackages = with pkgs; [
     git
@@ -55,7 +62,9 @@ in {
   users = {
     defaultUserShell = pkgs.bashInteractive;
     mutableUsers = false;
-    groups = { smalldatacluster = { }; };
+    groups = {
+      smalldatacluster = { };
+    };
     users = nixUsers;
   };
 

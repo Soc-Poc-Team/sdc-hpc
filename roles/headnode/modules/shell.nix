@@ -1,4 +1,6 @@
-{ pkgs ? import <nixpkgs> { } }:
+{
+  pkgs ? import <nixpkgs> { },
+}:
 ### TESTING THE BUILDING OF PACKAGE
 # Create a Python environment where the `wrapspawner` package will be installed
 pkgs.mkShell {
@@ -7,8 +9,7 @@ pkgs.mkShell {
     python3Packages.virtualenv
     python3Packages.batchspawner
     python3Packages.pip
-    (pkgs.python3Packages.callPackage ./wrapspawner/wrapspawner.nix
-      { }) # Your custom package
+    (pkgs.python3Packages.callPackage ./wrapspawner/wrapspawner.nix { }) # Your custom package
   ];
 
   shellHook = ''

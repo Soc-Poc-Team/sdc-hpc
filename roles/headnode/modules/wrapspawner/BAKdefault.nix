@@ -12,7 +12,10 @@ pkgs.python3Packages.buildPythonPackage rec {
 
   pyproject = true;
 
-  build-system = with pkgs.python3Packages; [ setuptools wheel ];
+  build-system = with pkgs.python3Packages; [
+    setuptools
+    wheel
+  ];
 
   dependencies = with pkgs.python3Packages; [
     jupyterhub

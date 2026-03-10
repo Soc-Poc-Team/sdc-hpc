@@ -42,7 +42,8 @@ let
 
   nfsServerMountPoint = "headnode.${tailscaleDomain}:/homes";
   workerNodeMountPoint = "/homes";
-in {
+in
+{
   systemd.services = {
     nfs-home = mkNfsMounter nfsServerMountPoint workerNodeMountPoint;
   };

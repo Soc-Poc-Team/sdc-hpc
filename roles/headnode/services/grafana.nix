@@ -286,12 +286,16 @@ let
     doCheck = false;
 
   });
-in {
+in
+{
   systemd.services.slurm-exporter = {
     description = "Slurm Prometheus Exporter";
     wantedBy = [ "multi-user.target" ];
     after = [ "slurm-dynamic.service" ];
-    path = [ pkgs.slurm pkgs.coreutils ];
+    path = [
+      pkgs.slurm
+      pkgs.coreutils
+    ];
     serviceConfig = {
       ExecStart = "${prometheusSlurmExporter}/bin/prometheus-slurm-exporter";
       Restart = "always";
@@ -329,10 +333,12 @@ in {
         ];
       };
       dashboards.settings = {
-        providers = [{
-          name = "headnode control";
-          options.path = ourDashboard2;
-        }];
+        providers = [
+          {
+            name = "headnode control";
+            options.path = ourDashboard2;
+          }
+        ];
       };
     };
   };
@@ -349,17 +355,17 @@ in {
     scrapeConfigs = [
       {
         job_name = "headnode";
-        static_configs = [{
-          targets = [
-            "127.0.0.1:${
-              toString config.services.prometheus.exporters.node.port
-            }"
-          ];
-        }];
+        static_configs = [
+          {
+            targets = [
+              "127.0.0.1:${toString config.services.prometheus.exporters.node.port}"
+            ];
+          }
+        ];
       }
       {
         job_name = "SlurmExporter";
-        static_configs = [{ targets = [ "127.0.0.1:8080" ]; }];
+        static_configs = [ { targets = [ "127.0.0.1:8080" ]; } ];
       }
     ];
   };
@@ -406,14 +412,16 @@ in {
         delete_request_store = "filesystem";
       };
 
-      schema_config.configs = [{
-        from = "2020-11-08";
-        store = "tsdb";
-        object_store = "filesystem";
-        schema = "v13";
-        index.prefix = "index_";
-        index.period = "24h";
-      }];
+      schema_config.configs = [
+        {
+          from = "2020-11-08";
+          store = "tsdb";
+          object_store = "filesystem";
+          schema = "v13";
+          index.prefix = "index_";
+          index.period = "24h";
+        }
+      ];
 
       query_range.cache_results = true;
       limits_config.split_queries_by_interval = "24h";
@@ -426,27 +434,32 @@ in {
         http_listen_port = 28183;
         grpc_listen_port = 0;
       };
-      clients = [{
-        url = "http://localhost:${
-            builtins.toString
-            config.services.loki.configuration.server.http_listen_port
-          }/loki/api/v1/push";
-      }];
-      positions = { filename = "/tmp/positions.yaml"; };
-      scrape_configs = [{
-        job_name = "journal";
-        journal = {
-          max_age = "12h";
-          labels = {
-            job = "systemd-journal";
-            host = "headnode";
+      clients = [
+        {
+          url = "http://localhost:${builtins.toString config.services.loki.configuration.server.http_listen_port}/loki/api/v1/push";
+        }
+      ];
+      positions = {
+        filename = "/tmp/positions.yaml";
+      };
+      scrape_configs = [
+        {
+          job_name = "journal";
+          journal = {
+            max_age = "12h";
+            labels = {
+              job = "systemd-journal";
+              host = "headnode";
+            };
           };
-        };
-        relabel_configs = [{
-          source_labels = [ "__journal__systemd_unit" ];
-          target_label = "unit";
-        }];
-      }];
+          relabel_configs = [
+            {
+              source_labels = [ "__journal__systemd_unit" ];
+              target_label = "unit";
+            }
+          ];
+        }
+      ];
     };
   };
   networking.firewall = {

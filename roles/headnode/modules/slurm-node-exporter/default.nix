@@ -13,12 +13,10 @@ pkgs.buildGoModule rec {
   vendorHash = "sha256-qATQ47ztssQQEWSTXcPtUZnssYFtSCvh5AnldcmgO+M=";
 
   dependencies = with pkgs; [ swig ];
-  buildInputs = with pkgs;
-    [
-      swig # Ensure swig is available during the build process
-    ];
-  nativeBuildInputs = with pkgs;
-    [
-      swig # Ensure swig is available during the build process
-    ];
+  buildInputs = with pkgs; [
+    swig # Ensure swig is available during the build process
+  ];
+  nativeBuildInputs = with pkgs; [
+    swig # Ensure swig is available during the build process
+  ];
 }

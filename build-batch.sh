@@ -3,7 +3,7 @@
 set -euo pipefail
 
 clean=false
-if [[ "${1:-}" == "--clean" ]]; then
+if [[ ${1:-} == "--clean" ]]; then
   clean=true
 fi
 
@@ -25,18 +25,18 @@ if $clean; then
     read -r -p "[a/b/c]: " choice
 
     case "$choice" in
-      a) ;;
-      b)
-        pgrep -af qemu | grep "$(realpath results)" | awk '{print $1}' | xargs -r kill
-        ;;
-      c)
-        echo "Aborting."
-        exit 1
-        ;;
-      *)
-        echo "Invalid option."
-        exit 2
-        ;;
+    a) ;;
+    b)
+      pgrep -af qemu | grep "$(realpath results)" | awk '{print $1}' | xargs -r kill
+      ;;
+    c)
+      echo "Aborting."
+      exit 1
+      ;;
+    *)
+      echo "Invalid option."
+      exit 2
+      ;;
     esac
   fi
 
