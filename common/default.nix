@@ -54,7 +54,7 @@ in
     python312Packages.pip
     virtualenv
     jupyterhubEnv
-
+    btop
     zlib
     stdenv.cc.cc
   ];
