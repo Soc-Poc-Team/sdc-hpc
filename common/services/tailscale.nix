@@ -62,8 +62,8 @@ in
 
         echo "Succesful hostname retrieval, setting $hn to hostname"
 
-        hostnamectl set-hostname --transient "$hn"
-
+        hostname $hn
+  
         ${tailscale}/bin/tailscale up --hostname=$hn
         sleep 2
 

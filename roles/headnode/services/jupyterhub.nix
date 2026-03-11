@@ -74,6 +74,8 @@ let
 
 
     c.Spawner.notebook_dir = '${userDataDir}/{username}'
+    c.Spawner.http_timeout = 300
+    c.Spawner.start_timeout = 600
 
     c.Spawner.default_url = '/lab'
 
@@ -118,7 +120,7 @@ let
     export JUPYTER_PATH=${jlabKernels}
 
     # FIXME: Dont leak secrets into logs
-    
+
     echo $JUPYTERHUB_API_TOKEN
     echo $JUPYTERHUB_API_URL
     echo $JPY_API_TOKEN
