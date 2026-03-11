@@ -74,7 +74,6 @@ let
 
 
     c.Spawner.notebook_dir = '${userDataDir}/{username}'
-    c.SlurmSpawner.notebook_dir = '${userDataDir}/{username}'
 
     c.Spawner.default_url = '/lab'
 
@@ -83,18 +82,19 @@ let
     c.SlurmSpawner.batchspawner_singleuser_cmd = '${jupyterhubEnv}/bin/.batchspawner-singleuser-wrapped'
     c.SlurmSpawner.cmd = "${jupyterhubEnv}/bin/.jupyterhub-singleuser-wrapped"
     c.ProfilesSpawner.profiles = [
-    ('Small: 1 core, 128 MB', 'slurm4c64gb1gpu', 'batchspawner.SlurmSpawner', dict(req_partition='debug', req_nprocs='1', req_runtime='1-00:00:00', req_memory='2048M')),
+    ('Small: 1 core, 128 MB', 'slurm1c128mb0gpu', 'batchspawner.SlurmSpawner', dict(req_partition='debug', req_nprocs='1', req_runtime='1-00:00:00', req_memory='128M')),
+    ('Medium: 1 core, 2048 MB', 'slurm1c2gb0gpu', 'batchspawner.SlurmSpawner', dict(req_partition='debug', req_nprocs='1', req_runtime='1-00:00:00', req_memory='2048M')),
+    ('Medium+: 2 core, 2048 MB', 'slurm2c2gb0gpu', 'batchspawner.SlurmSpawner', dict(req_partition='debug', req_nprocs='2', req_runtime='1-00:00:00', req_memory='2048M')),
     ]
 
     c.SlurmSpawner.batch_script = """#!/usr/bin/env bash
 
     #SBATCH --output={{homedir}}/jupyterhub_slurmspawner_%j.log
     #SBATCH --job-name=spawner-jupyterhub
-    ##SBATCH --chdir={{homedir}}
+    ##SBATCH --chdir={{homedir}} # FIXME: Why is this commented out and hardcoded below instead?
     #SBATCH --chdir=/homes/{{username}}
     #SBATCH --export={{keepvars}}
     #SBATCH --get-user-env
-    #SBATCH --mem={{memory}}
 
     {% if partition  %}#SBATCH --partition={{partition}}
     {% endif %}{% if runtime    %}#SBATCH --time={{runtime}}
@@ -103,6 +103,8 @@ let
     {% endif %}{% if nprocs     %}#SBATCH --cpus-per-task={{nprocs}}
     {% endif %}{% if reservation%}#SBATCH --reservation={{reservation}}
     {% endif %}{% if options    %}#SBATCH {{options}}{% endif %}
+
+    # Why are we exporting the env here, if we already have the --export={{keepvars}}
 
     export JUPYTERHUB_API_TOKEN=$JUPYTERHUB_API_TOKEN
     export JUPYTERHUB_API_URL=$JUPYTERHUB_API_URL
@@ -115,6 +117,8 @@ let
 
     export JUPYTER_PATH=${jlabKernels}
 
+    # FIXME: Dont leak secrets into logs
+    
     echo $JUPYTERHUB_API_TOKEN
     echo $JUPYTERHUB_API_URL
     echo $JPY_API_TOKEN
@@ -131,6 +135,7 @@ let
     }";
 
     export TMPDIR=/homes/{{username}}/.tmp
+    mkdir -p "$TMPDIR"
     export PIP_CACHE_DIR=/homes/{{username}}/.pip-cache
 
     set -euo pipefail
