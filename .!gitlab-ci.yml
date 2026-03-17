@@ -1,3 +1,10 @@
+#
+# This pipeline is disabled.
+# See
+# - https://git.fh-aachen.de/bigdata/cape-canaveral/small-data-cluster/-/merge_requests/7
+# - https://git.fh-aachen.de/bigdata/cape-canaveral/small-data-cluster/-/issues/76
+#
+
 stages: # List of stages for jobs, and their order of execution
   - dependencies
   - build
