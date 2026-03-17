@@ -1,38 +1,47 @@
 {
   description = "Minimal NixOS installation media";
   nixConfig = {
-    extra-substituters = [
-      "https://nix-community.cachix.org"
-    ];
+    extra-substituters = [ "https://nix-community.cachix.org" ];
     extra-trusted-public-keys = [
       "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
     ];
   };
 
-  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.05";
-  inputs.disko.url = "github:nix-community/disko/latest";
-  inputs.disko.inputs.nixpkgs.follows = "nixpkgs";
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.05";
+    disko = {
+      url = "github:nix-community/disko/latest";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    treefmt-nix = {
+      url = "github:numtide/treefmt-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
-  outputs =
-    {
-      self,
-      nixpkgs,
-      disko,
-      ...
-    }@inputs:
+    systems.url = "github:nix-systems/default";
+
+  };
+
+  outputs = { self, nixpkgs, disko, systems, treefmt-nix, ... }:
     let
       system = "x86_64-linux";
       pkgs = nixpkgs.legacyPackages.${system};
-    in
-    {
-      devShells.${system}.default = pkgs.mkShell {
-        packages = with pkgs; [
-          git
-          qemu
-          neovim
-          alejandra
-        ];
-      };
+    in {
+
+      # for `nix fmt`
+      formatter = let
+        # Small tool to iterate over each systems
+        eachSystem = f:
+          nixpkgs.lib.genAttrs (import systems)
+          (system: f nixpkgs.legacyPackages.${system});
+
+        # Eval the treefmt modules from ./treefmt.nix
+        treefmtEval =
+          eachSystem (pkgs: treefmt-nix.lib.evalModule pkgs ./treefmt.nix);
+      in eachSystem (pkgs: treefmtEval.${pkgs.system}.config.build.wrapper);
+
+      devShells.${system}.default =
+        pkgs.mkShell { packages = with pkgs; [ git qemu neovim alejandra ]; };
 
       nixosConfigurations = {
         headnode = nixpkgs.lib.nixosSystem {
@@ -40,21 +49,14 @@
           modules = [
             ./common
             ./roles/headnode/headnode-configuration.nix
-            {
-              config._module.args = {
-                flake = self;
-              };
-            }
+            { config._module.args = { flake = self; }; }
             disko.nixosModules.disko
-            (
-              { modulesPath, ... }:
-              {
-                imports = [
-                  (modulesPath + "/installer/scan/not-detected.nix")
-                  (modulesPath + "/profiles/all-hardware.nix")
-                ];
-              }
-            )
+            ({ modulesPath, ... }: {
+              imports = [
+                (modulesPath + "/installer/scan/not-detected.nix")
+                (modulesPath + "/profiles/all-hardware.nix")
+              ];
+            })
             {
               boot.loader.systemd-boot.enable = true;
               boot.loader.efi.canTouchEfiVariables = true;
@@ -113,10 +115,8 @@
 
         workernode = nixpkgs.lib.nixosSystem {
           system = "x86_64-linux";
-          modules = [
-            ./common
-            ./roles/workernode/workernode-configuration.nix
-          ];
+          modules =
+            [ ./common ./roles/workernode/workernode-configuration.nix ];
         };
       };
       packages.x86_64-linux = rec {
@@ -129,19 +129,12 @@
           modules = [
             ./common
             ./roles/headnode/headnode-configuration.nix
-            {
-              config._module.args = {
-                flake = self;
-              };
-            }
-            (
-              { modulesPath, ... }:
-              {
-                imports = [
-                  (modulesPath + "/installer/cd-dvd/installation-cd-minimal.nix")
-                ];
-              }
-            )
+            { config._module.args = { flake = self; }; }
+            ({ modulesPath, ... }: {
+              imports = [
+                (modulesPath + "/installer/cd-dvd/installation-cd-minimal.nix")
+              ];
+            })
             {
               boot.kernelParams = [ "copytoram" ];
               image.baseName = nixpkgs.lib.mkForce "headnode";
@@ -152,12 +145,11 @@
                 # isoName = nixpkgs.lib.mkForce "headnode.iso";
                 appendToMenuLabel = " Headnode";
                 squashfsCompression = "zstd -Xcompression-level 6";
-                contents = [
-                  {
-                    source = ./.; # mount the whole repo inside the iso for disko install with grub
-                    target = "/repo/small-data-cluster";
-                  }
-                ];
+                contents = [{
+                  source =
+                    ./.; # mount the whole repo inside the iso for disko install with grub
+                  target = "/repo/small-data-cluster";
+                }];
               };
             }
           ];
@@ -167,152 +159,124 @@
           modules = [
             ./common
             ./roles/workernode/workernode-configuration.nix
-            (
-              { config, ... }:
-              {
-                networking.hostName = "";
-              }
-            )
+            ({ ... }: { networking.hostName = ""; })
           ];
         };
 
-        vm_headnode =
-          (nixpkgs.lib.nixosSystem {
-            inherit system;
-            modules = [
-              ./common
-              ./roles/headnode/headnode-configuration.nix
-              (nixpkgs + "/nixos/modules/virtualisation/qemu-vm.nix")
-              (nixpkgs + "/nixos/modules/profiles/qemu-guest.nix")
-              (
-                {
-                  config,
-                  pkgs,
-                  ...
-                }:
-                let
-                  isoimage = pkgs.runCommandLocal "headnode.iso" { } ''
-                    set -Eeuf -o pipefail
-                    set -x
-                    headnode=${self.outputs.packages.x86_64-linux.default}/iso/headnode.iso
-                    if [ "${toString config.isoImage.compressImage}" ]; then
-                      ${pkgs.zstd}/bin/zstd --decompress --keep --stdout "''${headnode}.zst" > $out
-                    else
-                      ln -s "$headnode" $out
-                    fi
-                  '';
-                in
-                {
-                  virtualisation = {
-                    memorySize = 4096;
-                    cores = 4;
-                    useDefaultFilesystems = false;
-                    diskImage = "/dev/null";
-                    # useBootLoader = true;
-                    graphics = false;
-                    fileSystems."/" = {
-                      fsType = "tmpfs";
-                      options = [ "mode=0755" ];
-                    };
-                    forwardPorts = [
-                      {
-                        from = "host";
-                        host.port = 2222;
-                        guest.port = 22;
-                      }
-                    ];
-                    qemu = {
-                      options = [
-                      ];
-                      drives = [
-                        {
-                          file = "${isoimage}";
-                          driveExtraOpts = {
-                            media = "cdrom";
-                            format = "raw";
-                            readonly = "on";
-                          };
-                        }
-                      ];
-                    };
+        vm_headnode = (nixpkgs.lib.nixosSystem {
+          inherit system;
+          modules = [
+            ./common
+            ./roles/headnode/headnode-configuration.nix
+            (nixpkgs + "/nixos/modules/virtualisation/qemu-vm.nix")
+            (nixpkgs + "/nixos/modules/profiles/qemu-guest.nix")
+            ({ config, pkgs, ... }:
+              let
+                isoimage = pkgs.runCommandLocal "headnode.iso" { } ''
+                  set -Eeuf -o pipefail
+                  set -x
+                  headnode=${self.outputs.packages.x86_64-linux.default}/iso/headnode.iso
+                  if [ "${toString config.isoImage.compressImage}" ]; then
+                    ${pkgs.zstd}/bin/zstd --decompress --keep --stdout "''${headnode}.zst" > $out
+                  else
+                    ln -s "$headnode" $out
+                  fi
+                '';
+              in {
+                virtualisation = {
+                  memorySize = 4096;
+                  cores = 4;
+                  useDefaultFilesystems = false;
+                  diskImage = "/dev/null";
+                  # useBootLoader = true;
+                  graphics = false;
+                  fileSystems."/" = {
+                    fsType = "tmpfs";
+                    options = [ "mode=0755" ];
                   };
-                }
-              )
-            ];
-          }).config.system.build.vm;
+                  forwardPorts = [{
+                    from = "host";
+                    host.port = 2222;
+                    guest.port = 22;
+                  }];
+                  qemu = {
+                    options = [ ];
+                    drives = [{
+                      file = "${isoimage}";
+                      driveExtraOpts = {
+                        media = "cdrom";
+                        format = "raw";
+                        readonly = "on";
+                      };
+                    }];
+                  };
+                };
+              })
+          ];
+        }).config.system.build.vm;
 
-        vm_workernode =
-          (nixpkgs.lib.nixosSystem {
-            inherit system;
-            modules = [
-              ./common
-              ./roles/workernode/workernode-configuration.nix
-              (nixpkgs + "/nixos/modules/virtualisation/qemu-vm.nix")
-              (nixpkgs + "/nixos/modules/profiles/qemu-guest.nix")
-              (
-                {
-                  config,
-                  pkgs,
-                  ...
-                }:
-                let
-                  isoimage = pkgs.runCommandLocal "workernode.iso" { } ''
-                    set -Eeuf -o pipefail
-                    set -x
-                    workernode=${self.outputs.packages.x86_64-linux.worker}/iso/workernode.iso
-                    if [ "${toString config.isoImage.compressImage}" ]; then
-                      ${pkgs.zstd}/bin/zstd --decompress --keep --stdout "''${workernode}.zst" > $out
-                    else
-                      ln -s "$workernode" $out
-                    fi
-                  '';
-                in
-                {
-                  virtualisation = {
-                    memorySize = 4096;
-                    cores = 4;
-                    useDefaultFilesystems = false;
-                    #diskImage = "/dev/null";
-                    # useBootLoader = true;
-                    graphics = false;
-                    fileSystems."/" = {
-                      fsType = "tmpfs";
-                      options = [ "mode=0755" ];
-                    };
-                    forwardPorts = [
-                      {
-                        from = "host";
-                        host.port = 2223;
-                        guest.port = 22;
-                      }
-                    ];
-                    qemu = {
-                      drives = [
-                        {
-                          file = "${isoimage}";
-                          driveExtraOpts = {
-                            media = "cdrom";
-                            format = "raw";
-                            readonly = "on";
-                          };
-                        }
-                      ];
-                    };
+        vm_workernode = (nixpkgs.lib.nixosSystem {
+          inherit system;
+          modules = [
+            ./common
+            ./roles/workernode/workernode-configuration.nix
+            (nixpkgs + "/nixos/modules/virtualisation/qemu-vm.nix")
+            (nixpkgs + "/nixos/modules/profiles/qemu-guest.nix")
+            ({ config, pkgs, ... }:
+              let
+                isoimage = pkgs.runCommandLocal "workernode.iso" { } ''
+                  set -Eeuf -o pipefail
+                  set -x
+                  workernode=${self.outputs.packages.x86_64-linux.worker}/iso/workernode.iso
+                  if [ "${toString config.isoImage.compressImage}" ]; then
+                    ${pkgs.zstd}/bin/zstd --decompress --keep --stdout "''${workernode}.zst" > $out
+                  else
+                    ln -s "$workernode" $out
+                  fi
+                '';
+              in {
+                virtualisation = {
+                  memorySize = 4096;
+                  cores = 4;
+                  useDefaultFilesystems = false;
+                  #diskImage = "/dev/null";
+                  # useBootLoader = true;
+                  graphics = false;
+                  fileSystems."/" = {
+                    fsType = "tmpfs";
+                    options = [ "mode=0755" ];
                   };
-                }
-              )
-            ];
-          }).config.system.build.vm;
+                  forwardPorts = [{
+                    from = "host";
+                    host.port = 2223;
+                    guest.port = 22;
+                  }];
+                  qemu = {
+                    drives = [{
+                      file = "${isoimage}";
+                      driveExtraOpts = {
+                        media = "cdrom";
+                        format = "raw";
+                        readonly = "on";
+                      };
+                    }];
+                  };
+                };
+              })
+          ];
+        }).config.system.build.vm;
       };
       apps.x86_64-linux = {
         default = {
           type = "app";
-          program = "${self.outputs.packages.x86_64-linux.vm_headnode}/bin/run-headnode-vm";
+          program =
+            "${self.outputs.packages.x86_64-linux.vm_headnode}/bin/run-headnode-vm";
         };
 
         worker = {
           type = "app";
-          program = "${self.outputs.packages.x86_64-linux.vm_workernode}/bin/run-worker-vm";
+          program =
+            "${self.outputs.packages.x86_64-linux.vm_workernode}/bin/run-worker-vm";
         };
       };
     };

@@ -1,8 +1,4 @@
-{
-  pkgs,
-  lib,
-  ...
-}:
+{ pkgs, ... }:
 pkgs.python3Packages.buildPythonPackage rec {
   pname = "wrapspawner";
   version = "1.0.1";
@@ -15,10 +11,7 @@ pkgs.python3Packages.buildPythonPackage rec {
     sha256 = "sha256-Dsy3kuEZQsPU7dIvVBZyw7CWY/Jipzye20kuHJDw4ok=";
   };
 
-  build-system = with pkgs.python3Packages; [
-    setuptools
-    wheel
-  ];
+  build-system = with pkgs.python3Packages; [ setuptools wheel ];
 
   dependencies = with pkgs.python3Packages; [
     jupyterhub
@@ -38,5 +31,5 @@ pkgs.python3Packages.buildPythonPackage rec {
     jupyter-core
     notebook
   ];
-  pythonImportsCheck = ["wrapspawner"];
+  pythonImportsCheck = [ "wrapspawner" ];
 }

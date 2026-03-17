@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Ensure the required parameters are passed (VMID and ISO_PATH)
-if [[ -z "$1" || -z "$2" ]]; then
+if [[ -z $1 || -z $2 ]]; then
   echo "Missing required parameters. Exiting."
   echo "Usage: $0 <VMID> <ISO_PATH>"
   exit 1
@@ -31,4 +31,3 @@ echo -e "\nRebooting VM $VMID"
 curl -k -X POST "$PROXMOX_HOST/api2/json/nodes/$NODE/qemu/$VMID/status/reboot" \
   -H "Authorization: PVEAuthCookie=$ticket" \
   -H "CSRFPreventionToken: $csrf_token"
-

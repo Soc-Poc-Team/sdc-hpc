@@ -1,9 +1,7 @@
-{tomlConf, ...}: {
-  config,
-  pkgs,
-  ...
-}: let
-  website = pkgs.runCommand "website" {} ''
+{ ... }:
+{ pkgs, ... }:
+let
+  website = pkgs.runCommand "website" { } ''
     mkdir $out
     echo '<!doctype html> <html lang="en"><head>
       <meta charset="UTF-8" />
@@ -33,12 +31,10 @@ in {
     recommendedTlsSettings = true;
     virtualHosts."localhost" = {
       root = website;
-      listen = [
-        {
-          addr = "0.0.0.0";
-          port = 80;
-        }
-      ];
+      listen = [{
+        addr = "0.0.0.0";
+        port = 80;
+      }];
       locations."/" = {
         index = "index.html";
         extraConfig = ''
@@ -51,9 +47,5 @@ in {
       locations."/grafana".proxyPass = "http://localhost:2342";
     };
   };
-  networking.firewall = {
-    allowedTCPPorts = [
-      80
-    ];
-  };
+  networking.firewall = { allowedTCPPorts = [ 80 ]; };
 }

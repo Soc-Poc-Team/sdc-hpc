@@ -1,27 +1,18 @@
-{tomlConf, ...}: {
-  config,
-  lib,
-  pkgs,
-  ...
-}: let
+{ tomlConf, ... }:
+{ config, ... }:
+let
   userDataDir = "/homes";
 
   usersData = tomlConf.users;
 
-  tmpfilesRules =
-    builtins.mapAttrs (
-      userName: userConfig: [
-        "d ${userDataDir}/${userName}/.tmp 0755 ${userName} smalldatacluster"
-        "d ${userDataDir}/${userName}/.pip-cache 0755 ${userName} smalldatacluster"
-      ]
-    )
-    usersData;
+  tmpfilesRules = builtins.mapAttrs (userName: _userConfig: [
+    "d ${userDataDir}/${userName}/.tmp 0755 ${userName} smalldatacluster"
+    "d ${userDataDir}/${userName}/.pip-cache 0755 ${userName} smalldatacluster"
+  ]) usersData;
 in {
   systemd.tmpfiles.rules =
     builtins.concatLists (builtins.attrValues tmpfilesRules)
-    ++ [
-      "d ${userDataDir} 0755 root root"
-    ];
+    ++ [ "d ${userDataDir} 0755 root root" ];
 
   services.nfs.server = {
     enable = true;
@@ -41,9 +32,6 @@ in {
       config.services.nfs.server.lockdPort
       config.services.nfs.server.mountdPort
     ];
-    allowedUDPPorts = [
-      111
-      2049
-    ];
+    allowedUDPPorts = [ 111 2049 ];
   };
 }

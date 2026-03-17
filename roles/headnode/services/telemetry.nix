@@ -1,10 +1,6 @@
-{tomlConf, ...}: {
-  config,
-  lib,
-  flake,
-  pkgs,
-  ...
-}: let
+{ tomlConf, ... }:
+{ flake, pkgs, ... }:
+let
   enabled = tomlConf.telemetry.enabled;
 
   telemetryScript = pkgs.writeShellScriptBin "telemetry" ''
@@ -36,14 +32,14 @@ in {
       Type = "simple";
       ExecStart = "${telemetryScript}/bin/telemetry";
     };
-    after = ["slurm-dynamic.service"];
-    wantedBy = ["default.target"];
+    after = [ "slurm-dynamic.service" ];
+    wantedBy = [ "default.target" ];
 
-    path = [pkgs.curl pkgs.slurm pkgs.jq];
+    path = [ pkgs.curl pkgs.slurm pkgs.jq ];
   };
 
   systemd.timers."telemetry" = {
-    wantedBy = ["timers.target"];
+    wantedBy = [ "timers.target" ];
     timerConfig = {
       OnBootSec = "1m";
       OnUnitActiveSec = "1m";
