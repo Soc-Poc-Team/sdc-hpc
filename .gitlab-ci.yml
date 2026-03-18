@@ -5,10 +5,8 @@ variables:
 treefmt:
   stage: check
   timeout: 1h
-  variables:
-    RUNNER_SCRIPT_TIMEOUT: 1h
   tags:
     - bigdatalab-kubernetes
   image: nixos/nix
   script:
-    - nix --extra-experimental-features "nix-command flakes" fmt -- -vv --fail-on-change
+    - nix --extra-experimental-features "nix-command flakes" fmt -- --fail-on-change
