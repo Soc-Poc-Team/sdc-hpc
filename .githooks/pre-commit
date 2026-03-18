@@ -1,2 +1,2 @@
-#!/nix/store/2hjsch59amjs3nbgh7ahcfzm2bfwl8zi-bash-5.3p9/bin/bash
+#!/usr/bin/env bash
 nix fmt
