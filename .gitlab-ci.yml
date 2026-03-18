@@ -2,7 +2,6 @@ stages:
   - check
 variables:
   NIX_BUILD_SHELL: "/bin/bash"
-
 treefmt:
   stage: check
   timeout: 1h
@@ -12,4 +11,4 @@ treefmt:
     - bigdatalab-kubernetes
   image: nixos/nix
   script:
-    - echo "Hello, World! from $(hostname)"
+    - nix fmt -- -vv --fail-on-change
