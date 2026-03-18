@@ -11,4 +11,4 @@ treefmt:
     - bigdatalab-kubernetes
   image: nixos/nix
   script:
-    - nix fmt -- -vv --fail-on-change
+    - nix --extra-experimental-features "nix-command flakes" fmt -- -vv --fail-on-change
