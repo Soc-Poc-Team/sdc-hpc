@@ -1,0 +1,15 @@
+stages:
+  - check
+variables:
+  NIX_BUILD_SHELL: "/bin/bash"
+
+treefmt:
+  stage: check
+  timeout: 1h
+  variables:
+    RUNNER_SCRIPT_TIMEOUT: 1h
+  tags:
+    - bigdatalab-kubernetes
+  image: nixos/nix
+  script:
+    - echo "Hello, World! from $(hostname)"
