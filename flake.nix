@@ -39,29 +39,38 @@
     let
       system = "x86_64-linux";
       pkgs = nixpkgs.legacyPackages.${system};
-
+      inherit (import ./utils/recursive-merge.nix) recursiveMerge;
       mkBase =
-        role:
-        nixpkgs.lib.nixosSystem {
-          inherit system;
-          modules =
-            let
-              roleConfig =
-                if role == "worker" then
-                  ./roles/workernode/workernode-configuration.nix
-                else
-                  ./roles/headnode/headnode-configuration.nix;
-            in
-            [
-              ./common
-              roleConfig
-              {
-                config._module.args = {
-                  flake = self;
+        {
+          role,
+          extras ? { },
+        }:
+        nixpkgs.lib.nixosSystem (
+          recursiveMerge extras {
+            inherit system;
+            specialArgs = {
+              inherit sops-nix;
+            };
+            modules =
+              let
+                roles = {
+                  "worker" = ./roles/workernode/workernode-configuration.nix;
+                  "headnode" = ./roles/headnode/headnode-configuration.nix;
                 };
-              }
-            ];
-        };
+                roleConfig =
+                  if roles ? ${role} then roles.${role} else abort "Only roles 'worker' or 'headnode' are supported!";
+              in
+              [
+                ./common
+                roleConfig
+                {
+                  config._module.args = {
+                    flake = self;
+                  };
+                }
+              ];
+          }
+        );
 
     in
     {

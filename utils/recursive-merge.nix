@@ -1,4 +1,23 @@
 { }:
+#
+# This function allows merging two attSets that might contain lists without overriding
+# 
+# nix-repl> b = { ab = ["World"]; ba = 2; };
+# nix-repl> recursiveMerge a b
+# {
+#   ab = [ ... ];
+#   ba = 2;
+# }
+# nix-repl> :p recursiveMerge a b
+# {
+#   ab = [
+#     "Hello"
+#     "World"
+#   ];
+#   ba = 2;
+# }
+#
+
 let
   recursiveMerge =
     a: b:
