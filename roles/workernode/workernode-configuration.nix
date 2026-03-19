@@ -1,13 +1,13 @@
 (
   { modulesPath, lib, ... }:
   let
-    tomlConfig = builtins.fromTOML (builtins.readFile ../../config.toml);
+    userConfig = builtins.fromTOML (builtins.readFile ../../config.toml);
   in
   {
     imports = [
       (modulesPath + "/installer/cd-dvd/installation-cd-minimal.nix")
-      (import ./services/mount-nfs.nix { tomlConf = tomlConfig; })
-      (import ./services/metrics.nix { tomlConf = tomlConfig; })
+      (import ./services/mount-nfs.nix { tomlConf = userConfig; })
+      (import ./services/metrics.nix { tomlConf = userConfig; })
     ];
 
     # use a static uid as default to ensure it is the same on all nodes.. nix has reservations for this

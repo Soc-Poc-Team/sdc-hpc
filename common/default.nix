@@ -1,6 +1,6 @@
 { pkgs, config, ... }:
 let
-  tomlConfig = builtins.fromTOML (builtins.readFile ../config.toml);
+  userConfig = builtins.fromTOML (builtins.readFile ../config.toml);
 
   # Map the users into the required Nix user structure
   nixUsers = builtins.mapAttrs (userName: userData: {
@@ -13,7 +13,7 @@ let
     createHome = true;
     hashedPassword = userData.passwordHash;
     uid = userData.uid;
-  }) tomlConfig.users;
+  }) userConfig.users;
 
   jupyterhubEnv = pkgs.python3.withPackages (
     p: with p; [
@@ -29,10 +29,10 @@ let
 in
 {
   imports = [
-    (import ./services/dask-worker.nix { tomlConf = tomlConfig; })
-    (import ./services/slurm.nix { tomlConf = tomlConfig; })
+    (import ./services/dask-worker.nix { tomlConf = userConfig; })
+    (import ./services/slurm.nix { tomlConf = userConfig; })
     ./services/python-venv-setup.nix
-    (import ./services/tailscale.nix { tomlConf = tomlConfig; })
+    (import ./services/tailscale.nix { tomlConf = userConfig; })
   ];
 
   nix.settings.experimental-features = [
@@ -73,8 +73,8 @@ in
 
   # networking.wieless alongside networkmanager is no longer supported. TODO: check NM implementation
   # networking.wireless.enable = enabled;
-  # networking.wireless.networks."${tomlConfig.wifi.ssid}".psk =
-  #   "${tomlConfig.wifi.pwd}";
+  # networking.wireless.networks."${userConfig.wifi.ssid}".psk =
+  #   "${userConfig.wifi.pwd}";
 
   services.openssh.enable = true;
   services.avahi = {
