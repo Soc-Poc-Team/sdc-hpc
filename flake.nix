@@ -55,6 +55,7 @@
           neovim
           alejandra
           mkpasswd
+          sops
         ];
       };
 
