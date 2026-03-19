@@ -1,4 +1,4 @@
-{ pkgs, config, ... }:
+{ pkgs, config, sops-nix, ... }:
 let
   userConfig = builtins.fromTOML (builtins.readFile ../config.toml);
 
@@ -33,6 +33,7 @@ in
     (import ./services/slurm.nix { tomlConf = userConfig; })
     ./services/python-venv-setup.nix
     (import ./services/tailscale.nix { tomlConf = userConfig; })
+    sops-nix.nixosModules.sops # import sops module for all hosts
   ];
 
   nix.settings.experimental-features = [

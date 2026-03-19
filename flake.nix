@@ -17,6 +17,10 @@
       url = "github:numtide/treefmt-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    sops-nix = {
+      url = "github:Mic92/sops-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     systems.url = "github:nix-systems/default";
 
@@ -29,11 +33,36 @@
       disko,
       systems,
       treefmt-nix,
+      sops-nix,
       ...
     }:
     let
       system = "x86_64-linux";
       pkgs = nixpkgs.legacyPackages.${system};
+
+      mkBase =
+        role:
+        nixpkgs.lib.nixosSystem {
+          inherit system;
+          modules =
+            let
+              roleConfig =
+                if role == "worker" then
+                  ./roles/workernode/workernode-configuration.nix
+                else
+                  ./roles/headnode/headnode-configuration.nix;
+            in
+            [
+              ./common
+              roleConfig
+              {
+                config._module.args = {
+                  flake = self;
+                };
+              }
+            ];
+        };
+
     in
     {
 
@@ -56,6 +85,7 @@
           alejandra
           mkpasswd
           sops
+          age
         ];
       };
 
