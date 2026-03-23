@@ -2,10 +2,10 @@
   pkgs,
   config,
   sops-nix,
+  userConfig,
   ...
 }:
 let
-  userConfig = builtins.fromTOML (builtins.readFile ../config.toml);
 
   # Map the users into the required Nix user structure
   nixUsers = builtins.mapAttrs (userName: userData: {

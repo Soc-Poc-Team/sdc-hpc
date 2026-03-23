@@ -40,12 +40,13 @@
       system = "x86_64-linux";
       pkgs = nixpkgs.legacyPackages.${system};
       inherit (import ./utils/recursive-merge.nix) recursiveMerge;
+      userConfig = builtins.fromTOML (builtins.readFile ./config.toml);
       mkBase =
         role: modules:
         nixpkgs.lib.nixosSystem ({
           inherit system;
           specialArgs = {
-            inherit sops-nix;
+            inherit sops-nix userConfig;
           };
           modules =
             let
