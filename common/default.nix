@@ -1,7 +1,7 @@
 {
   pkgs,
   config,
-  # sops-nix,
+  sops-nix,
   ...
 }:
 let
@@ -38,7 +38,7 @@ in
     (import ./services/slurm.nix { tomlConf = userConfig; })
     ./services/python-venv-setup.nix
     (import ./services/tailscale.nix { tomlConf = userConfig; })
-    # sops-nix.nixosModules.sops # import sops module for all hosts
+    sops-nix.nixosModules.sops # import sops module for all hosts
   ];
 
   nix.settings.experimental-features = [
