@@ -1,0 +1,7 @@
+keys:
+  - &bentzin age19t4uxzk4jqragg3y4f8aark03ux47n7rkd5a07xx56tuqrz4d4hs3qhc8q
+creation_rules:
+  - path_regex: secrets(/|\\)develop\.json$
+    key_groups:
+    - age:
+      - *bentzin

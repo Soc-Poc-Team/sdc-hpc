@@ -41,7 +41,6 @@
       pkgs = nixpkgs.legacyPackages.${system};
       inherit (import ./utils/recursive-merge.nix) recursiveMerge;
       inherit  (import ./utils/secrets.nix) userConfig;
-      sopsConfig = ./secrets/bentzin.json;
       mkBase =
         role: modules:
         nixpkgs.lib.nixosSystem ({
