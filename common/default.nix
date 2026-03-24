@@ -66,7 +66,7 @@ in
   ];
 
   users = {
-    defaultUserShell = pkgs.bashInteractive;
+    defaultUserShell = pkgs.fish; # For developer convenience - may be switched back to bash later
     mutableUsers = false;
     groups = {
       smalldatacluster = { };
