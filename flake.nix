@@ -40,7 +40,7 @@
       system = "x86_64-linux";
       pkgs = nixpkgs.legacyPackages.${system};
       inherit (import ./utils/recursive-merge.nix) recursiveMerge;
-      inherit  (import ./utils/secrets.nix) userConfig;
+      userConfig = builtins.fromTOML (builtins.readFile ./config.toml);
       mkBase =
         role: modules:
         nixpkgs.lib.nixosSystem ({
