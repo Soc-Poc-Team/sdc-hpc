@@ -83,17 +83,26 @@
         in
         eachSystem (pkgs: treefmtEval.${pkgs.system}.config.build.wrapper);
 
-      devShells.${system}.default = pkgs.mkShell {
-        packages = with pkgs; [
-          git
-          qemu
-          neovim
-          alejandra
-          mkpasswd
-          sops
-          age
-        ];
-      };
+      devShells.${system}.default =
+        let
+          create-secret = pkgs.callPackage ./packages/create-secret.nix { };
+
+          customPackages = [ create-secret ];
+        in
+        pkgs.mkShell {
+          packages =
+            with pkgs;
+            [
+              git
+              qemu
+              neovim
+              alejandra
+              mkpasswd
+              sops
+              age
+            ]
+            ++ customPackages;
+        };
 
       nixosConfigurations = {
         headnode = mkBase "headnode" [

@@ -7,6 +7,11 @@ writeShellScriptBin "create-secret" ''
     exit 1
   }
 
+  get_public_key() {
+    # TODO: get public key from line 2 of keys.txt or prompt user for it
+    echo "age-public-key"
+  }
+
   USER_OVERRIDE=""
   FORCE=0
 
@@ -31,6 +36,7 @@ writeShellScriptBin "create-secret" ''
   done
 
   U="''${USER_OVERRIDE:-$USER}"
+  PUBKEY="$(get_public_key)"
 
   ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
   cd "$ROOT"
@@ -39,6 +45,7 @@ writeShellScriptBin "create-secret" ''
 
   TEMPLATE="secrets/template.json"
   TARGET="secrets/$U.json"
+  SOPS_CONFIG=".sops.yaml"
 
   if [ ! -f "$TEMPLATE" ]; then
     echo "Missing $TEMPLATE"
@@ -53,7 +60,21 @@ writeShellScriptBin "create-secret" ''
   cp -f "$TEMPLATE" "$TARGET"
 
   if ! grep -q "sops:" "$TARGET" 2>/dev/null; then
-    sops -e -i "$TARGET"
+    SOPS_AGE_RECIPIENTS="$PUBKEY" sops -e -i "$TARGET"
+  fi
+
+  if [ ! -f "$SOPS_CONFIG" ]; then
+    echo "Missing $SOPS_CONFIG"
+    exit 1
+  fi
+
+  RULE="  - path_regex: secrets(/|\\\\)$U\\.json$
+    key_groups:
+      - age:
+          - $PUBKEY"
+
+  if ! grep -q "secrets(/|\\\\)$U\\.json" "$SOPS_CONFIG"; then
+    printf "\n%s\n" "$RULE" >> "$SOPS_CONFIG"
   fi
 
   sops "$TARGET"
