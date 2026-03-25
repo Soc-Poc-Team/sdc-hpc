@@ -70,7 +70,7 @@ writeShellScriptBin "create-secret" ''
     exit 1
   fi
 
-  if ! grep -q "secrets(/|\\\\)$U\\.json" "$SOPS_CONFIG"; then
+  if ! grep -F 'path_regex: secrets(/|\\)test\.json$' $SOPS_CONFIG; then
     printf '\n  - path_regex: secrets(/|\\\\)%s\\.json$\n    key_groups:\n      - age:\n          - %s\n' "$U" "$PUB_KEY" >> "$SOPS_CONFIG"
     echo "Added creation rule for $U"
   fi
