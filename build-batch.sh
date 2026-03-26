@@ -68,7 +68,7 @@ mkdir -p results
 
 for target in "${targets[@]}"; do
   echo "Building ${target}"
-  nix build ".#${target}" \
+  nix build --impure ".#${target}" \
     --out-link "results/${target}" \
     --log-format bar-with-logs \
     "${nix_opts[@]}"

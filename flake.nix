@@ -40,7 +40,9 @@
       system = "x86_64-linux";
       pkgs = nixpkgs.legacyPackages.${system};
       inherit (import ./utils/recursive-merge.nix) recursiveMerge;
-      userConfig = builtins.fromTOML (builtins.readFile ./config.toml);
+      prodConfig = builtins.fromTOML (builtins.readFile ./config.toml);
+      devConfigString =  builtins.getEnv "SDC_SECRETS";
+      userConfig = if devConfigString != "" then builtins.fromJSON devConfigString else prodConfig;
       mkBase =
         role: modules:
         nixpkgs.lib.nixosSystem ({
