@@ -39,10 +39,13 @@
     let
       system = "x86_64-linux";
       pkgs = nixpkgs.legacyPackages.${system};
-      inherit (import ./utils/recursive-merge.nix) recursiveMerge;
       prodConfig = builtins.fromTOML (builtins.readFile ./config.toml);
-      devConfigString =  builtins.getEnv "SDC_SECRETS";
-      userConfig = if devConfigString != "" then builtins.fromJSON devConfigString else prodConfig;
+      devConfigString = builtins.getEnv "SDC_SECRETS";
+      userConfig =
+        if devConfigString != "" then
+          pkgs.lib.warn "using impure SDC_SECRETS from environment" (builtins.fromJSON devConfigString)
+        else
+          prodConfig;
       mkBase =
         role: modules:
         nixpkgs.lib.nixosSystem ({
