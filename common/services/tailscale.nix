@@ -63,7 +63,7 @@ in
         echo "Succesful hostname retrieval, setting $hn to hostname"
 
         hostname $hn
-  
+
         ${tailscale}/bin/tailscale up --hostname=$hn
         sleep 2
 

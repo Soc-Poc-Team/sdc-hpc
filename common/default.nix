@@ -64,9 +64,9 @@ in
     zlib
     stdenv.cc.cc
   ];
-  
+
   programs.fish.enable = true;
-  
+
   users = {
     defaultUserShell = pkgs.fish; # For developer convenience - may be switched back to bash later
     mutableUsers = false;

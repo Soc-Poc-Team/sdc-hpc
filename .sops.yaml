@@ -4,10 +4,9 @@ keys:
 creation_rules:
   - path_regex: secrets(/|\\)bentzin\.json$
     key_groups:
-    - age:
-      - *ture
-      - *bentzin
-
+      - age:
+          - *ture
+          - *bentzin
   - path_regex: secrets(/|\\)test\.json$
     key_groups:
       - age:

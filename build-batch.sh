@@ -2,7 +2,6 @@
 set -euo pipefail
 
 clean=false
-verbose=false
 pre_opts=()
 nix_opts=()
 
@@ -14,24 +13,23 @@ allowed_opts=(
 
 for arg in "$@"; do
   case "$arg" in
-    --clean)
-      clean=true
-      ;;
-    --verbose)
-      set -o xtrace
-      verbose=true
-      ;;
-    --impure)
-      pre_opts+=("--impure")
-      impure=true # mark dev builds
-      ;;
-    --*)
-      for opt in "${allowed_opts[@]}"; do
-        if [[ "$arg" == "$opt" ]]; then
-          nix_opts+=("$arg")
-        fi
-      done
-      ;;
+  --clean)
+    clean=true
+    ;;
+  --verbose)
+    set -o xtrace
+    ;;
+  --impure)
+    pre_opts+=("--impure")
+    impure=true # mark dev builds
+    ;;
+  --*)
+    for opt in "${allowed_opts[@]}"; do
+      if [[ $arg == "$opt" ]]; then
+        nix_opts+=("$arg")
+      fi
+    done
+    ;;
   esac
 done
 
@@ -41,6 +39,10 @@ targets=(
   head
   vm_headnode
 )
+
+if $impure; then
+  echo "Building impure results!"
+fi
 
 if $clean; then
   if pgrep -af qemu | grep -q "$(realpath results)" 2>/dev/null; then
