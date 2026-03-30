@@ -38,7 +38,6 @@ in
     (import ./services/slurm.nix { tomlConf = userConfig; })
     ./services/python-venv-setup.nix
     (import ./services/tailscale.nix { tomlConf = userConfig; })
-    ./secrets.nix
     sops-nix.nixosModules.sops # import sops module for all hosts
   ];
 
