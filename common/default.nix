@@ -76,6 +76,8 @@ in
     users = nixUsers;
   };
 
+  console.keyMap = "de";
+
   networking.enableIPv6 = false; # we want to be able to handle networking easy
   networking.firewall.enable = true;
 
