@@ -2,6 +2,8 @@
 set -euo pipefail
 
 clean=false
+verbose=false
+pre_opts=()
 nix_opts=()
 
 allowed_opts=(
@@ -14,6 +16,14 @@ for arg in "$@"; do
   case "$arg" in
     --clean)
       clean=true
+      ;;
+    --verbose)
+      set -o xtrace
+      verbose=true
+      ;;
+    --impure)
+      pre_opts+=("--impure")
+      impure=true # mark dev builds
       ;;
     --*)
       for opt in "${allowed_opts[@]}"; do
@@ -68,7 +78,7 @@ mkdir -p results
 
 for target in "${targets[@]}"; do
   echo "Building ${target}"
-  nix build --impure ".#${target}" \
+  nix build "${pre_opts[@]}" ".#${target}" \
     --out-link "results/${target}" \
     --log-format bar-with-logs \
     "${nix_opts[@]}"
