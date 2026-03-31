@@ -282,7 +282,7 @@
               {
                 virtualisation = {
                   memorySize = 4096;
-                  cores = 4;
+                  cores = 6;
                   useDefaultFilesystems = false;
                   #diskImage = "/dev/null";
                   # useBootLoader = true;
@@ -291,13 +291,6 @@
                     fsType = "tmpfs";
                     options = [ "mode=0755" ];
                   };
-                  forwardPorts = [
-                    {
-                      from = "host";
-                      host.port = 2223;
-                      guest.port = 22;
-                    }
-                  ];
                   qemu = {
                     drives = [
                       {
