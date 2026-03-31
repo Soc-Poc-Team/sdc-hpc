@@ -76,7 +76,7 @@ in
     users = nixUsers;
   };
 
-  console.keyMap = "de";
+  console.keyMap = pkgs.lib.mkForce "de";
 
   networking.enableIPv6 = false; # we want to be able to handle networking easy
   networking.firewall.enable = true;
