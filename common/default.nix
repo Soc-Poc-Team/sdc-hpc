@@ -78,9 +78,14 @@ in
 
   console.keyMap = pkgs.lib.mkForce "de";
 
-  networking.enableIPv6 = false; # we want to be able to handle networking easy
-  networking.firewall.enable = true;
-
+  networking = {
+    enableIPv6 = false; # we want to be able to handle networking easy
+    firewall.enable = true;
+    dhcpcd = {
+      # See Issue #82
+      setHostname = false;
+    };
+  };
   # networking.wieless alongside networkmanager is no longer supported. TODO: check NM implementation
   # networking.wireless.enable = enabled;
   # networking.wireless.networks."${userConfig.wifi.ssid}".psk =
