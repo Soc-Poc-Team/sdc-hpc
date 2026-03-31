@@ -2,6 +2,7 @@
 set -euo pipefail
 
 clean=false
+impure=false
 pre_opts=()
 nix_opts=()
 
