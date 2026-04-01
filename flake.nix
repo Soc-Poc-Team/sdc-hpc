@@ -176,7 +176,7 @@
           }
         ];
 
-        workernode = mkBase "worker" { };
+        workernode = mkBase "worker" [ ];
       };
       packages.x86_64-linux = rec {
         default = headnode.config.system.build.isoImage;
