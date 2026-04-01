@@ -7,7 +7,7 @@
 }:
 let
   tailscaleDomain = tomlConf.tailscale.domain;
-  isHeadnode = config.networking.hostName == "headnode"; # Check if the current hostname is "headnode"
+  isHeadnode = config.networking.hostName == "headnode"; # Check if defined hostname is "headnode"
 in
 {
   disabledModules = [ "services/security/munge.nix" ];
@@ -60,6 +60,13 @@ in
       pkgs.libcgroup
       pkgs.coreutils
     ];
+
+    unitConfig = {
+      # https://www.freedesktop.org/software/systemd/man/latest/systemd.unit.html
+      # We dont add ourself to slurm if our hostname is "nixos" - failsafe
+      ConditionHost = "!nixos";
+    };
+
     serviceConfig = {
       ExecStart = "/bin/sh -c 'sleep 3 && ${pkgs.slurm}/bin/slurmd -Z --conf NodeAddr=$(hostname).${tailscaleDomain} --conf-server headnode.${tailscaleDomain}'";
       ExecReload = "${pkgs.coreutils}/bin/kill -HUP $MAINPID";
