@@ -1,0 +1,12 @@
+stages:
+  - check
+variables:
+  NIX_BUILD_SHELL: "/bin/bash"
+treefmt:
+  stage: check
+  timeout: 1h
+  tags:
+    - bigdatalab-kubernetes
+  image: nixos/nix
+  script:
+    - nix --extra-experimental-features "nix-command flakes" fmt -- --fail-on-change
