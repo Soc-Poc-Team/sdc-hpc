@@ -40,8 +40,9 @@
           eachSystem (pkgs: treefmt-nix.lib.evalModule pkgs ./treefmt.nix);
       in eachSystem (pkgs: treefmtEval.${pkgs.system}.config.build.wrapper);
 
-      devShells.${system}.default =
-        pkgs.mkShell { packages = with pkgs; [ git qemu neovim alejandra mkpasswd ]; };
+      devShells.${system}.default = pkgs.mkShell {
+        packages = with pkgs; [ git qemu neovim alejandra mkpasswd ];
+      };
 
       nixosConfigurations = {
         headnode = nixpkgs.lib.nixosSystem {
