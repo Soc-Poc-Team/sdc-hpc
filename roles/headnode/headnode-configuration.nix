@@ -45,7 +45,8 @@ let
       exit "$status"
     fi
   '';
-in {
+in
+{
   imports = [
     (modulesPath + "/installer/cd-dvd/installation-cd-minimal.nix")
     (import ./services/dask-scheduler.nix { tomlConf = userConfig; })
@@ -69,11 +70,12 @@ in {
     # isoName = nixpkgs.lib.mkForce "headnode.iso";
     appendToMenuLabel = " Headnode";
     squashfsCompression = "zstd -Xcompression-level 6";
-    contents = [{
-      source =
-        ./.; # mount the whole repo inside the iso for disko install with grub
-      target = "/repo/small-data-cluster";
-    }];
+    contents = [
+      {
+        source = ./.; # mount the whole repo inside the iso for disko install with grub
+        target = "/repo/small-data-cluster";
+      }
+    ];
   };
 
 }
