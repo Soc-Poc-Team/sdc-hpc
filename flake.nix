@@ -40,8 +40,9 @@
           eachSystem (pkgs: treefmt-nix.lib.evalModule pkgs ./treefmt.nix);
       in eachSystem (pkgs: treefmtEval.${pkgs.system}.config.build.wrapper);
 
-      devShells.${system}.default =
-        pkgs.mkShell { packages = with pkgs; [ git qemu neovim alejandra ]; };
+      devShells.${system}.default = pkgs.mkShell {
+        packages = with pkgs; [ git qemu neovim alejandra mkpasswd ];
+      };
 
       nixosConfigurations = {
         headnode = nixpkgs.lib.nixosSystem {
@@ -138,19 +139,6 @@
             {
               boot.kernelParams = [ "copytoram" ];
               image.baseName = nixpkgs.lib.mkForce "headnode";
-              isoImage = {
-                makeEfiBootable = true;
-                makeUsbBootable = true;
-                # compressImage = true; #TURN ON FOR VM TODO
-                # isoName = nixpkgs.lib.mkForce "headnode.iso";
-                appendToMenuLabel = " Headnode";
-                squashfsCompression = "zstd -Xcompression-level 6";
-                contents = [{
-                  source =
-                    ./.; # mount the whole repo inside the iso for disko install with grub
-                  target = "/repo/small-data-cluster";
-                }];
-              };
             }
           ];
         };
@@ -184,8 +172,8 @@
                 '';
               in {
                 virtualisation = {
-                  memorySize = 4096;
-                  cores = 4;
+                  memorySize = 8192;
+                  cores = 6;
                   useDefaultFilesystems = false;
                   diskImage = "/dev/null";
                   # useBootLoader = true;

@@ -1,10 +1,13 @@
 { tomlConf, ... }:
-{ flake, pkgs, ... }:
+{ pkgs,
+# flake, - disabled to get build running
+... }:
 let
   enabled = tomlConf.telemetry.enabled;
 
   telemetryScript = pkgs.writeShellScriptBin "telemetry" ''
-        IDENTIFIER=${toString flake.lastModified}
+        # IDENTIFIER={toString flake.lastModified} - disabled to get build running
+        IDENTIFIER="0";
         COMMAND=$(scontrol show nodes --json | jq --arg id "$IDENTIFIER" '{ type: "de.fh-aachen.bigdata.hpc-on-demand-telemetry", cluster: $id, nodes: (.nodes // []) | [.[] | {cores, cpu_load, free_mem: .free_mem.number, cpus, sockets, last_busy: .last_busy.number, hostname, real_memory, alloc_memory, alloc_cpus, alloc_idle_cpus, slurmd_start_time: .slurmd_start_time.number, tres, version, state, reason, reason_set_by_user, reason_changed_at}]}')
 
         if [ $? -eq 0 ]; then

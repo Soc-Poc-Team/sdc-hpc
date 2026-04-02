@@ -1,4 +1,5 @@
 result
+result-*
 
 isos/
 *.qcow2
@@ -6,3 +7,6 @@ munge.key
 common/debug.nix
 config.toml
 .env
+
+# Direnv
+.direnv/

@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, modulesPath, ... }:
 let
   tomlConfig = builtins.fromTOML (builtins.readFile ../../config.toml);
   persistToDisk = pkgs.writeShellScriptBin "persist-to-disk" ''
@@ -47,6 +47,7 @@ let
   '';
 in {
   imports = [
+    (modulesPath + "/installer/cd-dvd/installation-cd-minimal.nix")
     (import ./services/dask-scheduler.nix { tomlConf = tomlConfig; })
     (import ./services/jupyterhub.nix { tomlConf = tomlConfig; })
     (import ./services/userhomes.nix { tomlConf = tomlConfig; })
@@ -65,4 +66,19 @@ in {
       userControlled.enable = true;
     };
   };
+
+  isoImage = {
+    makeEfiBootable = true;
+    makeUsbBootable = true;
+    compressImage = false; # TURN ON FOR VM TODO
+    # isoName = nixpkgs.lib.mkForce "headnode.iso";
+    appendToMenuLabel = " Headnode";
+    squashfsCompression = "zstd -Xcompression-level 6";
+    contents = [{
+      source =
+        ./.; # mount the whole repo inside the iso for disko install with grub
+      target = "/repo/small-data-cluster";
+    }];
+  };
+
 }
