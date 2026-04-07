@@ -33,14 +33,20 @@ in
     path = [
       pkgs.curl
       pkgs.hostname
+
     ];
-    # have the job run this shell script
     script = with pkgs; ''
       # wait for tailscaled to settle
       sleep 2
 
+      if [ "$(hostname)" = "nixos" ]; then
+        echo "Running on a worker with illegal hostname - failing"
+        exit 1
+      fi
+
       # check if we are already authenticated to tailscale
       # do tailscale down to force and approve route if change
+      # TODO: is this the behavior we want?
       status="$(${tailscale}/bin/tailscale status -json | ${jq}/bin/jq -r .BackendState)"
       if [ $status = "Running" ]; then # if so, then do nothing
         exit 0
@@ -49,30 +55,6 @@ in
 
       ${tailscale}/bin/tailscale up -authkey ${authKey} --hostname=$(hostname)
       sleep 2
-
-      if [ "$(hostname)" = "nixos" ]; then
-        echo "Running on a worker, getting hostname from headnode.."
-
-        hn=$(curl -s http://headnode.${tailscaleDomain}:9100/get-hostname)
-
-        if [ -z "$hn" ]; then
-          echo "Failed to retrieve hostname from headnode."
-          exit 1
-        fi
-
-        echo "Succesful hostname retrieval, setting $hn to hostname"
-
-        hostname $hn
-
-        ${tailscale}/bin/tailscale up --hostname=$hn
-        sleep 2
-
-      else
-        echo "Running on Headnode!"
-      fi
-
-      sleep 2
-
     '';
   };
 
