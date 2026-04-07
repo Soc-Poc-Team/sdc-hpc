@@ -1,7 +1,6 @@
 { tomlConf, ... }:
 { config, pkgs, ... }:
 let
-  tailscaleDomain = tomlConf.tailscale.domain;
   authKey = tomlConf.tailscale.authKey;
 in
 {
