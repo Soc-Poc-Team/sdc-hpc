@@ -1,4 +1,5 @@
 {
+  pkgs,
   lib,
   config,
   ...
@@ -14,6 +15,25 @@ in
   };
 
   config = lib.mkIf cfg.enable {
+    # rndhn is short for randomHostname
+    systemd.services."rndhn" =
 
+      {
+        description = "Sets a random generated hostname";
+        # https://www.freedesktop.org/software/systemd/man/latest/systemd.special.html#sysinit.target
+        before = [ "sysinit.target" ];
+        # https://www.freedesktop.org/software/systemd/man/latest/systemd.special.html#local-fs.target
+        after = [ "local-fs.target" ];
+
+        unitConfig = {
+          DefaultDependencies = "no";
+        };
+        serviceConfig = {
+          Type = "oneshot";
+          ExecStart = pkgs.writeShellScriptBin "set-random-hostname.sh" ''
+            echo "Current hostname is $(hostname)"
+          '';
+        };
+      };
   };
 }
