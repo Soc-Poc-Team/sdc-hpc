@@ -8,6 +8,7 @@
       (modulesPath + "/installer/cd-dvd/installation-cd-minimal.nix")
       (import ./services/mount-nfs.nix { tomlConf = userConfig; })
       (import ./services/metrics.nix { tomlConf = userConfig; })
+      ./services/randomHostname.nix
     ];
 
     # use a static uid as default to ensure it is the same on all nodes.. nix has reservations for this
@@ -31,5 +32,7 @@
       appendToMenuLabel = " Workernode";
       squashfsCompression = "zstd -Xcompression-level 6";
     };
+
+    networking.randomHostname.enable = !userConfig.worker.allowDHCPHostname;
   }
 )
