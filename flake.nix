@@ -76,7 +76,7 @@
 
     in
     {
-
+      inherit userConfig;
       # for `nix fmt`
       formatter =
         let
