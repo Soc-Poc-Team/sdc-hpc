@@ -33,6 +33,6 @@
       squashfsCompression = "zstd -Xcompression-level 6";
     };
 
-    networking.randomHostname.enable = !userConfig.worker.allowDHCPHostname;
+    networking.randomHostname.enable = !userConfig.worker.acceptDHCPHostnames;
   }
 )

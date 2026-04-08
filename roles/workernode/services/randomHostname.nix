@@ -20,8 +20,11 @@ in
 
       {
         description = "Sets a random generated hostname";
+
         # https://www.freedesktop.org/software/systemd/man/latest/systemd.special.html#sysinit.target
         before = [ "sysinit.target" ];
+        wantedBy = [ "sysinit.target" ];
+
         # https://www.freedesktop.org/software/systemd/man/latest/systemd.special.html#local-fs.target
         after = [ "local-fs.target" ];
 
@@ -33,7 +36,9 @@ in
           ExecStart = pkgs.writeShellScriptBin "set-random-hostname.sh" ''
             echo "Current hostname is $(hostname)"
           '';
+          RemainAfterExit = "yes";
         };
+
       };
   };
 }
