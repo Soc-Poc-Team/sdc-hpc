@@ -39,7 +39,7 @@ in
       DEVICES_JSON=$(curl -s -u "$API_KEY": "$BASE_URL/tailnet/-/devices")
 
       if [[ -z "$DEVICES_JSON" ]]; then
-        echo "❌ Failed to fetch devices. Check API key and tailnet name."
+        echo "Failed to fetch devices. Check API key and tailnet name."
         exit 1
       fi
 
@@ -48,12 +48,12 @@ in
 
         DEVICE_ID=$(echo "$DEVICES_JSON" | jq -r --arg name "$TARGET_NAME.$TAILNET" '.devices[] | select(.name == $name) | .id')
         if [[ -n "$DEVICE_ID" ]]; then
-          echo "⚠️  Found device '$TARGET_NAME' with ID: $DEVICE_ID"
-          echo "🧹 Expiring device..."
+          echo "Found device '$TARGET_NAME' with ID: $DEVICE_ID"
+          echo "Expiring device..."
 
           DELETE_RESP=$(curl -X DELETE "$BASE_URL/device/$DEVICE_ID" -u "$API_KEY:")
         else
-          echo "✅ Device '$TARGET_NAME' not found — skipping."
+          echo "Device '$TARGET_NAME' not found — skipping."
         fi
       done
       echo "finished"
