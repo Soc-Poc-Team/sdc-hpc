@@ -1,6 +1,8 @@
 result
 result-*
 
+results/
+
 isos/
 *.qcow2
 munge.key
