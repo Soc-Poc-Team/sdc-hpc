@@ -19,7 +19,7 @@ in
     systemd.services."rndhn" =
 
       {
-        description = "Sets a random generated hostname";
+        description = "random hostname generation";
 
         # https://www.freedesktop.org/software/systemd/man/latest/systemd.special.html#sysinit.target
         before = [ "sysinit.target" ];
@@ -33,9 +33,11 @@ in
         };
         serviceConfig = {
           Type = "oneshot";
-          ExecStart = pkgs.writeShellScriptBin "set-random-hostname.sh" ''
-            echo "Current hostname is $(hostname)"
-          '';
+          ExecStart = lib.getExe (
+            pkgs.writeShellScriptBin "set-random-hostname.sh" ''
+              echo "Current hostname is $(hostname)"
+            ''
+          );
           RemainAfterExit = "yes";
         };
 
