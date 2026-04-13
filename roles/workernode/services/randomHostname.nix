@@ -40,8 +40,8 @@ in
             lib.getExe (
               pkgs.writeShellScriptBin "set-random-hostname.sh" ''
                 echo "Current hostname is $(${hostname})"
-                echo "Setting hostname to 'newHost'" # FIXME: remove
-                ${hostname} newHost
+                NEW_HOSTNAME=$(ip link | awk '/link\/ether/ {printf "%s ", $2}' | sed -i 's/://g' | cut c -c 1-12)
+                ${hostname} $NEW_HOSTNAME
                 echo "Updated hostname is $(${hostname})"
               ''
             );
