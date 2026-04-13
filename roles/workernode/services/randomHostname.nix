@@ -42,7 +42,7 @@ in
                 echo "Current hostname is $(${hostname})"
                 echo "Setting hostname to 'newHost'" # FIXME: remove
                 ${hostname} newHost
-                echo "Updated hostname is  ${hostname}"
+                echo "Updated hostname is $(${hostname})"
               ''
             );
           RemainAfterExit = "yes";

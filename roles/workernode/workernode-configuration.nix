@@ -21,6 +21,7 @@
 
     networking = {
       useDHCP = lib.mkForce true; # networkmanager.nix sets this to false
+      hostName = ""; # See https://git.fh-aachen.de/bigdata/cape-canaveral/small-data-cluster/-/work_items/94#note_304364
     };
     image.baseName = lib.mkForce "workernode";
 
