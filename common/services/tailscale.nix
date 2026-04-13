@@ -13,15 +13,18 @@ in
 
     # make sure tailscale is running before trying to connect to tailscale
     after = [
-      "network-online.target"
       "tailscale-headnode-tidy.service"
       "tailscaled.service"
     ];
     wants = [
-      "network-online.target"
       "tailscale-headnode-tidy.service"
       "tailscaled.service"
     ];
+
+    requires = [
+      "pre-cluster.target"
+    ];
+
     wantedBy = [ "multi-user.target" ];
     before = [
       "slurmctld.service"

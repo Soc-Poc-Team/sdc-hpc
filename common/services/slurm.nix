@@ -53,6 +53,10 @@ in
     wants = [ "network-online.target" ];
     wantedBy = [ "multi-user.target" ];
 
+    requires = [
+      "pre-cluster.target"
+    ];
+
     path = [
       pkgs.bash
       pkgs.slurm

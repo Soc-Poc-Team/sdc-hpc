@@ -63,6 +63,12 @@ in
     hostName = "headnode";
   };
 
+  systemd.targets."pre-cluster" = {
+    description = "Ready to start cluster services";
+
+    requires = [ "network-online.target" ]; # FIXME: network? disk?
+  };
+
   isoImage = {
     makeEfiBootable = true;
     makeUsbBootable = true;
