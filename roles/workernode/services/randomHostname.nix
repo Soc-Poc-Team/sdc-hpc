@@ -21,9 +21,9 @@ in
       {
         description = "random hostname generation";
 
-        # https://www.freedesktop.org/software/systemd/man/latest/systemd.special.html#sysinit.target
-        before = [ "sysinit.target" ];
-        wantedBy = [ "sysinit.target" ];
+        # https://www.freedesktop.org/software/systemd/man/latest/systemd.special.html#network-pre.target
+        before = [ "network-pre.target" ];
+        wantedBy = [ "network-pre.target" ];
 
         # https://www.freedesktop.org/software/systemd/man/latest/systemd.special.html#local-fs.target
         after = [ "local-fs.target" ];
@@ -33,11 +33,18 @@ in
         };
         serviceConfig = {
           Type = "oneshot";
-          ExecStart = lib.getExe (
-            pkgs.writeShellScriptBin "set-random-hostname.sh" ''
-              echo "Current hostname is $(hostname)"
-            ''
-          );
+          ExecStart =
+            let
+              hostname = lib.getExe (pkgs.hostname-debian);
+            in
+            lib.getExe (
+              pkgs.writeShellScriptBin "set-random-hostname.sh" ''
+                echo "Current hostname is $(${hostname})"
+                echo "Setting hostname to 'newHost'" # FIXME: remove
+                ${hostname} newHost
+                echo "Updated hostname is  ${hostname}"
+              ''
+            );
           RemainAfterExit = "yes";
         };
 
