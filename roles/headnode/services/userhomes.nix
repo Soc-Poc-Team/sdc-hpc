@@ -1,5 +1,4 @@
-{ userConfig, ... }:
-{ config, ... }:
+{ config, userConfig, ... }:
 let
   userDataDir = "/homes";
 

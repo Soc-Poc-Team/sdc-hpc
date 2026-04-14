@@ -68,6 +68,7 @@
               {
                 config._module.args = {
                   flake = self;
+                  inherit userConfig;
                 };
               }
             ]

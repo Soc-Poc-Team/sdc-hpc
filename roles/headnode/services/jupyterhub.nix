@@ -1,5 +1,9 @@
-{ userConfig, ... }:
-{ config, pkgs, ... }:
+{
+  config,
+  pkgs,
+  userConfig,
+  ...
+}:
 let
   tailscaleDomain = userConfig.tailscale.domain;
   userDataDir = "/homes";

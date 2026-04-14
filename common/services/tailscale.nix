@@ -1,5 +1,9 @@
-{ userConfig, ... }:
-{ config, pkgs, ... }:
+{
+  config,
+  pkgs,
+  userConfig,
+  ...
+}:
 let
   authKey = userConfig.tailscale.authKey;
 in

@@ -1,6 +1,6 @@
-{ userConfig, ... }:
 {
   pkgs,
+  userConfig,
   # flake, - disabled to get build running
   ...
 }:

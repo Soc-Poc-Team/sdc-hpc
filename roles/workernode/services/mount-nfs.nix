@@ -1,7 +1,6 @@
-{ userConf, ... }:
-{ pkgs, ... }:
+{ pkgs, userConfig, ... }:
 let
-  tailscaleDomain = userConf.tailscale.domain;
+  tailscaleDomain = userConfig.tailscale.domain;
   # example: mkNfsMounter nfs:/export/home /home
   #https://github.com/TUM-DSE/doctor-cluster-config/blob/5043a91af26d51fce87fa4b902cd8843671b6ea2/modules/nfs/client.nix#L14
   mkNfsMounter = nfsUrl: mountpoint: {

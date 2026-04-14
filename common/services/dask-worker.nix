@@ -1,5 +1,4 @@
-{ userConfig, ... }:
-{ pkgs, ... }:
+{ pkgs, userConfig, ... }:
 let
   venvPath = "/opt/venv";
   environment = {

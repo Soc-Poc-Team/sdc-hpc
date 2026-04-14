@@ -1,13 +1,15 @@
 (
-  { modulesPath, lib, ... }:
-  let
-    userConfig = builtins.fromTOML (builtins.readFile ../../config.toml);
-  in
+  {
+    modulesPath,
+    lib,
+    userConfig,
+    ...
+  }:
   {
     imports = [
       (modulesPath + "/installer/cd-dvd/installation-cd-minimal.nix")
-      (import ./services/mount-nfs.nix { inherit userConfig; })
-      (import ./services/metrics.nix { inherit userConfig; })
+      ./services/mount-nfs.nix
+      ./services/metrics.nix
       ./services/randomHostname.nix
     ];
 

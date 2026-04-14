@@ -1,5 +1,4 @@
-{ userConfig, ... }:
-{ pkgs, ... }:
+{ pkgs, userConfig, ... }:
 let
   apiKey = userConfig.tailscale.apiKey;
   tailscaleDomain = userConfig.tailscale.domain;
