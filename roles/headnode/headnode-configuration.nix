@@ -49,14 +49,14 @@ in
 {
   imports = [
     (modulesPath + "/installer/cd-dvd/installation-cd-minimal.nix")
-    (import ./services/dask-scheduler.nix { tomlConf = userConfig; })
-    (import ./services/jupyterhub.nix { tomlConf = userConfig; })
-    (import ./services/userhomes.nix { tomlConf = userConfig; })
+    (import ./services/dask-scheduler.nix { inherit userConfig; })
+    (import ./services/jupyterhub.nix { inherit userConfig; })
+    (import ./services/userhomes.nix { inherit userConfig; })
     ./services/grafana.nix
     ./services/slurmctld.nix
-    (import ./services/dashboard.nix { tomlConf = userConfig; })
-    (import ./services/tailscale-api.nix { tomlConf = userConfig; })
-    (import ./services/telemetry.nix { tomlConf = userConfig; })
+    (import ./services/dashboard.nix { inherit userConfig; })
+    (import ./services/tailscale-api.nix { inherit userConfig; })
+    (import ./services/telemetry.nix { inherit userConfig; })
   ];
   environment.systemPackages = [ persistToDisk ];
 

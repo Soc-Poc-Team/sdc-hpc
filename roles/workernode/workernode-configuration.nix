@@ -6,8 +6,8 @@
   {
     imports = [
       (modulesPath + "/installer/cd-dvd/installation-cd-minimal.nix")
-      (import ./services/mount-nfs.nix { tomlConf = userConfig; })
-      (import ./services/metrics.nix { tomlConf = userConfig; })
+      (import ./services/mount-nfs.nix { inherit userConfig; })
+      (import ./services/metrics.nix { inherit userConfig; })
       ./services/randomHostname.nix
     ];
 

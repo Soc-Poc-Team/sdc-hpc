@@ -1,11 +1,11 @@
-{ tomlConf, ... }:
+{ userConfig, ... }:
 {
   pkgs,
   # flake, - disabled to get build running
   ...
 }:
 let
-  enabled = tomlConf.telemetry.enabled;
+  enabled = userConfig.telemetry.enabled;
 
   telemetryScript = pkgs.writeShellScriptBin "telemetry" ''
         # IDENTIFIER={toString flake.lastModified} - disabled to get build running

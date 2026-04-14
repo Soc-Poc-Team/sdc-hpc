@@ -34,11 +34,11 @@ let
 in
 {
   imports = [
-    (import ./services/dask-worker.nix { tomlConf = userConfig; })
-    (import ./services/slurm.nix { tomlConf = userConfig; })
+    (import ./services/dask-worker.nix { inherit userConfig; })
+    (import ./services/slurm.nix { inherit userConfig; })
     ./services/python-venv-setup.nix
     ./targets/cluster.nix
-    (import ./services/tailscale.nix { tomlConf = userConfig; })
+    (import ./services/tailscale.nix { inherit userConfig; })
     sops-nix.nixosModules.sops # import sops module for all hosts
   ];
 

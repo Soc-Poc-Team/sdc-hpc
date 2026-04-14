@@ -1,7 +1,7 @@
-{ tomlConf, ... }:
+{ userConfig, ... }:
 { config, pkgs, ... }:
 let
-  authKey = tomlConf.tailscale.authKey;
+  authKey = userConfig.tailscale.authKey;
 in
 {
   services.tailscale.enable = true;

@@ -1,8 +1,8 @@
-{ tomlConf, ... }:
+{ userConfig, ... }:
 { pkgs, ... }:
 let
-  apiKey = tomlConf.tailscale.apiKey;
-  tailscaleDomain = tomlConf.tailscale.domain;
+  apiKey = userConfig.tailscale.apiKey;
+  tailscaleDomain = userConfig.tailscale.domain;
 in
 {
   systemd.services.tailscale-headnode-tidy = {

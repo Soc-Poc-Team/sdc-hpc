@@ -1,4 +1,4 @@
-{ tomlConf, ... }:
+{ userConfig, ... }:
 { pkgs, ... }:
 let
   venvPath = "/opt/venv";
@@ -7,7 +7,7 @@ let
   };
   dask_worker_port = 3000;
 
-  tailscaleDomain = tomlConf.tailscale.domain;
+  tailscaleDomain = userConfig.tailscale.domain;
 in
 {
   systemd.services.dask-worker = {

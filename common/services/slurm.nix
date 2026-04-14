@@ -1,4 +1,4 @@
-{ tomlConf, ... }:
+{ userConfig, ... }:
 {
   config,
   pkgs,
@@ -6,7 +6,7 @@
   ...
 }:
 let
-  tailscaleDomain = tomlConf.tailscale.domain;
+  tailscaleDomain = userConfig.tailscale.domain;
   isHeadnode = config.networking.hostName == "headnode"; # Check if defined hostname is "headnode"
 in
 {
