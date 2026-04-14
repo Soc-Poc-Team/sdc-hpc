@@ -39,19 +39,17 @@ in
                 pkgs.lib.makeBinPath (
                   with pkgs;
                   [
-                    iproute2
-                    gawk
                     coreutils
-                    gnused
                     hostname-debian
                   ]
                 )
               }
-
-              echo "Current hostname is $(hostname)"
-              NEW_HOSTNAME=$(ip link | awk '/link\/ether/ {printf "%s ", $2}' | sed 's/://g' | cut -c 1-12)
-              hostname "$NEW_HOSTNAME"
-              echo "Updated hostname is $(hostname)"
+              set -o pipefail
+              echo "Current hostname is  :'$(hostname)'"
+              NEW_HOSTNAME=worker-$((cat /sys/class/net/*/address | head -n 1 | tr -d ':') || exit 1)
+              echo "Updating hostname to : '$NEW_HOSTNAME'"
+              hostname "$NEW_HOSTNAME" || exit 2
+              echo "Updated hostname is  : '$(hostname)'"
             ''
           );
           RemainAfterExit = "yes";
