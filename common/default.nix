@@ -37,6 +37,7 @@ in
     (import ./services/dask-worker.nix { tomlConf = userConfig; })
     (import ./services/slurm.nix { tomlConf = userConfig; })
     ./services/python-venv-setup.nix
+    ./targets/cluster.nix
     (import ./services/tailscale.nix { tomlConf = userConfig; })
     sops-nix.nixosModules.sops # import sops module for all hosts
   ];

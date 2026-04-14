@@ -6,8 +6,8 @@ in
   systemd.services.python-env-setup = {
     description = "ONESHOT: Installs the python venv for dask";
 
-    wantedBy = [ "default.target" ];
-    after = [ "network.target" ];
+    # We can do this as soon as there is an internet connection, we dont need to wait for pre-cluster
+    requires = [ "network-online.target" ];
 
     # set this service as a oneshot job
     serviceConfig.Type = "oneshot";

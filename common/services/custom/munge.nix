@@ -40,14 +40,10 @@ in
     users.groups.munge = { };
 
     systemd.services.munged = {
-      wantedBy = [ "multi-user.target" ];
-      wants = [
-        "network-online.target"
-        "time-sync.target"
-      ];
-      after = [
-        "network-online.target"
-        "time-sync.target"
+      wantedBy = [ "cluster.target" ];
+
+      requires = [
+        "pre-cluster.target"
       ];
 
       path = [

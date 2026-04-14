@@ -12,24 +12,14 @@ in
     description = "Automatic connection to Tailscale";
 
     # make sure tailscale is running before trying to connect to tailscale
-    after = [
-      "tailscale-headnode-tidy.service"
-      "tailscaled.service"
-    ];
-    wants = [
-      "tailscale-headnode-tidy.service"
-      "tailscaled.service"
-    ];
-
     requires = [
-      "pre-cluster.target"
+      "network-online.target"
+      "tailscale-headnode-tidy.service"
+      "tailscaled.service"
     ];
 
-    wantedBy = [ "multi-user.target" ];
-    before = [
-      "slurmctld.service"
-      "slurmd.service"
-    ];
+    wantedBy = [ "pre-cluster.target" ];
+
     serviceConfig.Type = "oneshot";
 
     path = [

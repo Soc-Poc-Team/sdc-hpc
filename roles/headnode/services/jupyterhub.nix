@@ -154,11 +154,9 @@ in
   systemd.services.jupyterhub = {
     description = "Jupyterhub development server";
 
-    after = [
-      "network.target"
-      "tailscale-autoconnect.service"
-    ];
-    wantedBy = [ "multi-user.target" ];
+    requires = [ "pre-cluster.target" ];
+    requiredBy = [ "cluster.target" ];
+
     path = with pkgs; [
       python3Packages.jupyterlab
       python3Packages.jupyterhub

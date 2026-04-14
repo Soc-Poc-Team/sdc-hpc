@@ -70,10 +70,5 @@ in
 
       };
 
-    systemd.targets."pre-cluster" = {
-      description = "Ready to start cluster services";
-
-      requires = [ "rndhn.service" ];
-    };
   };
 }
