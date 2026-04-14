@@ -8,17 +8,13 @@ in
   systemd.services.tailscale-headnode-tidy = {
     description = "Before registering the headnode with tailscale, make sure the device name is free.";
 
-    # make sure tailscale is running before trying to connect to tailscale
-    after = [ "network-online.target" ];
+    # FIXME: switch to requiredby after #53 is fixed
+    wantedBy = [
+      "tailscale-autoconnect.service"
+    ];
+
     wants = [
       "wpa_supplicant.service"
-      "network-online.target"
-    ];
-    wantedBy = [ "multi-user.target" ];
-    before = [
-      "tailscale-autoconnect.service"
-      "slurmctld.service"
-      "slurmd.service"
     ];
     serviceConfig.Type = "oneshot";
 

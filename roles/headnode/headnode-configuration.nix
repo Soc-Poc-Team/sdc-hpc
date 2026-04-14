@@ -53,6 +53,7 @@ in
     (import ./services/jupyterhub.nix { tomlConf = userConfig; })
     (import ./services/userhomes.nix { tomlConf = userConfig; })
     ./services/grafana.nix
+    ./services/slurmctld.nix
     (import ./services/dashboard.nix { tomlConf = userConfig; })
     (import ./services/tailscale-api.nix { tomlConf = userConfig; })
     (import ./services/telemetry.nix { tomlConf = userConfig; })
@@ -61,12 +62,6 @@ in
 
   networking = {
     hostName = "headnode";
-  };
-
-  systemd.targets."pre-cluster" = {
-    description = "Ready to start cluster services";
-
-    requires = [ "network-online.target" ]; # FIXME: network? disk?
   };
 
   isoImage = {

@@ -14,7 +14,6 @@ in
     # make sure tailscale is running before trying to connect to tailscale
     requires = [
       "network-online.target"
-      "tailscale-headnode-tidy.service"
       "tailscaled.service"
     ];
 
