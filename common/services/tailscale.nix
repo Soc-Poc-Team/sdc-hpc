@@ -16,6 +16,11 @@ in
     description = "Automatic connection to Tailscale";
 
     # make sure tailscale is running before trying to connect to tailscale
+
+    after = [
+      "tailscaled.service"
+    ];
+
     requires = [
       "network-online.target"
       "tailscaled.service"
