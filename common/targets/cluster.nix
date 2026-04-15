@@ -20,6 +20,9 @@
       ];
 
       # TODO: maybe lets require us by default.target so boot stops if we are broken?
+      requiredBy = [
+        "default.target"
+      ];
     };
   };
 }
