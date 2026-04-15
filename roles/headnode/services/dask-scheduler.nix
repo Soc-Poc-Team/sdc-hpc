@@ -22,6 +22,11 @@ in
     serviceConfig = {
       ExecStart = "${venvPath}/bin/dask-scheduler --interface tailscale0 --dashboard-address 0.0.0.0:8787";
     };
+
+    after = [
+      "python-env-setup.service"
+    ];
+
     requires = [
       "pre-cluster.target"
       "python-env-setup.service"

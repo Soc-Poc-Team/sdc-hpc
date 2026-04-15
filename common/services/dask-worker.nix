@@ -27,9 +27,13 @@ in
       ExecStart = "${venvPath}/bin/dask-worker headnode.${tailscaleDomain}:8786 --worker-port=${toString dask_worker_port}";
     };
 
+    after = [
+      "python-env-setup.service"
+    ];
+
     requires = [
-      "pre.cluster.target"
-      "pyton-env-setup.service"
+      "pre-cluster.target"
+      "python-env-setup.service"
     ];
 
     # TODO: switch to requiredBy as soon as we start working with dask
