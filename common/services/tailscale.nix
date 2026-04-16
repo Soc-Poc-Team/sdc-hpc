@@ -1,6 +1,7 @@
 {
   config,
   pkgs,
+  lib,
   userConfig,
   ...
 }:
@@ -35,47 +36,39 @@ in
       pkgs.hostname
 
     ];
-    script = with pkgs; ''
-      # wait for tailscaled to settle
-      for i in $(seq 1 30); do
-        if ls /var/run/tailscale/tailscaled.sock >/dev/null 2>&1; then
-          break
-        fi
-        sleep 1
-      done
 
-      if ! ls /var/run/tailscale/tailscaled.sock >/dev/null 2>&1; then
-        echo "tailscaled is disfunctional - failing"
-        exit 69 # BSD Spec: Service unavailable
-      fi
+    # Exit codes follow BSD spec
+    script = ''
+      set -euo pipefail
 
-      if [ "$(hostname)" = "nixos" ]; then
-        echo "Running on a worker with illegal hostname - failing"
-        exit 68 # BSD Spec: Hostname error
-      fi
+      SOCK="/var/run/tailscale/tailscaled.sock"
+      TS="${lib.getExe pkgs.tailscale}"
+      JQ="${lib.getExe pkgs.jq}"
 
-      # check if we are already authenticated to tailscale
-      # do tailscale down to force and approve route if change
-      # TODO: is this the behavior we want?
-      status="$(${tailscale}/bin/tailscale status -json | ${jq}/bin/jq -r .BackendState)"
-      if [ $status = "Running" ]; then # if so, then do nothing
-        exit 0
-      fi
+      wait_for() {
+        for _ in $(seq 1 30); do
+          "$@" && return 0
+          sleep 1
+        done
+        return 1
+      }
 
+      fail() {
+        echo "$1"
+        exit "$2"
+      }
 
-      ${tailscale}/bin/tailscale up -authkey ${authKey} --hostname=$(hostname)
+      wait_for test -S "$SOCK" || fail "tailscaled is dysfunctional - failing" 69 # BSD Spec: Service unavailable
 
-      for i in $(seq 1 30); do
-        if ${tailscale}/bin/tailscale status >/dev/null 2>&1; then
-          break
-        fi
-        sleep 1
-      done
+      [ "$(hostname)" != "nixos" ] || fail "Running on a worker with illegal hostname - failing" 68 # BSD Spec: Hostname error
 
-      if ! ${tailscale}/bin/tailscale status >/dev/null 2>&1; then
-        echo "tailscaled failed to come up - failing"
-        exit 69 # BSD Spec: Service unavailable
-      fi
+      status="$($TS status -json | $JQ -r .BackendState || true)"
+
+      [ "$status" = "Running" ] && exit 0
+
+      $TS up -authkey "${authKey}" --hostname="$(hostname)"
+
+      wait_for "$TS" status >/dev/null 2>&1 || fail "tailscaled failed to come up - failing" 69
     '';
   };
 
