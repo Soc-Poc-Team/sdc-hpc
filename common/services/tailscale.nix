@@ -37,11 +37,21 @@ in
     ];
     script = with pkgs; ''
       # wait for tailscaled to settle
-      sleep 2
+      for i in $(seq 1 30); do
+        if ls /var/run/tailscale/tailscaled.sock >/dev/null 2>&1; then
+          break
+        fi
+        sleep 1
+      done
+
+      if ! ls /var/run/tailscale/tailscaled.sock >/dev/null 2>&1; then
+        echo "tailscaled is disfunctional - failing"
+        exit 69 # BSD Spec: Service unavailable
+      fi
 
       if [ "$(hostname)" = "nixos" ]; then
         echo "Running on a worker with illegal hostname - failing"
-        exit 1
+        exit 68 # BSD Spec: Hostname error
       fi
 
       # check if we are already authenticated to tailscale
@@ -54,7 +64,18 @@ in
 
 
       ${tailscale}/bin/tailscale up -authkey ${authKey} --hostname=$(hostname)
-      sleep 2
+
+      for i in $(seq 1 30); do
+        if ${tailscale}/bin/tailscale status >/dev/null 2>&1; then
+          break
+        fi
+        sleep 1
+      done
+
+      if ! ${tailscale}/bin/tailscale status >/dev/null 2>&1; then
+        echo "tailscaled failed to come up - failing"
+        exit 69 # BSD Spec: Service unavailable
+      fi
     '';
   };
 
