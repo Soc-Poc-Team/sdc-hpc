@@ -19,14 +19,14 @@ worker:
   image: nixos/nix
   script:
     - nix --extra-experimental-features "nix-command flakes" build .#worker
-workernode:
+vm_workernode:
   stage: build
   timeout: 1h
   tags:
     - bigdatalab-kubernetes
   image: nixos/nix
   script:
-    - nix --extra-experimental-features "nix-command flakes" build .#workernode
+    - nix --extra-experimental-features "nix-command flakes" build .#vm_workernode
 head:
   stage: build
   timeout: 1h
@@ -35,11 +35,11 @@ head:
   image: nixos/nix
   script:
     - nix --extra-experimental-features "nix-command flakes" build .#head
-headnode:
+vm_headnode:
   stage: build
   timeout: 1h
   tags:
     - bigdatalab-kubernetes
   image: nixos/nix
   script:
-    - nix --extra-experimental-features "nix-command flakes" build .#headnode
+    - nix --extra-experimental-features "nix-command flakes" build .#vm_headnode
