@@ -1,5 +1,6 @@
 stages:
   - check
+  - build
 variables:
   NIX_BUILD_SHELL: "/bin/bash"
 treefmt:
@@ -10,3 +11,35 @@ treefmt:
   image: nixos/nix
   script:
     - nix --extra-experimental-features "nix-command flakes" fmt -- --fail-on-change
+worker:
+  stage: build
+  timeout: 1h
+  tags:
+    - bigdatalab-kubernetes
+  image: nixos/nix
+  script:
+    - nix --extra-experimental-features "nix-command flakes" build .#worker
+workernode:
+  stage: build
+  timeout: 1h
+  tags:
+    - bigdatalab-kubernetes
+  image: nixos/nix
+  script:
+    - nix --extra-experimental-features "nix-command flakes" build .#workernode
+head:
+  stage: build
+  timeout: 1h
+  tags:
+    - bigdatalab-kubernetes
+  image: nixos/nix
+  script:
+    - nix --extra-experimental-features "nix-command flakes" build .#head
+headnode:
+  stage: build
+  timeout: 1h
+  tags:
+    - bigdatalab-kubernetes
+  image: nixos/nix
+  script:
+    - nix --extra-experimental-features "nix-command flakes" build .#headnode
