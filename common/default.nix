@@ -84,7 +84,7 @@ in
     firewall.enable = true;
     dhcpcd = {
       # See Issue #82
-      setHostname = false;
+      setHostname = userConfig.worker.acceptDHCPHostnames;
     };
   };
   # networking.wieless alongside networkmanager is no longer supported. TODO: check NM implementation
