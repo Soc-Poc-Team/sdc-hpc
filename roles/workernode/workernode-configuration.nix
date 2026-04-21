@@ -1,5 +1,6 @@
 (
   {
+    pkgs,
     modulesPath,
     lib,
     userConfig,
@@ -37,5 +38,32 @@
     };
 
     networking.randomHostname.enable = !userConfig.worker.acceptDHCPHostnames;
+
+    systemd.services."tailscale-autoconnect" = lib.mkIf userConfig.worker.acceptDHCPHostnames {
+      path = [
+        pkgs.hostname-debian
+      ];
+      preStart = ''
+        start=$(date +%s)
+
+        while true; do
+          out=$(hostname)
+          now=$(date +%s)
+
+          if [ "$out" != "nixos" ]; then
+            echo "hostname detected: '$out' took $((now - start))"
+            break
+          fi
+
+          if (( now - start >= 300 )); then
+            echo "Did not recieve a hostname via DHCP. Not joining cluster..."
+            echo "If you dont have DHCP configured for hostnames, set worker.acceptDCHPHostnames to false!"
+            exit 1
+          fi
+
+          sleep 5
+        done
+      '';
+    };
   }
 )

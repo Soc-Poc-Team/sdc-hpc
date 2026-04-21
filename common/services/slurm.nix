@@ -58,7 +58,7 @@ in
       pkgs.coreutils
     ];
 
-    unitConfig = {
+    unitConfig = lib.mkIf (!userConfig.worker.acceptDHCPHostnames) {
       # https://www.freedesktop.org/software/systemd/man/latest/systemd.unit.html
       # We dont add ourself to slurm if our hostname is "nixos" - failsafe
       ConditionHost = "!nixos";
