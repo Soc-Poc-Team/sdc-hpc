@@ -53,7 +53,7 @@
         if tmpConfig.worker.acceptDHCPHostnames == true then
           builtins.throw "Invalid configuration: worker.acceptDHCPHostnames must not be enabled. See https://git.fh-aachen.de/bigdata/cape-canaveral/small-data-cluster/-/work_items/94"
         else
-          null;
+          tmpConfig;
       mkBase =
         role: modules:
         nixpkgs.lib.nixosSystem ({
