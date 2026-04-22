@@ -31,26 +31,53 @@ in
       BASE_URL="https://api.tailscale.com/api/v2"
 
       echo "Fetching devices from Tailscale..."
-      DEVICES_JSON=$(curl -s -u "$API_KEY": "$BASE_URL/tailnet/-/devices")
 
-      if [[ -z "$DEVICES_JSON" ]]; then
-        echo "Failed to fetch devices. Check API key and tailnet name."
+      DEVICES_JSON=$(curl -sS -u "$API_KEY:" \
+        -w "\n%{http_code}" \
+        "$BASE_URL/tailnet/-/devices")
+
+      HTTP_BODY=$(echo "$DEVICES_JSON" | sed '$d')
+      HTTP_CODE=$(echo "$DEVICES_JSON" | tail -n1)
+
+      if [[ "$HTTP_CODE" -ne 200 ]]; then
+        echo "Failed to fetch devices. HTTP status: $HTTP_CODE"
+        exit 1
+      fi
+
+      if [[ -z "$HTTP_BODY" ]]; then
+        echo "Empty response body."
         exit 1
       fi
 
       for TARGET_NAME in "''${DEVICES_TO_REMOVE[@]}"; do
-        echo "🔍 Checking for device: $TARGET_NAME"
+        echo "Checking for device: $TARGET_NAME"
 
-        DEVICE_ID=$(echo "$DEVICES_JSON" | jq -r --arg name "$TARGET_NAME.$TAILNET" '.devices[] | select(.name == $name) | .id')
-        if [[ -n "$DEVICE_ID" ]]; then
+        DEVICE_ID=$(echo "$HTTP_BODY" | jq -r --arg name "$TARGET_NAME.$TAILNET" '.devices[] | select(.name == $name) | .id')
+
+        if [[ -n "$DEVICE_ID" && "$DEVICE_ID" != "null" ]]; then
           echo "Found device '$TARGET_NAME' with ID: $DEVICE_ID"
-          echo "Expiring device..."
+          echo "Deleting device..."
 
-          DELETE_RESP=$(curl -X DELETE "$BASE_URL/device/$DEVICE_ID" -u "$API_KEY:")
+          DELETE_RESP=$(curl -sS -u "$API_KEY:" \
+            -X DELETE \
+            -w "\n%{http_code}" \
+            "$BASE_URL/device/$DEVICE_ID")
+
+          DELETE_BODY=$(echo "$DELETE_RESP" | sed '$d')
+          DELETE_CODE=$(echo "$DELETE_RESP" | tail -n1)
+
+          if [[ "$DELETE_CODE" -ne 200 && "$DELETE_CODE" -ne 204 ]]; then
+            echo "Failed to delete device '$TARGET_NAME'. HTTP status: $DELETE_CODE"
+            echo "Response: $DELETE_BODY"
+          else
+            echo "Successfully deleted '$TARGET_NAME'"
+          fi
+
         else
           echo "Device '$TARGET_NAME' not found — skipping."
         fi
       done
+
       echo "finished"
       sleep 2
     '';
