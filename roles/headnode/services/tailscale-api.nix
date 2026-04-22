@@ -12,9 +12,14 @@ in
       "tailscale-autoconnect.service"
     ];
 
-    wants = [
-      "wpa_supplicant.service"
+    requires = [
+      "network-online.target"
     ];
+
+    after = [
+      "network-online.target"
+    ];
+
     serviceConfig.Type = "oneshot";
 
     path = [

@@ -45,9 +45,11 @@ in
       "systemd-tmpfiles-clean.service"
       "munge.service"
       "remote-fs.target"
+      "pre-cluster.target"
     ];
 
     requires = [ "pre-cluster.target" ];
+
     requiredBy = [ "cluster.target" ];
 
     path = [
@@ -57,12 +59,6 @@ in
       pkgs.libcgroup
       pkgs.coreutils
     ];
-
-    unitConfig = lib.mkIf (!userConfig.worker.acceptDHCPHostnames) {
-      # https://www.freedesktop.org/software/systemd/man/latest/systemd.unit.html
-      # We dont add ourself to slurm if our hostname is "nixos" - failsafe
-      ConditionHost = "!nixos";
-    };
 
     serviceConfig = {
       ExecStart = "/bin/sh -c 'sleep 3 && ${pkgs.slurm}/bin/slurmd -Z --conf NodeAddr=$(hostname).${tailscaleDomain} --conf-server headnode.${tailscaleDomain}'";
