@@ -1,11 +1,12 @@
-{ pkgs, ... }:
+{ pkgs, lib, ... }:
 
 {
   # Ensure tty1 is the primary console
   boot.kernelParams = [ "console=tty1" ];
 
   # Disable the default getty (login shell) on tty1 only
-  systemd.services."getty@tty1".enable = false;
+  systemd.services."getty@tty1".enable = lib.mkForce false;
+  systemd.services."autovt@tty1".enable = lib.mkForce false;
 
   # service to stream logs to tty1
   systemd.services.journal-on-tty1 = {
