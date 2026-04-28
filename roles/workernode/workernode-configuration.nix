@@ -13,6 +13,7 @@
       ./services/metrics.nix
       ./services/randomHostname.nix
       ./services/journal.nix
+      ./services/await-headnode.nix
     ];
 
     # use a static uid as default to ensure it is the same on all nodes.. nix has reservations for this

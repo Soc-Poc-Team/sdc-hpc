@@ -5,9 +5,9 @@ let
   #https://github.com/TUM-DSE/doctor-cluster-config/blob/5043a91af26d51fce87fa4b902cd8843671b6ea2/modules/nfs/client.nix#L14
   mkNfsMounter = nfsUrl: mountpoint: {
     description = "Mount ${mountpoint}";
-    after = [ "network.target" ];
     # 1. Mount nfs before making shells available to users:
-    wantedBy = [ "multi-user.target" ];
+    requiredBy = [ "pre-cluster.target" ];
+    requires = [ "awaitHeadnode.service" ]; # We need to have the headnode reachable to even try to mount nfs
     serviceConfig = {
       Type = "oneshot";
       RemainAfterExit = true;
