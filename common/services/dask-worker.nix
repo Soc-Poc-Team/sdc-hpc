@@ -29,6 +29,7 @@ in
 
     after = [
       "python-env-setup.service"
+      "pre-cluster.target"
     ];
 
     requires = [
