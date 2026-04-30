@@ -76,6 +76,10 @@
         "tailscale-autoconnect.service"
       ];
 
+      before = [
+        "tailscale-autoconnect.service"
+      ];
+
       requires = [
         "network-online.target"
       ];

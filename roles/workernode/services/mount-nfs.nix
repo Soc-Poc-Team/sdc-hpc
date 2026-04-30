@@ -8,6 +8,7 @@ let
     # 1. Mount nfs before making shells available to users:
     requiredBy = [ "pre-cluster.target" ];
     requires = [ "awaitHeadnode.service" ]; # We need to have the headnode reachable to even try to mount nfs
+    after = [ "awaitHeadnode.service" ];
     serviceConfig = {
       Type = "oneshot";
       RemainAfterExit = true;
