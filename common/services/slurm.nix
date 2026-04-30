@@ -63,7 +63,16 @@ in
 
     serviceConfig = {
       ExecStart = "/bin/sh -c 'sleep 3 && ${pkgs.slurm}/bin/slurmd -Z --conf NodeAddr=$(hostname).${tailscaleDomain} --conf-server headnode.${tailscaleDomain}'";
-      ExecStartPost = "/bin/sh -c '${pkgs.slurm}/bin/scontrol update NodeName=$(hostname) State=RESUME'";
+      # ExecStartPost =
+      #   let
+      #     resumeslurm = pkgs.writeShellScriptBin "resume-slurm" ''
+      #       STATE=$(${pkgs.slurm}/bin/scontrol show node $(hostname) 2>/dev/null | grep -oP "State=\K[^ ]+")
+      #       if [ -z "$STATE" ] || [ "$STATE" = "DOWN" ] || [ "$STATE" = "DRAIN" ]; then
+      #         ${pkgs.slurm}/bin/scontrol update NodeName=$(hostname) State=RESUME
+      #       fi
+      #     '';
+      #   in
+      #   "${pkgs.lib.getExe resumeslurm}";
       ExecReload = "${pkgs.coreutils}/bin/kill -HUP $MAINPID";
       PIDFile = "/run/slurmd.pid";
       KillMode = "process";
