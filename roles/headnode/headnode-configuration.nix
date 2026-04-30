@@ -54,7 +54,6 @@ in
     ./services/grafana.nix
     ./services/slurmctld.nix
     ./services/dashboard.nix
-    ./services/tailscale-api.nix
     ./services/telemetry.nix
   ];
   environment.systemPackages = [ persistToDisk ];

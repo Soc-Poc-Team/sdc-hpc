@@ -39,6 +39,7 @@ in
     ./services/python-venv-setup.nix
     ./targets/cluster.nix
     (import ./services/tailscale.nix)
+    ./services/tailscale-tidy.nix
     sops-nix.nixosModules.sops # import sops module for all hosts
   ];
 
