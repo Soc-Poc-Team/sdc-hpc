@@ -32,6 +32,7 @@ in
       TaskPlugin=task/cgroup
 
       SelectType=select/cons_tres
+      SelectTypeParameters=CR_Core_Memory
     '';
   };
 
@@ -62,6 +63,7 @@ in
 
     serviceConfig = {
       ExecStart = "/bin/sh -c 'sleep 3 && ${pkgs.slurm}/bin/slurmd -Z --conf NodeAddr=$(hostname).${tailscaleDomain} --conf-server headnode.${tailscaleDomain}'";
+      ExecStartPost = "/bin/sh -c '${pkgs.slurm}/bin/scontrol update NodeName=$(hostname) State=RESUME'";
       ExecReload = "${pkgs.coreutils}/bin/kill -HUP $MAINPID";
       PIDFile = "/run/slurmd.pid";
       KillMode = "process";
