@@ -23,36 +23,48 @@
         HOSTNAME = socket.gethostname()
 
         def api_get(path):
-            return requests.get(f"{BASE_URL}{path}", auth=(API_KEY, ""))
+            r = requests.get(f"{BASE_URL}{path}", auth=(API_KEY, ""))
+            r.raise_for_status()
+            return r
 
         def api_delete(url):
             return requests.delete(url, auth=(API_KEY, ""))
 
         def get_devices():
-            r = api_get("/devices")
-            r.raise_for_status()
-            return r.json()["devices"]
+            return api_get("/devices").json()["devices"]
 
-        def delete_by_hostname(hostname):
-            matches = [d for d in get_devices() if d["hostname"] == hostname]
-
-            if not matches:
-                print(f"No device found: {hostname}")
-                return
-
-            if len(matches) > 1:
-                print("Multiple matches found")
-                return
-
-            device = matches[0]
+        def delete_device(device):
             url = f"https://api.tailscale.com/api/v2/device/{device['id']}"
-
             r = api_delete(url)
 
             if r.status_code == 200:
-                print(f"Deleted {hostname}")
+                print(f"Deleted {device['hostname']} ({device['id']})")
+                return True
             else:
                 print(f"Failed: {r.status_code} {r.text}")
+                return False
+
+        def delete_by_hostname(hostname):
+            try:
+                matches = [d for d in get_devices() if d["hostname"] == hostname]
+            except Exception as e:
+                print(f"API error: {e}")
+                sys.exit(1)
+
+            if not matches:
+                print(f"No device found: {hostname}")
+                sys.exit(0)
+
+            success = True
+
+            for device in matches:
+                if not delete_device(device):
+                    success = False
+
+            if not success:
+                sys.exit(1)
+
+            sys.exit(0)
 
         delete_by_hostname(HOSTNAME)
       '';
