@@ -33,6 +33,8 @@ in
 
       SelectType=select/cons_tres
       SelectTypeParameters=CR_Core_Memory
+
+      ReturnToService=2
     '';
   };
 
