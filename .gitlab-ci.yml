@@ -7,7 +7,7 @@ treefmt:
   stage: check
   timeout: 1h
   tags:
-    - bigdatalab-kubernetes
+    - bigdatalab-sdc
   image: nixos/nix
   script:
     - nix --accept-flake-config --extra-experimental-features "nix-command flakes" fmt -- --fail-on-change
@@ -15,7 +15,7 @@ worker:
   stage: build
   timeout: 1h
   tags:
-    - bigdatalab-kubernetes
+    - bigdatalab-sdc
   image: nixos/nix
   script:
     - nix --accept-flake-config --extra-experimental-features "nix-command flakes" build .#worker
@@ -23,7 +23,7 @@ vm_workernode:
   stage: build
   timeout: 1h
   tags:
-    - bigdatalab-kubernetes
+    - bigdatalab-sdc
   image: nixos/nix
   script:
     - nix --accept-flake-config --extra-experimental-features "nix-command flakes" build .#vm_workernode
@@ -31,7 +31,7 @@ head:
   stage: build
   timeout: 1h
   tags:
-    - bigdatalab-kubernetes
+    - bigdatalab-sdc
   image: nixos/nix
   script:
     - nix --accept-flake-config --extra-experimental-features "nix-command flakes" build .#head
@@ -39,7 +39,7 @@ vm_headnode:
   stage: build
   timeout: 1h
   tags:
-    - bigdatalab-kubernetes
+    - bigdatalab-sdc
   image: nixos/nix
   script:
     - nix --accept-flake-config --extra-experimental-features "nix-command flakes" build .#vm_headnode
