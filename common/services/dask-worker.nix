@@ -18,8 +18,7 @@ in
     path = [
       pkgs.python312Packages.bokeh
       pkgs.gcc-unwrapped
-      pkgs.python3.withPackages
-      (
+      (pkgs.python3.withPackages (
         ps: with ps; [
           bokeh
           dask
@@ -27,7 +26,7 @@ in
           ipykernel
           ipython
         ]
-      )
+      ))
     ];
 
     inherit environment;
@@ -37,7 +36,6 @@ in
     };
 
     after = [
-      "python-env-setup.service"
       "pre-cluster.target"
     ];
 

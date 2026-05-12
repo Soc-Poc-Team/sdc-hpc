@@ -48,7 +48,6 @@ in
 {
   imports = [
     (modulesPath + "/installer/cd-dvd/installation-cd-minimal.nix")
-    ./services/dask-scheduler.nix
     ./services/jupyterhub.nix
     ./services/userhomes.nix
     ./services/grafana.nix

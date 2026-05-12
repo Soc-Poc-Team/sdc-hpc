@@ -35,7 +35,7 @@ let
 in
 {
   imports = [
-    ./services/dask-worker.nix
+    ./services/dask
     (import ./services/slurm.nix)
     ./targets/cluster.nix
     (import ./services/tailscale.nix)
