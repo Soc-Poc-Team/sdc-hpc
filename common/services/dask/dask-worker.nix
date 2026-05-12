@@ -54,14 +54,12 @@ in
       path = dask-env;
       inherit environment;
 
-      serviceConfig = {
-        ExecStart = ''
-          dask-worker \
-            ${cfg.schedulerHost}:${toString cfg.schedulerPort} \
-            --worker-port=${toString cfg.workerPort} \
-            ${lib.concatStringsSep " " cfg.extraArgs}
-        '';
-      };
+      script = ''
+        exec dask-worker \
+          ${cfg.schedulerHost}:${toString cfg.schedulerPort} \
+          --worker-port=${toString cfg.workerPort} \
+          ${lib.concatStringsSep " " cfg.extraArgs}
+      '';
 
       after = [
         "pre-cluster.target"

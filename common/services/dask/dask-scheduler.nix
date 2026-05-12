@@ -47,14 +47,12 @@ in
 
       inherit environment;
 
-      serviceConfig = {
-        ExecStart = ''
-          dask-scheduler \
-            --interface ${cfg.interface} \
-            --dashboard-address ${cfg.dashboardAddress} \
-            ${lib.concatStringsSep " " cfg.extraArgs}
-        '';
-      };
+      script = ''
+        exec dask-scheduler \
+          --interface ${cfg.interface} \
+          --dashboard-address ${cfg.dashboardAddress} \
+          ${lib.concatStringsSep " " cfg.extraArgs}
+      '';
 
       requires = [
         "pre-cluster.target"
