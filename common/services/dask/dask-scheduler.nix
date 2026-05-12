@@ -9,8 +9,6 @@
 let
   cfg = config.services.dask.scheduler;
 
-  venvPath = "/opt/venv";
-
   environment = {
     LD_LIBRARY_PATH = "$LD_LIBRARY_PATH:${pkgs.lib.makeLibraryPath [ pkgs.stdenv.cc.cc ]}";
   };
@@ -51,7 +49,7 @@ in
 
       serviceConfig = {
         ExecStart = ''
-          ${venvPath}/bin/dask-scheduler \
+          dask-scheduler \
             --interface ${cfg.interface} \
             --dashboard-address ${cfg.dashboardAddress} \
             ${lib.concatStringsSep " " cfg.extraArgs}
