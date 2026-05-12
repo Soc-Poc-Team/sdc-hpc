@@ -40,6 +40,7 @@ in
     ./targets/cluster.nix
     (import ./services/tailscale.nix)
     ./services/tailscale-tidy.nix
+    ./services/avahi.nix
     sops-nix.nixosModules.sops # import sops module for all hosts
   ];
 
@@ -94,18 +95,6 @@ in
   #   "${userConfig.wifi.pwd}";
 
   services.openssh.enable = true;
-  services.avahi = {
-    enable = true;
-    nssmdns4 = true;
-    publish = {
-      enable = true;
-      addresses = true;
-      domain = true;
-      hinfo = true;
-      userServices = true;
-      workstation = true;
-    };
-  };
 
   environment.interactiveShellInit = ''
     alias jkl='sudo loadkeys colemak'
