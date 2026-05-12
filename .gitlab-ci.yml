@@ -6,7 +6,7 @@ treefmt:
   stage: check
   timeout: 1h
   tags:
-    - bigdatalab-kubernetes
+    - bigdatalab-sdc
   image: nixos/nix
   script:
     - nix --extra-experimental-features "nix-command flakes" fmt -- --fail-on-change
