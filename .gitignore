@@ -12,3 +12,6 @@ config.toml
 
 # Direnv
 .direnv/
+
+#gitlab-ci-local
+.gitlab-ci-local/

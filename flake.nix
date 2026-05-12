@@ -105,6 +105,7 @@
               mkpasswd
               sops
               age
+              gitlab-ci-local
             ]
             ++ customPackages;
         };
