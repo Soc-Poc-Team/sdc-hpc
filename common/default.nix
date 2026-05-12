@@ -35,10 +35,13 @@ let
 in
 {
   imports = [
-    (import ./services/dask-worker.nix { tomlConf = userConfig; })
-    (import ./services/slurm.nix { tomlConf = userConfig; })
+    (import ./services/dask-worker.nix)
+    (import ./services/slurm.nix)
     ./services/python-venv-setup.nix
-    (import ./services/tailscale.nix { tomlConf = userConfig; })
+    ./targets/cluster.nix
+    (import ./services/tailscale.nix)
+    ./services/tailscale-tidy.nix
+    ./services/avahi.nix
     sops-nix.nixosModules.sops # import sops module for all hosts
   ];
 
@@ -90,7 +93,7 @@ in
     firewall.enable = true;
     dhcpcd = {
       # See Issue #82
-      setHostname = false;
+      setHostname = userConfig.worker.acceptDHCPHostnames;
     };
   };
   # networking.wieless alongside networkmanager is no longer supported. TODO: check NM implementation
@@ -99,18 +102,6 @@ in
   #   "${userConfig.wifi.pwd}";
 
   services.openssh.enable = true;
-  services.avahi = {
-    enable = true;
-    nssmdns4 = true;
-    publish = {
-      enable = true;
-      addresses = true;
-      domain = true;
-      hinfo = true;
-      userServices = true;
-      workstation = true;
-    };
-  };
 
   environment.interactiveShellInit = ''
     alias jkl='sudo loadkeys colemak'

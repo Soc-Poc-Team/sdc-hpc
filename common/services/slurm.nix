@@ -1,12 +1,12 @@
-{ tomlConf, ... }:
 {
   config,
   pkgs,
   lib,
+  userConfig,
   ...
 }:
 let
-  tailscaleDomain = tomlConf.tailscale.domain;
+  tailscaleDomain = userConfig.tailscale.domain;
   isHeadnode = config.networking.hostName == "headnode"; # Check if defined hostname is "headnode"
 in
 {
@@ -32,6 +32,9 @@ in
       TaskPlugin=task/cgroup
 
       SelectType=select/cons_tres
+      SelectTypeParameters=CR_Core_Memory
+
+      ReturnToService=2
     '';
   };
 
@@ -40,18 +43,17 @@ in
   systemd.services.slurm-dynamic = {
     description = "Service to add a node dynamically to slurm";
 
-    # make sure tailscale is running before trying to connect to tailscale
     after = [
-      "tailscale-autoconnect.service"
-      "tailscaled.service"
       "slurmctld.service"
       "systemd-tmpfiles-clean.service"
       "munge.service"
-      "network-online.target"
       "remote-fs.target"
+      "pre-cluster.target"
     ];
-    wants = [ "network-online.target" ];
-    wantedBy = [ "multi-user.target" ];
+
+    requires = [ "pre-cluster.target" ];
+
+    requiredBy = [ "cluster.target" ];
 
     path = [
       pkgs.bash
@@ -61,14 +63,18 @@ in
       pkgs.coreutils
     ];
 
-    unitConfig = {
-      # https://www.freedesktop.org/software/systemd/man/latest/systemd.unit.html
-      # We dont add ourself to slurm if our hostname is "nixos" - failsafe
-      ConditionHost = "!nixos";
-    };
-
     serviceConfig = {
       ExecStart = "/bin/sh -c 'sleep 3 && ${pkgs.slurm}/bin/slurmd -Z --conf NodeAddr=$(hostname).${tailscaleDomain} --conf-server headnode.${tailscaleDomain}'";
+      # ExecStartPost =
+      #   let
+      #     resumeslurm = pkgs.writeShellScriptBin "resume-slurm" ''
+      #       STATE=$(${pkgs.slurm}/bin/scontrol show node $(hostname) 2>/dev/null | grep -oP "State=\K[^ ]+")
+      #       if [ -z "$STATE" ] || [ "$STATE" = "DOWN" ] || [ "$STATE" = "DRAIN" ]; then
+      #         ${pkgs.slurm}/bin/scontrol update NodeName=$(hostname) State=RESUME
+      #       fi
+      #     '';
+      #   in
+      #   "${pkgs.lib.getExe resumeslurm}";
       ExecReload = "${pkgs.coreutils}/bin/kill -HUP $MAINPID";
       PIDFile = "/run/slurmd.pid";
       KillMode = "process";

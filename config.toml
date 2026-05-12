@@ -8,6 +8,12 @@ domain = "TS_DOMAIN"
 authKey = "TS_AUTHKEY"
 apiKey = "TS_APIKEY"
 
+[worker]
+# If set to false, unique mac based hostnames will be used 
+acceptDHCPHostnames = false
+# Workers will start their cluster services only after they reached the headnode
+awaitHeadnode = true
+
 [users.alice]
 passwordHash = "$6$niENrHi8EzNkxcQb$s0.Dc5HiGj3RyUEHIbi8sLZNBjA7Ibz1P2.odljSjYLlbjmX6n4d8B0lGEffjMEApf5rWqoU2Iq8fQiqWYGj71"
 uid = 5001

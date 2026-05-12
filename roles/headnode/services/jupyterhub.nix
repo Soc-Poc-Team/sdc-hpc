@@ -1,9 +1,13 @@
-{ tomlConf, ... }:
-{ config, pkgs, ... }:
+{
+  config,
+  pkgs,
+  userConfig,
+  ...
+}:
 let
-  tailscaleDomain = tomlConf.tailscale.domain;
+  tailscaleDomain = userConfig.tailscale.domain;
   userDataDir = "/homes";
-  quotedUserNames = map (u: ''"${u}"'') (builtins.attrNames tomlConf.users);
+  quotedUserNames = map (u: ''"${u}"'') (builtins.attrNames userConfig.users);
   jupyterhubEnv = pkgs.python3.withPackages (
     p: with p; [
       jupyterhub
@@ -154,11 +158,9 @@ in
   systemd.services.jupyterhub = {
     description = "Jupyterhub development server";
 
-    after = [
-      "network.target"
-      "tailscale-autoconnect.service"
-    ];
-    wantedBy = [ "multi-user.target" ];
+    requires = [ "pre-cluster.target" ];
+    requiredBy = [ "cluster.target" ];
+
     path = with pkgs; [
       python3Packages.jupyterlab
       python3Packages.jupyterhub

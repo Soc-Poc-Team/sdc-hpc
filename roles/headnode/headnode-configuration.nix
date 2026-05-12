@@ -1,6 +1,5 @@
 { pkgs, modulesPath, ... }:
 let
-  userConfig = builtins.fromTOML (builtins.readFile ../../config.toml);
   persistToDisk = pkgs.writeShellScriptBin "persist-to-disk" ''
     set -euo pipefail
 
@@ -49,13 +48,13 @@ in
 {
   imports = [
     (modulesPath + "/installer/cd-dvd/installation-cd-minimal.nix")
-    (import ./services/dask-scheduler.nix { tomlConf = userConfig; })
-    (import ./services/jupyterhub.nix { tomlConf = userConfig; })
-    (import ./services/userhomes.nix { tomlConf = userConfig; })
+    ./services/dask-scheduler.nix
+    ./services/jupyterhub.nix
+    ./services/userhomes.nix
     ./services/grafana.nix
-    (import ./services/dashboard.nix { tomlConf = userConfig; })
-    (import ./services/tailscale-api.nix { tomlConf = userConfig; })
-    (import ./services/telemetry.nix { tomlConf = userConfig; })
+    ./services/slurmctld.nix
+    ./services/dashboard.nix
+    ./services/telemetry.nix
   ];
   environment.systemPackages = [ persistToDisk ];
 

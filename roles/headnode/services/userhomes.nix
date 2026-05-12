@@ -1,9 +1,8 @@
-{ tomlConf, ... }:
-{ config, ... }:
+{ config, userConfig, ... }:
 let
   userDataDir = "/homes";
 
-  usersData = tomlConf.users;
+  usersData = userConfig.users;
 
   tmpfilesRules = builtins.mapAttrs (userName: _userConfig: [
     "d ${userDataDir}/${userName}/.tmp 0755 ${userName} smalldatacluster"

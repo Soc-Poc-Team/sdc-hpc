@@ -1,4 +1,3 @@
-{ ... }:
 { pkgs, ... }:
 let
   website = pkgs.runCommand "website" { } ''

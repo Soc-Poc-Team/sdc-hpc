@@ -290,7 +290,8 @@ in
 {
   systemd.services.slurm-exporter = {
     description = "Slurm Prometheus Exporter";
-    wantedBy = [ "multi-user.target" ];
+    requiredBy = [ "cluster.target" ];
+    requires = [ "pre-cluster.target" ];
     after = [ "slurm-dynamic.service" ];
     path = [
       pkgs.slurm

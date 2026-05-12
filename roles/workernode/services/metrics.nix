@@ -1,7 +1,6 @@
-{ tomlConf, ... }:
-{ config, ... }:
+{ config, userConfig, ... }:
 let
-  tailscaleDomain = tomlConf.tailscale.domain;
+  tailscaleDomain = userConfig.tailscale.domain;
 in
 {
   services.prometheus = {
