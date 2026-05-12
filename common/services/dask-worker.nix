@@ -1,6 +1,5 @@
 { pkgs, userConfig, ... }:
 let
-  venvPath = "/opt/venv";
   environment = {
     LD_LIBRARY_PATH = "$LD_LIBRARY_PATH:${pkgs.lib.makeLibraryPath [ pkgs.stdenv.cc.cc ]}";
   };
@@ -19,12 +18,22 @@ in
     path = [
       pkgs.python312Packages.bokeh
       pkgs.gcc-unwrapped
+      pkgs.python3.withPackages
+      (
+        ps: with ps; [
+          bokeh
+          dask
+          distributed
+          ipykernel
+          ipython
+        ]
+      )
     ];
 
     inherit environment;
 
     serviceConfig = {
-      ExecStart = "${venvPath}/bin/dask-worker headnode.${tailscaleDomain}:8786 --worker-port=${toString dask_worker_port}";
+      ExecStart = "dask-worker headnode.${tailscaleDomain}:8786 --worker-port=${toString dask_worker_port}";
     };
 
     after = [
