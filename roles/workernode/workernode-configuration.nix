@@ -41,6 +41,8 @@
 
     networking.randomHostname.enable = !userConfig.worker.acceptDHCPHostnames;
 
+    services.dask.worker.enable = true;
+
     systemd.services."tailscale-autoconnect" = lib.mkIf userConfig.worker.acceptDHCPHostnames {
       path = [
         pkgs.hostname-debian

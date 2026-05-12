@@ -61,6 +61,8 @@ in
     hostName = "headnode";
   };
 
+  services.dask.scheduler.enable = true;
+
   isoImage = {
     makeEfiBootable = true;
     makeUsbBootable = true;
