@@ -97,11 +97,9 @@ let
 
     #SBATCH --output={{homedir}}/jupyterhub_slurmspawner_%j.log
     #SBATCH --job-name=spawner-jupyterhub
-    ##SBATCH --chdir={{homedir}} # FIXME: Why is this commented out and hardcoded below instead?
     #SBATCH --chdir=/homes/{{username}}
     #SBATCH --export={{keepvars}}
     #SBATCH --get-user-env
-
     {% if partition  %}#SBATCH --partition={{partition}}
     {% endif %}{% if runtime    %}#SBATCH --time={{runtime}}
     {% endif %}{% if memory     %}#SBATCH --mem={{memory}}
@@ -109,30 +107,9 @@ let
     {% endif %}{% if nprocs     %}#SBATCH --cpus-per-task={{nprocs}}
     {% endif %}{% if reservation%}#SBATCH --reservation={{reservation}}
     {% endif %}{% if options    %}#SBATCH {{options}}{% endif %}
-
-    # Why are we exporting the env here, if we already have the --export={{keepvars}}
-
-    export JUPYTERHUB_API_TOKEN=$JUPYTERHUB_API_TOKEN
-    export JUPYTERHUB_API_URL=$JUPYTERHUB_API_URL
-    export JPY_API_TOKEN=$JPY_API_TOKEN
-    export JUPYTERHUB_CLIENT_ID=$JUPYTERHUB_CLIENT_ID
-    export JUPYTERHUB_OAUTH_CALLBACK=$JUPYTERHUB_OAUTH_CALLBACK
-    export JUPYTERHUB_USER=$JUPYTERHUB_USER
-    export JUPYTERHUB_BASE_URL=$JUPYTERHUB_BASE_URL
-    export JUPYTERHUB_SERVICE_PREFIX=$JUPYTERHUB_SERVICE_PREFIX
-
+    echo "Spawning..."
+    export JUPYTERHUB_API_TOKEN JUPYTERHUB_API_URL JPY_API_TOKEN JUPYTERHUB_CLIENT_ID JUPYTERHUB_OAUTH_CALLBACK JUPYTERHUB_USER JUPYTERHUB_BASE_URL JUPYTERHUB_SERVICE_PREFIX
     export JUPYTER_PATH=${jlabKernels}
-
-    # FIXME: Dont leak secrets into logs
-
-    echo $JUPYTERHUB_API_TOKEN
-    echo $JUPYTERHUB_API_URL
-    echo $JPY_API_TOKEN
-    echo $JUPYTERHUB_CLIENT_ID
-    echo $JUPYTERHUB_OAUTH_CALLBACK
-    echo $JUPYTERHUB_USER
-    echo $JUPYTERHUB_BASE_URL
-    echo $JUPYTERHUB_SERVICE_PREFIX
 
     echo $JUPYTERHUB_SERVICE_URL
 
@@ -148,7 +125,6 @@ let
     trap 'echo SIGTERM received' TERM
     {{prologue}}
     ${jupyterhubEnv}/bin/batchspawner-singleuser ${jupyterhubEnv}/bin/.jupyterhub-singleuser-wrapped --debug
-    echo "jupyterhub-singleuser ended gracefully"
     {{epilogue}}
 
     """
