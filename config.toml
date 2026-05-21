@@ -13,6 +13,8 @@ apiKey = "TS_APIKEY"
 acceptDHCPHostnames = false
 # Workers will start their cluster services only after they reached the headnode
 awaitHeadnode = true
+# Shows the journal on tty1
+showJournal = false
 
 [users.alice]
 passwordHash = "$6$niENrHi8EzNkxcQb$s0.Dc5HiGj3RyUEHIbi8sLZNBjA7Ibz1P2.odljSjYLlbjmX6n4d8B0lGEffjMEApf5rWqoU2Iq8fQiqWYGj71"
