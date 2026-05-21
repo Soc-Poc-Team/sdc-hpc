@@ -25,8 +25,10 @@ in
           distributed
           ipykernel
           ipython
+          lz4
         ]
       ))
+      pkgs.lz4
     ];
 
     inherit environment;

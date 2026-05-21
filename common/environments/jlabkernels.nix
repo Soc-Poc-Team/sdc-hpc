@@ -16,7 +16,6 @@ pkgs.jupyter-kernel.create {
             torch
             torchvision
             scikit-learn
-            skorch
             plotly
             pyarrow
             beautifulsoup4
