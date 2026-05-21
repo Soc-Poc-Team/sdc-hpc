@@ -13,8 +13,11 @@ let
         distributed
         ipykernel
         ipython
+        lz4
+        pyarrow
       ]
     ))
+    pkgs.lz4
   ];
 in
 {
