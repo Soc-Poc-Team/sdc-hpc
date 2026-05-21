@@ -1,9 +1,9 @@
 { pkgs, ... }:
 pkgs.jupyter-kernel.create {
   definitions = {
-    python312Kernel = (
+    python313Kernel = (
       let
-        env = pkgs.python312.withPackages (
+        env = pkgs.python313.withPackages (
           p: with p; [
             ipykernel
             dask-gateway
@@ -15,9 +15,6 @@ pkgs.jupyter-kernel.create {
             distributed
             torch
             torchvision
-            # tensorflow #error: tensorflow-2.13.0 not supported for interpreter python3.12
-            # keras #error: tensorflow-2.13.0 not supported for interpreter python3.12
-            #matplotlib
             scikit-learn
             skorch
             plotly
@@ -27,7 +24,7 @@ pkgs.jupyter-kernel.create {
         );
       in
       {
-        displayName = "Python 3.12 small-data-cluster";
+        displayName = "Python 3.13 small-data-cluster";
         argv = [
           "${env.interpreter}"
           "-m"

@@ -16,7 +16,7 @@ in
     };
 
     path = [
-      pkgs.python312Packages.bokeh
+      pkgs.python313Packages.bokeh
       pkgs.gcc-unwrapped
       (pkgs.python3.withPackages (
         ps: with ps; [

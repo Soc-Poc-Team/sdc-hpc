@@ -69,8 +69,8 @@ in
     neovim
     gcc-unwrapped
     nfs-utils
-    python312
-    python312Packages.pip
+    python313
+    python313Packages.pip # Why?
     virtualenv
     jupyterhubEnv
     btop
