@@ -35,9 +35,8 @@ let
 in
 {
   imports = [
-    (import ./services/dask-worker.nix)
+    ./services/dask
     (import ./services/slurm.nix)
-    ./services/python-venv-setup.nix
     ./targets/cluster.nix
     (import ./services/tailscale.nix)
     ./services/tailscale-tidy.nix
@@ -56,6 +55,10 @@ in
     lib.mkDefault pkgs.linuxPackages_6_18
   );
 
+  system.extraDependencies = [
+    (import ./environments/jlabkernels.nix { inherit pkgs; })
+  ];
+
   environment.systemPackages = with pkgs; [
     git
     ncdu
@@ -66,8 +69,8 @@ in
     neovim
     gcc-unwrapped
     nfs-utils
-    python312
-    python312Packages.pip
+    python313
+    python313Packages.pip # Why?
     virtualenv
     jupyterhubEnv
     btop

@@ -8,6 +8,7 @@ let
   tailscaleDomain = userConfig.tailscale.domain;
   userDataDir = "/homes";
   quotedUserNames = map (u: ''"${u}"'') (builtins.attrNames userConfig.users);
+  jlabKernels = import ../../../common/environments/jlabkernels.nix { inherit pkgs; };
   jupyterhubEnv = pkgs.python3.withPackages (
     p: with p; [
       jupyterhub
@@ -19,50 +20,6 @@ let
       notebook
     ]
   );
-
-  jlabKernels = pkgs.jupyter-kernel.create {
-    definitions = {
-      python312Kernel = (
-        let
-          env = pkgs.python312.withPackages (
-            p: with p; [
-              ipykernel
-              dask-gateway
-              numpy
-              scipy
-              pandas
-              dask
-              pip
-              distributed
-              torch
-              torchvision
-              # tensorflow #error: tensorflow-2.13.0 not supported for interpreter python3.12
-              # keras #error: tensorflow-2.13.0 not supported for interpreter python3.12
-              #matplotlib
-              scikit-learn
-              skorch
-              plotly
-              pyarrow
-              beautifulsoup4
-            ]
-          );
-        in
-        {
-          displayName = "Python 3.12";
-          argv = [
-            "${env.interpreter}"
-            "-m"
-            "ipykernel_launcher"
-            "-f"
-            "{connection_file}"
-          ];
-          language = "python";
-          logo32 = "${env}/${env.sitePackages}/ipykernel/resources/logo-32x32.png";
-          logo64 = "${env}/${env.sitePackages}/ipykernel/resources/logo-64x64.png";
-        }
-      );
-    };
-  };
 
   jupyterhubConfig = pkgs.writeText "jupyterhub_config.py" ''
     import batchspawner
@@ -97,11 +54,9 @@ let
 
     #SBATCH --output={{homedir}}/jupyterhub_slurmspawner_%j.log
     #SBATCH --job-name=spawner-jupyterhub
-    ##SBATCH --chdir={{homedir}} # FIXME: Why is this commented out and hardcoded below instead?
     #SBATCH --chdir=/homes/{{username}}
     #SBATCH --export={{keepvars}}
     #SBATCH --get-user-env
-
     {% if partition  %}#SBATCH --partition={{partition}}
     {% endif %}{% if runtime    %}#SBATCH --time={{runtime}}
     {% endif %}{% if memory     %}#SBATCH --mem={{memory}}
@@ -109,30 +64,9 @@ let
     {% endif %}{% if nprocs     %}#SBATCH --cpus-per-task={{nprocs}}
     {% endif %}{% if reservation%}#SBATCH --reservation={{reservation}}
     {% endif %}{% if options    %}#SBATCH {{options}}{% endif %}
-
-    # Why are we exporting the env here, if we already have the --export={{keepvars}}
-
-    export JUPYTERHUB_API_TOKEN=$JUPYTERHUB_API_TOKEN
-    export JUPYTERHUB_API_URL=$JUPYTERHUB_API_URL
-    export JPY_API_TOKEN=$JPY_API_TOKEN
-    export JUPYTERHUB_CLIENT_ID=$JUPYTERHUB_CLIENT_ID
-    export JUPYTERHUB_OAUTH_CALLBACK=$JUPYTERHUB_OAUTH_CALLBACK
-    export JUPYTERHUB_USER=$JUPYTERHUB_USER
-    export JUPYTERHUB_BASE_URL=$JUPYTERHUB_BASE_URL
-    export JUPYTERHUB_SERVICE_PREFIX=$JUPYTERHUB_SERVICE_PREFIX
-
+    echo "Spawning..."
+    export JUPYTERHUB_API_TOKEN JUPYTERHUB_API_URL JPY_API_TOKEN JUPYTERHUB_CLIENT_ID JUPYTERHUB_OAUTH_CALLBACK JUPYTERHUB_USER JUPYTERHUB_BASE_URL JUPYTERHUB_SERVICE_PREFIX
     export JUPYTER_PATH=${jlabKernels}
-
-    # FIXME: Dont leak secrets into logs
-
-    echo $JUPYTERHUB_API_TOKEN
-    echo $JUPYTERHUB_API_URL
-    echo $JPY_API_TOKEN
-    echo $JUPYTERHUB_CLIENT_ID
-    echo $JUPYTERHUB_OAUTH_CALLBACK
-    echo $JUPYTERHUB_USER
-    echo $JUPYTERHUB_BASE_URL
-    echo $JUPYTERHUB_SERVICE_PREFIX
 
     echo $JUPYTERHUB_SERVICE_URL
 
@@ -148,7 +82,6 @@ let
     trap 'echo SIGTERM received' TERM
     {{prologue}}
     ${jupyterhubEnv}/bin/batchspawner-singleuser ${jupyterhubEnv}/bin/.jupyterhub-singleuser-wrapped --debug
-    echo "jupyterhub-singleuser ended gracefully"
     {{epilogue}}
 
     """
