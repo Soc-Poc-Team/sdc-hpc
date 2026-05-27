@@ -29,15 +29,21 @@ pkgs.buildGoModule rec {
   nativeBuildInputs = with pkgs; [
     swig
     slurm
+    makeWrapper
   ];
 
   buildInputs = [
     slurm
   ];
 
+  postFixup = ''
+    wrapProgram $out/bin/prometheus-slurm-exporter \
+      --prefix LD_LIBRARY_PATH : ${pkgs.lib.makeLibraryPath [ slurm ]}
+  '';
   doCheck = false;
 
   CGO_CFLAGS = "-I${slurm.dev}/include";
   CGO_LDFLAGS = "-L${slurm.out}/lib -lslurm";
+  LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath [ slurm ];
 
 }
