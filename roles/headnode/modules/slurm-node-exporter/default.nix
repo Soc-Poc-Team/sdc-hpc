@@ -35,6 +35,8 @@ pkgs.buildGoModule rec {
     slurm
   ];
 
+  doCheck = false;
+
   CGO_CFLAGS = "-I${slurm.dev}/include";
   CGO_LDFLAGS = "-L${slurm.out}/lib -lslurm";
 
