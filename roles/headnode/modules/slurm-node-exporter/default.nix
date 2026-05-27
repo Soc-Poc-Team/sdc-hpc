@@ -1,22 +1,41 @@
 { pkgs, ... }:
+
+let
+  # https://github.com/SchedMD/slurm/commit/c728b40c6f97bce2e1a02250c08b0d58e90b9dc9
+  slurm = pkgs.slurm.overrideAttrs (_old: rec {
+    version = "slurm-24-05-0-0rc1";
+    src = pkgs.fetchFromGitHub {
+      owner = "SchedMD";
+      repo = "slurm";
+      rev = "slurm-${version}";
+      sha256 = "sha256-sviXuRJOpuSoOMNjGPRe11qlphk0Y1/YV/Y5M+QkWys=";
+    };
+  });
+in
+
 pkgs.buildGoModule rec {
   pname = "prometheus-slurm-exporter";
-  version = "1.6.10";
-  rev = "refs/tags/v${version}";
+  version = "1.8.0";
 
   src = pkgs.fetchFromGitHub {
-    inherit rev;
     owner = "rivosinc";
     repo = pname;
-    sha256 = "sha256-3+/AGOXqsCiGzzrZ+aua17AVD/udN+ot1faCnOUZ76U=";
+    rev = "refs/tags/v${version}";
+    sha256 = "sha256-XWUjaCQBlMzWJoQzo+v7EcKGWNU3LR3betP35tNPB1w=";
   };
+
   vendorHash = "sha256-qATQ47ztssQQEWSTXcPtUZnssYFtSCvh5AnldcmgO+M=";
 
-  dependencies = with pkgs; [ swig ];
-  buildInputs = with pkgs; [
-    swig # Ensure swig is available during the build process
-  ];
   nativeBuildInputs = with pkgs; [
-    swig # Ensure swig is available during the build process
+    swig
+    slurm
   ];
+
+  buildInputs = [
+    slurm
+  ];
+
+  CGO_CFLAGS = "-I${slurm.dev}/include";
+  CGO_LDFLAGS = "-L${slurm.out}/lib -lslurm";
+
 }
