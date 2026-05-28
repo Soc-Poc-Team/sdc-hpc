@@ -50,7 +50,7 @@ in
     (modulesPath + "/installer/cd-dvd/installation-cd-minimal.nix")
     ./services/jupyterhub.nix
     ./services/userhomes.nix
-    ./services/grafana.nix
+    ./services/grafana
     ./services/slurmctld.nix
     ./services/dashboard
     ./services/telemetry.nix
