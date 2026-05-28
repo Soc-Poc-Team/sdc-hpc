@@ -6,7 +6,7 @@ let
   # 2. edit the dashboard
   sdc-overview = ./sdc-overview.json;
   slurm-dashboard = ./slurm-dashboard.json;
-  prometheusSlurmExporter = pkgs.callPackage ../modules/slurm-node-exporter { };
+  prometheusSlurmExporter = pkgs.callPackage ../../modules/slurm-node-exporter { };
 in
 {
   systemd.services.slurm-exporter = {
