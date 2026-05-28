@@ -52,7 +52,7 @@ in
     ./services/userhomes.nix
     ./services/grafana.nix
     ./services/slurmctld.nix
-    ./services/dashboard.nix
+    ./services/dashboard
     ./services/telemetry.nix
   ];
   environment.systemPackages = [ persistToDisk ];
