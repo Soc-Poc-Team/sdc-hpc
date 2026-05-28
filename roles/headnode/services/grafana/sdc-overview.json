@@ -22,106 +22,12 @@
   "links": [],
   "panels": [
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "showValues": false,
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 0
-      },
-      "id": 16,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "hideZeros": false,
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "12.3.4",
-      "targets": [
-        {
-          "editorMode": "code",
-          "expr": "",
-          "legendFormat": "__auto",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "New panel",
-      "type": "timeseries"
-    },
-    {
       "collapsed": false,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 8
+        "y": 0
       },
       "id": 10,
       "panels": [],
@@ -215,7 +121,7 @@
         "h": 11,
         "w": 6,
         "x": 0,
-        "y": 9
+        "y": 1
       },
       "id": 8,
       "options": {
@@ -345,7 +251,7 @@
         "h": 11,
         "w": 6,
         "x": 6,
-        "y": 9
+        "y": 1
       },
       "id": 18,
       "options": {
@@ -416,7 +322,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 9
+        "y": 1
       },
       "id": 7,
       "options": {
@@ -517,7 +423,7 @@
         "h": 8,
         "w": 4,
         "x": 12,
-        "y": 17
+        "y": 9
       },
       "id": 12,
       "options": {
@@ -584,7 +490,7 @@
         "h": 8,
         "w": 4,
         "x": 16,
-        "y": 17
+        "y": 9
       },
       "id": 13,
       "options": {
@@ -681,7 +587,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 20
+        "y": 12
       },
       "id": 17,
       "options": {
@@ -780,7 +686,7 @@
         "h": 3,
         "w": 4,
         "x": 12,
-        "y": 25
+        "y": 17
       },
       "id": 14,
       "options": {
@@ -849,7 +755,7 @@
         "h": 3,
         "w": 4,
         "x": 16,
-        "y": 25
+        "y": 17
       },
       "id": 15,
       "options": {
@@ -885,12 +791,86 @@
       "type": "stat"
     },
     {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "continuous-GrYlRd"
+          },
+          "custom": {
+            "axisPlacement": "auto",
+            "fillOpacity": 70,
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineWidth": 0,
+            "spanNulls": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 20,
+        "x": 0,
+        "y": 20
+      },
+      "id": 19,
+      "options": {
+        "alignValue": "left",
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "mergeValues": true,
+        "rowHeight": 0.75,
+        "showValue": "auto",
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.3.4",
+      "targets": [
+        {
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "slurm_account_job_state_total",
+          "format": "heatmap",
+          "instant": false,
+          "legendFormat": "{{state}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Slurm Job state",
+      "type": "state-timeline"
+    },
+    {
       "collapsed": false,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 28
+        "y": 27
       },
       "id": 11,
       "panels": [],
@@ -910,7 +890,7 @@
         "h": 13,
         "w": 24,
         "x": 0,
-        "y": 29
+        "y": 28
       },
       "id": 1,
       "options": {
@@ -954,7 +934,7 @@
         "h": 10,
         "w": 24,
         "x": 0,
-        "y": 42
+        "y": 41
       },
       "id": 3,
       "options": {
@@ -1000,6 +980,6 @@
   "timepicker": {},
   "timezone": "browser",
   "title": "small-data-cluster",
-  "uid": "cefeq4w1vgu80f",
-  "version": 7
+  "uid": "cefeq4w1vgu80gf",
+  "version": 8
 }
