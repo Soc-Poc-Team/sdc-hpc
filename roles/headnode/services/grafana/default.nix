@@ -78,6 +78,11 @@ in
         port = 9002;
       };
     };
+    globalConfig = {
+      scrape_interval = "10s";
+      scrape_timeout = "5s";
+    };
+
     scrapeConfigs = [
       {
         job_name = "headnode";
