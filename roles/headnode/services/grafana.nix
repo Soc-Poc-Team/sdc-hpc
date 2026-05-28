@@ -350,7 +350,7 @@ in
       }
       {
         job_name = "SlurmExporter";
-        static_configs = [ { targets = [ "127.0.0.1:8080" ]; } ];
+        static_configs = [ { targets = [ "127.0.0.1:9092" ]; } ];
       }
     ];
   };
