@@ -29,12 +29,24 @@ in
       TreeWidth=65533
       MaxNodeCount=300
       SrunPortRange=60001-63000
-      TaskPlugin=task/cgroup
 
       SelectType=select/cons_tres
       SelectTypeParameters=CR_Core_Memory
 
       ReturnToService=2
+
+      ProctrackType=proctrack/cgroup
+      PrologFlags=Contain
+      TaskPlugin=task/cgroup,task/affinity
+      JobAcctGatherType=jobacct_gather/cgroup
+    '';
+
+    # SDC does not support swap
+    extraCgroupConfig = ''
+      ConstrainCores=yes
+      ConstrainDevices=yes
+      ConstrainRAMSpace=yes
+      ConstrainSwapSpace=yes      
     '';
   };
 
