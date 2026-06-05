@@ -34,7 +34,7 @@ in
     enable = true;
     settings = {
       "auth.anonymous".enabled = true;
-      "auth.anonymous".org_name = "SDC Operator";
+      "auth.anonymous".org_name = "Main Org.";
       "auth.anonymous".org_role = "Viewer";
       server.http_port = 2342;
       server.http_addr = "0.0.0.0";
