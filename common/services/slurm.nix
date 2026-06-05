@@ -23,18 +23,37 @@ in
     controlAddr = "headnode.${tailscaleDomain}";
     partitionName = [ "debug Nodes=ALL Default=YES MaxTime=INFINITE State=UP" ];
 
+    procTrackType = "proctrack/cgroup";
     extraConfig = ''
       SlurmdTimeout=30
       SlurmctldParameters=enable_configless
       TreeWidth=65533
       MaxNodeCount=300
       SrunPortRange=60001-63000
-      TaskPlugin=task/cgroup
 
       SelectType=select/cons_tres
       SelectTypeParameters=CR_Core_Memory
 
       ReturnToService=2
+
+      PrologFlags=Contain
+      JobAcctGatherType=jobacct_gather/cgroup
+      TaskPlugin=task/affinity,task/cgroup
+    '';
+
+    # SDC does not support swap
+    extraCgroupConfig = ''
+      ConstrainCores=yes
+      ConstrainDevices=yes
+      ConstrainRAMSpace=yes
+      ConstrainSwapSpace=yes
+
+      AllowedRamSpace=100
+      AllowedSwapSpace=0
+      CgroupMountpoint=/sys/fs/cgroup
+      MaxRAMPercent=100
+      MaxSwapPercent=100
+      MinRAMSpace=30
     '';
   };
 

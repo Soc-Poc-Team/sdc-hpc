@@ -189,6 +189,9 @@
         workernode = mkBase "worker" [ ];
       };
       packages.x86_64-linux = rec {
+        devel = {
+          pne = pkgs.callPackage ./roles/headnode/modules/slurm-node-exporter { };
+        };
         default = headnode.config.system.build.isoImage;
         head = headnode.config.system.build.isoImage;
         worker = workernode.config.system.build.isoImage;
