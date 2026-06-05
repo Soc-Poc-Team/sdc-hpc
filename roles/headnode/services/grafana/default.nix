@@ -1,4 +1,9 @@
-{ config, pkgs, ... }:
+{
+  config,
+  pkgs,
+  userConfig,
+  ...
+}:
 let
   # this dashboard has to be exported from grafana
   # Steps:
@@ -33,7 +38,20 @@ in
       "auth.anonymous".org_role = "Viewer";
       server.http_port = 2342;
       server.http_addr = "0.0.0.0";
-      # http://10.0.0.64:2342/public-dashboards/ad44e1c6ea8045a0a3a8b5d391d84608
+
+      # WARNING: These credentials are public in the nix store! Keep this in mind!
+      security =
+        if userConfig.headnode.grafana_enable_admin then
+          {
+            admin_user = userConfig.headnode.grafana_admin;
+            admin_password = userConfig.headnode.grafana_password;
+            admin_email = "${userConfig.headnode.grafana_admin}@headnode.${userConfig.tailscale.domain}";
+          }
+        else
+          {
+            disable_initial_admin_creation = true;
+          };
+
     };
     provision = {
       enable = true;
