@@ -1,84 +1,79 @@
-i<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Small Data Cluster</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
 
-    <title>Small Data Cluster</title>
-
-    <link rel="stylesheet" href="style.css" />
-  </head>
-
-  <body>
-    <h1>Small Data Cluster</h1>
-
-    <div class="grid">
-      <div class="card">
-        <div class="service">JupyterHub</div>
-        <div class="url">
-          <a href="http://localhost:8000">http://localhost:8000</a>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="service">Grafana</div>
-        <div class="url">
-          <a href="http://localhost:2342">http://localhost:2342</a>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="service">Prometheus</div>
-        <div class="url">
-          <a href="http://localhost:9001">http://localhost:9001</a>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="service">Prometheus Exporter</div>
-        <div class="url">
-          <a href="http://localhost:9002">http://localhost:9002</a>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="service">Prometheus Slurm Exporter</div>
-        <div class="url">
-          <a href="http://localhost:9092">http://localhost:9092</a>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="service">Loki</div>
-        <div class="url">
-          <a href="http://localhost:3100/api/v1/status/buildinfo">
-            http://localhost:3100
-          </a>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="service">Promtail</div>
-        <div class="url">
-          <a href="http://localhost:28183">http://localhost:28183</a>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="service">Dask Worker Dashboard</div>
-        <div class="url">
-          <a href="http://localhost:8787">http://localhost:8787</a>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="service">NFS Export</div>
-        <div class="muted">
-          localhost:4000<br />
-          localhost:4001<br />
-          localhost:4002
-        </div>
-      </div>
+<body>
+<header class="topbar">
+  <div class="topbar__inner">
+    <div class="brand">
+      <h1 class="title">Small Data Cluster</h1>
+      <p class="subtitle">Service endpoints (local)</p>
     </div>
-  </body>
+
+    <!-- Optional: Platzhalter für FH Aachen Positionsmarke/Logo (falls vorhanden) -->
+    <!-- <img class="logo" src="FHAAC_RGB_rgb.svg" alt="FH Aachen" /> -->
+  </div>
+  <div class="accent-rule" aria-hidden="true"></div>
+</header>
+
+<main class="wrap">
+  <section class="grid" aria-label="Service links">
+    <article class="card">
+      <h2 class="service">JupyterHub</h2>
+      <p class="url"><a href="http://localhost:8000">http://localhost:8000</a></p>
+    </article>
+
+    <article class="card">
+      <h2 class="service">Grafana</h2>
+      <p class="url"><a href="http://localhost:2342">http://localhost:2342</a></p>
+    </article>
+
+    <article class="card">
+      <h2 class="service">Prometheus</h2>
+      <p class="url"><a href="http://localhost:9001">http://localhost:9001</a></p>
+    </article>
+
+    <article class="card">
+      <h2 class="service">Prometheus Exporter</h2>
+      <p class="url"><a href="http://localhost:9002">http://localhost:9002</a></p>
+    </article>
+
+    <article class="card">
+      <h2 class="service">Prometheus Slurm Exporter</h2>
+      <p class="url"><a href="http://localhost:9092">http://localhost:9092</a></p>
+    </article>
+
+    <article class="card">
+      <h2 class="service">Loki</h2>
+      <p class="url">
+        <a href="http://localhost:3100/api/v1/status/buildinfo">http://localhost:3100</a>
+      </p>
+    </article>
+
+    <article class="card">
+      <h2 class="service">Promtail</h2>
+      <p class="url"><a href="http://localhost:28183">http://localhost:28183</a></p>
+    </article>
+
+    <article class="card">
+      <h2 class="service">Dask Worker Dashboard</h2>
+      <p class="url"><a href="http://localhost:8787">http://localhost:8787</a></p>
+    </article>
+
+    <article class="card">
+      <h2 class="service">NFS Export</h2>
+      <p class="muted">
+        localhost:4000<br />
+        localhost:4001<br />
+        localhost:4002
+      </p>
+    </article>
+  </section>
+</main>
+</body>
 </html>
