@@ -1,6 +1,7 @@
 :root {
   --fh-mint: rgb(0 177 172);
   --fh-black: #000;
+  --bdl-black: #3e3e3e;
   --fh-white: #fff;
 
   --ink: #0b0b0b;
@@ -62,8 +63,8 @@ html, body {
   background: linear-gradient(
           90deg,
           var(--fh-mint) 0%,
-          var(--fh-mint) 33%,
-          var(--fh-black) 33%,
+          var(--fh-mint) 45%,
+          var(--fh-black) 70%,
           var(--fh-black) 100%
   );
 }
