@@ -9,6 +9,9 @@
   --panel: #ffffff;
   --panel-hover: #f9fafb;
 
+  --highlight: #f59e0b;          /* orange */
+  --highlight-soft: #fff7ed;     /* very light orange background */
+
   --u: 8px;
 
   --font: "Verdana", sans-serif;
@@ -90,7 +93,7 @@ html, body {
   border-radius: 12px;
   padding: calc(var(--u) * 2);
   transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
-  text-align: left; /* linksbündig */
+  text-align: left;
   min-height: 110px;
 }
 
@@ -100,16 +103,31 @@ html, body {
   transform: translateY(-2px);
 }
 
+.card--highlight {
+  border-color: var(--highlight);
+  border-width: 2px;
+}
+
+.card--highlight:hover{
+  border-color: var(--highlight);
+}
+
+.card--highlight .card__link{
+  background: var(--highlight-soft);
+}
+
+
+
 .service {
   margin: 0 0 calc(var(--u) * 1.25) 0;
-  font-size: 16px;
+  font-size: 20px;
   line-height: 1.3;
   font-weight: 700;
 }
 
 .url, .muted {
   margin: 0;
-  font-size: 14px;
+  font-size: 17px;
   line-height: 1.45;
 }
 
@@ -138,4 +156,11 @@ a:hover {
 
 .muted {
   color: var(--muted);
+}
+
+.logo{
+  height: 85px;
+  width: auto;
+  display: block;
+  flex: 0 0 auto;
 }
