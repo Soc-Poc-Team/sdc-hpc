@@ -38,6 +38,8 @@ let
     c.Spawner.http_timeout = 300
     c.Spawner.start_timeout = 600
 
+    c.Spawner.env_keep = ["PATH"]
+
     c.Spawner.default_url = '/lab'
 
     c.SlurmSpawner.batch_submit_cmd = "${pkgs.slurm}/bin/sbatch --parsable"
@@ -56,7 +58,6 @@ let
     #SBATCH --job-name=spawner-jupyterhub
     #SBATCH --chdir=/homes/{{username}}
     #SBATCH --export={{keepvars}}
-    #SBATCH --get-user-env
     {% if partition  %}#SBATCH --partition={{partition}}
     {% endif %}{% if runtime    %}#SBATCH --time={{runtime}}
     {% endif %}{% if memory     %}#SBATCH --mem={{memory}}
