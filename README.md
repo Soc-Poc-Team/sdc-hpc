@@ -43,7 +43,8 @@ between reboots. This means any changes you make, every file you create are
 discarded on reboot.
 
 If you require data persistance, you have the option of dedicating a whole drive
-to the headnode. Refer to the [disko](#disko) section for this.
+to the headnode. Refer to the [disko](#disko) section for this. At the current
+stage of development we encourage the use of an external storage system.
 
 Which version you should choose depends on your requirements.
 
@@ -54,8 +55,9 @@ Building locally:
 
 1. Install Nix package manager
 2. Adjust config.toml to your needs
-3. Run `nix build` and `nix build .#worker`
-4. Burn the ISOs to a boot medium, plug them in and boot into them.
+3. Run `./build-batch.sh`
+4. Burn the ISOs (in ./results dir) to a boot medium, plug them in and boot into
+   them.
 
 ### Configure your cluster
 
@@ -99,8 +101,8 @@ pipelines, or building them locally on your system.
 To build the ISOs locally, you have to install
 [nix](https://nixos.org/download/) on your system.
 
-Then you can build the headnode ISO by running `nix build` and the worker ISO by
-running `nix build .#worker`. The resulting ISOs can be found under
+Then you can build the headnode ISO by running `nix build .#head` and the worker
+ISO by running `nix build .#worker`. The resulting ISOs can be found under
 `result/iso/`.
 
 #### Burning the ISOs to USB sticks
@@ -138,7 +140,8 @@ Live-ISO. You do not require multiple harddrives.
 
 ## Development
 
-This project provides a developer shell. You can enter it with `nix develop`.
+This project provides a developer shell. You can enter it with `nix develop` or
+using direnv.
 
 ## Requirements
 
@@ -189,6 +192,8 @@ backend:
 We do not gather any other data.
 
 Telemetry can be opted out by setting `telemetry = false` in your config.toml.
+
+**Note:** Currently telemetry is disabled.
 
 ## Publications
 
