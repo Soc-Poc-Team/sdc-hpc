@@ -176,6 +176,12 @@ in
       limits_config.split_queries_by_interval = "24h";
     };
   };
+  services.alloy = {
+    enable = true;
+    configPath = pkgs.writeText "config.alloy" ''
+      // TODO: convert existing promtail config to alloy on runtime and insert here 
+    '';
+  };
   services.promtail = {
     enable = true;
     configuration = {
