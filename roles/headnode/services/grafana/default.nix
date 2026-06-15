@@ -40,7 +40,11 @@ in
       server.http_addr = "0.0.0.0";
 
       # WARNING: These credentials are public in the nix store! Keep this in mind!
-      security =
+      security = {
+        # See https://git.fh-aachen.de/bigdata/cape-canaveral/small-data-cluster/-/work_items/157
+        secret_key = pkgs.lib.mkForce "SW2YcwTIb9zpOOhoPsMm";
+      }
+      // (
         if userConfig.headnode.grafana_enable_admin then
           {
             admin_user = userConfig.headnode.grafana_admin;
@@ -50,8 +54,8 @@ in
         else
           {
             disable_initial_admin_creation = true;
-          };
-
+          }
+      );
     };
     provision = {
       enable = true;
