@@ -179,47 +179,36 @@ in
   services.alloy = {
     enable = true;
     configPath = pkgs.writeText "config.alloy" ''
-      // TODO: convert existing promtail config to alloy on runtime and insert here 
+      discovery.relabel "journal" {
+              targets = []
+
+              rule {
+                      source_labels = ["__journal__systemd_unit"]
+                      target_label  = "unit"
+              }
+      }
+
+      loki.source.journal "journal" {
+              max_age       = "12h0m0s"
+              relabel_rules = discovery.relabel.journal.rules
+              forward_to    = [loki.write.default.receiver]
+              labels        = {
+                      host = "headnode",
+                      job  = "systemd-journal",
+              }
+      }
+
+      loki.write "default" {
+              endpoint {
+                      url = "http://localhost:3100/loki/api/v1/push"
+              }
+              external_labels = {}
+      }
+
     '';
-  };
-  services.promtail = {
-    enable = true;
-    configuration = {
-      server = {
-        http_listen_port = 28183;
-        grpc_listen_port = 0;
-      };
-      clients = [
-        {
-          url = "http://localhost:${builtins.toString config.services.loki.configuration.server.http_listen_port}/loki/api/v1/push";
-        }
-      ];
-      positions = {
-        filename = "/tmp/positions.yaml";
-      };
-      scrape_configs = [
-        {
-          job_name = "journal";
-          journal = {
-            max_age = "12h";
-            labels = {
-              job = "systemd-journal";
-              host = "headnode";
-            };
-          };
-          relabel_configs = [
-            {
-              source_labels = [ "__journal__systemd_unit" ];
-              target_label = "unit";
-            }
-          ];
-        }
-      ];
-    };
   };
   networking.firewall = {
     allowedTCPPorts = [
-      config.services.promtail.configuration.server.http_listen_port
       config.services.loki.configuration.server.http_listen_port
       config.services.prometheus.port
       config.services.prometheus.exporters.node.port
