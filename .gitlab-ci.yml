@@ -1,5 +1,6 @@
 stages:
   - check
+  - depends
   - build
 variables:
   NIX_BUILD_SHELL: "/bin/bash"
@@ -11,6 +12,14 @@ treefmt:
   image: nixos/nix
   script:
     - nix --accept-flake-config --extra-experimental-features "nix-command flakes" fmt -- --fail-on-change
+slurm-node-exporter:
+  stage: depends
+  timeout: 10m
+  tags:
+    - bigdatalab-sdc
+  image: nixos/nix
+  script:
+    - nix --accept-flake-config --extra-experimental-features "nix-command flakes" build .#devel.sne
 worker:
   stage: build
   timeout: 1h

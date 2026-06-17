@@ -190,7 +190,8 @@
       };
       packages.x86_64-linux = rec {
         devel = {
-          pne = pkgs.callPackage ./roles/headnode/modules/slurm-node-exporter { };
+          sne = pkgs.callPackage ./roles/headnode/modules/slurm-node-exporter { };
+          slurm = pkgs.slurm;
         };
         default = headnode.config.system.build.isoImage;
         head = headnode.config.system.build.isoImage;
