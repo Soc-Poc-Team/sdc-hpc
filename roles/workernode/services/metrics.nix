@@ -49,7 +49,7 @@ in
 
       loki.write "default" {
               endpoint {
-                      url = "http://headnode.${tailscaleDomain}:3100/loki/api/v1/push""
+                      url = "http://headnode.${tailscaleDomain}:3100/loki/api/v1/push"
               }
               external_labels = {}
       }
