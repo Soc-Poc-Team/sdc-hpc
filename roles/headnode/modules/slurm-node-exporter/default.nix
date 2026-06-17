@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, lib, ... }:
 
 let
   slurm = pkgs.slurm;
@@ -28,5 +28,13 @@ pkgs.buildGoModule rec {
   ];
 
   doCheck = false;
+
+  meta = {
+    description = "Slurm Exporter is a Prometheus exporter designed to scrape and expose a comprehensive range of performance and scheduling metrics from Slurm-managed clusters.";
+    license = lib.licenses.gpl3Only;
+    homepage = "https://github.com/SckyzO/slurm_exporter";
+    maintainers = with lib.maintainers; [ turebentzin ];
+    mainProgram = "slurm_exporter";
+  };
 
 }
