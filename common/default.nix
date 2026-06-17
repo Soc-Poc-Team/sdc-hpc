@@ -49,7 +49,7 @@ in
     "flakes"
   ];
 
-  documentation.man.generateCaches = false; # https://git.fh-aachen.de/bigdata/cape-canaveral/small-data-cluster/-/work_items/109
+  documentation.man.cache.enable = false; # https://git.fh-aachen.de/bigdata/cape-canaveral/small-data-cluster/-/work_items/109
 
   boot.kernelPackages = lib.mkIf (lib.versionOlder pkgs.linux.version "6.18.22") (
     lib.mkDefault pkgs.linuxPackages_6_18
