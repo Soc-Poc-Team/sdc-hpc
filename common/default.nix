@@ -55,6 +55,8 @@ in
     lib.mkDefault pkgs.linuxPackages_6_18
   );
 
+  boot.zfs.forceImportRoot = true; # https://git.fh-aachen.de/bigdata/cape-canaveral/small-data-cluster/-/work_items/159#note_317456
+
   system.extraDependencies = [
     (import ./environments/jlabkernels.nix { inherit pkgs; })
   ];
