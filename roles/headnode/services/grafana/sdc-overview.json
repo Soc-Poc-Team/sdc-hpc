@@ -231,7 +231,7 @@
                       "kind": "DataQuery",
                       "spec": {
                         "editorMode": "code",
-                        "expr": "100 * (1 - avg(rate(node_cpu_seconds_total{mode=\"idle\"}[5m])))",
+                        "expr": "100 * (1 - avg(rate(node_cpu_seconds_total{mode=\"idle\",instance=\"127.0.0.1:9002\"}[1m])))",
                         "legendFormat": "__auto",
                         "range": true
                       },
@@ -1409,7 +1409,8 @@
                   {
                     "matcher": {
                       "id": "byName",
-                      "options": "alloc"
+                      "options": "allocated",
+                      "scope": "series"
                     },
                     "properties": [
                       {
@@ -1424,7 +1425,8 @@
                   {
                     "matcher": {
                       "id": "byName",
-                      "options": "mix"
+                      "options": "mixed",
+                      "scope": "series"
                     },
                     "properties": [
                       {
