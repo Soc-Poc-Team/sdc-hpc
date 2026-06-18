@@ -12,6 +12,7 @@ let
   sdc-overview = ./sdc-overview.json;
   slurm-dashboard = ./slurm-dashboard.json;
   slurmExporter = pkgs.callPackage ../../modules/slurm-node-exporter { };
+  slurmExporterPort = 9092;
 in
 {
   systemd.services.slurm-exporter = {
@@ -24,7 +25,7 @@ in
       pkgs.coreutils
     ];
     serviceConfig = {
-      ExecStart = "${pkgs.lib.getExe slurmExporter}";
+      ExecStart = "${pkgs.lib.getExe slurmExporter} --web.listen-address=:${slurmExporterPort}";
       Restart = "always";
       DynamicUser = true;
     };
@@ -217,6 +218,7 @@ in
       config.services.prometheus.port
       config.services.prometheus.exporters.node.port
       config.services.grafana.settings.server.http_port
+      slurmExporterPort
     ];
   };
 }
