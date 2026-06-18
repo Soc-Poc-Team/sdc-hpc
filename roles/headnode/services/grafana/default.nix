@@ -25,7 +25,7 @@ in
       pkgs.coreutils
     ];
     serviceConfig = {
-      ExecStart = "${pkgs.lib.getExe slurmExporter} --web.listen-address=:${slurmExporterPort}";
+      ExecStart = "${pkgs.lib.getExe slurmExporter} --web.listen-address=:${builtins.toString slurmExporterPort}";
       Restart = "always";
       DynamicUser = true;
     };
