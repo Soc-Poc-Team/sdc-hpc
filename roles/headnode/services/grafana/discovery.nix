@@ -19,13 +19,21 @@ let
 
       sinfo -Nh -o "%N" \
         | sort -u \
-        | awk '{print "\"" $1 ":9002\""}' \
-        | awk 'BEGIN { print "["; print "  {\"targets\": [" } 
-               { print } 
-               END { print "  ]}"; print "]" }' \
-        | sed '$!s/$/,/' \
-        > "$OUT"
-    '';
+        | awk '
+            BEGIN {
+              print "["
+              print "  {\"targets\": ["
+            }
+            {
+              if (n++) print ","
+              printf "    \"%s:9002\"", $1
+            }
+            END {
+              print ""
+              print "  ]}"
+              print "]"
+            }
+          ' > "$OUT"       '';
   };
 in
 {
@@ -71,7 +79,7 @@ in
 
       serviceConfig = {
         Type = "oneshot";
-        ExecStart = slurmNodeTargets;
+        ExecStart = pkgs.lib.getExe slurmNodeTargets;
       };
     };
   };
