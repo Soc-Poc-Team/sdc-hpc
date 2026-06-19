@@ -83,18 +83,41 @@ in
           }
         ];
       };
-      dashboards.settings = {
-        providers = [
-          {
-            name = "headnode control";
-            options.path = sdc-overview;
-          }
-          {
-            name = "slurm dashboard";
-            options.path = slurm-dashboard;
-          }
-        ];
-      };
+      dashboards.settings =
+        let
+          provisionGrafanaLabs =
+            {
+              name ? "grafanalabs-${id}-${revision}",
+              id,
+              revision,
+              hash,
+            }:
+            {
+              inherit name;
+              options.path = pkgs.fetchurl {
+                url = "https://grafana.com/api/dashboards/${builtins.toString id}/revisions/${builtins.toString revision}/download";
+                inherit hash;
+              };
+            };
+        in
+        {
+          providers = [
+            {
+              name = "headnode control";
+              options.path = sdc-overview;
+            }
+            {
+              name = "slurm dashboard";
+              options.path = slurm-dashboard;
+            }
+            (provisionGrafanaLabs {
+              name = "node exporter full";
+              id = 1860;
+              revision = 45;
+              hash = "sha256-GExrdAnzBtp1Ul13cvcZRbEM6iOtFrXXjEaY6g6lGYY=";
+            })
+          ];
+        };
     };
   };
   services.prometheus = {
