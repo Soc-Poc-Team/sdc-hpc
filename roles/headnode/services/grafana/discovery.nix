@@ -2,22 +2,31 @@
 let
   slurmWorkerListFile = "/var/lib/prometheus/slurm-workers.json";
 
-  slurmNodeTargets = pkgs.writeShellScript "slurm-node-targets" ''
-    set -euo pipefail
+  slurmNodeTargets = pkgs.writeShellApplication {
+    name = "slurm-node-targets";
 
-    OUT="${slurmWorkerListFile}"
-    mkdir -p "$(dirname "$OUT")"
+    runtimeInputs = [
+      pkgs.slurm
+      pkgs.gawk
+      pkgs.gnused
+      pkgs.coreutils
+    ];
+    text = ''
+      set -euo pipefail
 
-    ${pkgs.slurm}/bin/sinfo -Nh -o "%N" \
-      | sort -u \
-      | awk '{print "\"" $1 ":9002\""}' \
-      | awk 'BEGIN { print "["; print "  {\"targets\": [" } 
-             { print } 
-             END { print "  ]}"; print "]" }' \
-      | sed '$!s/$/,/' \
-      > "$OUT"
-  '';
+      OUT="${slurmWorkerListFile}"
+      mkdir -p "$(dirname "$OUT")"
 
+      sinfo -Nh -o "%N" \
+        | sort -u \
+        | awk '{print "\"" $1 ":9002\""}' \
+        | awk 'BEGIN { print "["; print "  {\"targets\": [" } 
+               { print } 
+               END { print "  ]}"; print "]" }' \
+        | sed '$!s/$/,/' \
+        > "$OUT"
+    '';
+  };
 in
 {
 
