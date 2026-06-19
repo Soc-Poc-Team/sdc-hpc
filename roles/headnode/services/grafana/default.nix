@@ -13,8 +13,14 @@ let
   slurm-dashboard = ./slurm-dashboard.json;
   slurmExporter = pkgs.callPackage ../../modules/slurm-node-exporter { };
   slurmExporterPort = 9092;
+
 in
 {
+
+  imports = [
+    ./discovery.nix
+  ];
+
   systemd.services.slurm-exporter = {
     description = "Slurm Prometheus Exporter";
     requiredBy = [ "cluster.target" ];
@@ -118,7 +124,7 @@ in
         ];
       }
       {
-        job_name = "SlurmExporter";
+        job_name = "Slurm";
         static_configs = [ { targets = [ "127.0.0.1:9092" ]; } ];
       }
     ];
