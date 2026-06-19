@@ -94,10 +94,12 @@ in
             }:
             {
               inherit name;
-              options.path = pkgs.fetchurl {
-                url = "https://grafana.com/api/dashboards/${builtins.toString id}/revisions/${builtins.toString revision}/download";
-                inherit hash;
-              };
+              options.path =
+                (pkgs.fetchurl {
+                  name = "${name}.json";
+                  url = "https://grafana.com/api/dashboards/${builtins.toString id}/revisions/${builtins.toString revision}/download";
+                  inherit hash;
+                }).outPath;
             };
         in
         {
