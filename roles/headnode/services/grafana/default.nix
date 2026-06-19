@@ -114,18 +114,8 @@ in
 
     scrapeConfigs = [
       {
-        job_name = "headnode";
-        static_configs = [
-          {
-            targets = [
-              "127.0.0.1:${toString config.services.prometheus.exporters.node.port}"
-            ];
-          }
-        ];
-      }
-      {
         job_name = "Slurm";
-        static_configs = [ { targets = [ "127.0.0.1:9092" ]; } ];
+        static_configs = [ { targets = [ "headnode:9092" ]; } ];
       }
     ];
   };
