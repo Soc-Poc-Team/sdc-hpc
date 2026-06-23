@@ -4,12 +4,12 @@
   "metadata": {
     "name": "cefeq4w1vgu80f",
     "namespace": "default",
-    "uid": "8546a0b9-3312-4d3f-a46f-6bcc552e7359",
-    "resourceVersion": "1781862821702984",
+    "uid": "774033cc-7345-48a7-9fe4-9539affb3ad7",
+    "resourceVersion": "1782199493042984",
     "generation": 1,
-    "creationTimestamp": "2026-06-19T09:53:41Z",
+    "creationTimestamp": "2026-06-23T07:24:52Z",
     "labels": {
-      "grafana.app/deprecatedInternalID": "756441808490496"
+      "grafana.app/deprecatedInternalID": "2168543668899840"
     },
     "annotations": {
       "grafana.app/createdBy": "access-policy:service",
@@ -130,7 +130,7 @@
                       "kind": "DataQuery",
                       "spec": {
                         "editorMode": "code",
-                        "expr": "(1 - (sum(node_memory_MemAvailable_bytes) / sum(node_memory_MemTotal_bytes))) * 100",
+                        "expr": "100 * (1 - (node_memory_MemAvailable_bytes{instance=\"headnode:9002\"} / node_memory_MemTotal_bytes{instance=\"headnode:9002\"}))",
                         "legendFormat": "__auto",
                         "range": true
                       },
@@ -147,7 +147,7 @@
           "description": "",
           "id": 12,
           "links": [],
-          "title": "Cluster Memory usage",
+          "title": "Headnode memory utilization",
           "vizConfig": {
             "group": "gauge",
             "kind": "VizConfig",
@@ -231,7 +231,7 @@
                       "kind": "DataQuery",
                       "spec": {
                         "editorMode": "code",
-                        "expr": "(1 - (sum(rate(node_cpu_seconds_total{mode=\"idle\"}[1m])) / sum(count by (instance) (node_cpu_seconds_total{mode=\"idle\"})))) * 100",
+                        "expr": "100 * (1 - avg(rate(node_cpu_seconds_total{mode=\"idle\",instance=\"headnode:9002\"}[1m])))",
                         "legendFormat": "__auto",
                         "range": true
                       },
@@ -248,7 +248,7 @@
           "description": "",
           "id": 13,
           "links": [],
-          "title": "Cluster CPU utilization",
+          "title": "Headnode CPU utilization",
           "vizConfig": {
             "group": "gauge",
             "kind": "VizConfig",
@@ -331,7 +331,7 @@
                       "kind": "DataQuery",
                       "spec": {
                         "editorMode": "code",
-                        "expr": " sum(node_memory_MemTotal_bytes) - sum(node_memory_MemAvailable_bytes)",
+                        "expr": "node_memory_MemTotal_bytes{instance=\"headnode:9002\"} - (node_memory_MemAvailable_bytes{instance=\"headnode:9002\"})",
                         "legendFormat": "__auto",
                         "range": true
                       },
@@ -421,7 +421,7 @@
                       "spec": {
                         "editorMode": "code",
                         "exemplar": false,
-                        "expr": "(1 - (sum(rate(node_cpu_seconds_total{mode=\"idle\"}[1m])) / sum(count by (instance) (node_cpu_seconds_total{mode=\"idle\"})))) * 100",
+                        "expr": "100 * (1 - avg(rate(node_cpu_seconds_total{mode=\"idle\",instance=\"headnode:9002\"}[1m])))",
                         "instant": false,
                         "legendFormat": "__auto",
                         "range": true
@@ -439,7 +439,7 @@
           "description": "",
           "id": 15,
           "links": [],
-          "title": "Cluster CPU utilization",
+          "title": "Headnode cpu utilization",
           "vizConfig": {
             "group": "stat",
             "kind": "VizConfig",
