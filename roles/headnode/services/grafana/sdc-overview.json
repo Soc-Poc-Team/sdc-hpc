@@ -4,19 +4,19 @@
   "metadata": {
     "name": "cefeq4w1vgu80f",
     "namespace": "default",
-    "uid": "774033cc-7345-48a7-9fe4-9539affb3ad7",
-    "resourceVersion": "1782199493042984",
+    "uid": "8e747889-3407-47eb-80ad-adf3cd8cbb83",
+    "resourceVersion": "1782219001320997",
     "generation": 1,
-    "creationTimestamp": "2026-06-23T07:24:52Z",
+    "creationTimestamp": "2026-06-23T12:50:01Z",
     "labels": {
-      "grafana.app/deprecatedInternalID": "2168543668899840"
+      "grafana.app/deprecatedInternalID": "2250367322050560"
     },
     "annotations": {
       "grafana.app/createdBy": "access-policy:service",
       "grafana.app/managedBy": "classic-file-provisioning",
       "grafana.app/managerId": "headnode control",
-      "grafana.app/sourceChecksum": "5924737bdbb572ab84e863e66b93fe31",
-      "grafana.app/sourcePath": "/nix/store/y8qb1kzgqifikh075zbpl1w8f8xg6nb8-sdc-overview.json",
+      "grafana.app/sourceChecksum": "47bba04a4394077e875bf5c52ff360b9",
+      "grafana.app/sourcePath": "/nix/store/yqa7x2ik76p21fnnslxj5pndv8ihpw9b-sdc-overview.json",
       "grafana.app/sourceTimestamp": "1000",
       "grafana.app/folder": ""
     }
@@ -511,30 +511,9 @@
                       "kind": "DataQuery",
                       "spec": {
                         "editorMode": "code",
-                        "exemplar": false,
-                        "expr": "avg(slurm_partition_free_mem/ slurm_partition_real_mem) ",
-                        "legendFormat": "Average free memory",
-                        "range": true
-                      },
-                      "version": "v0"
-                    },
-                    "refId": "A"
-                  }
-                },
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "hidden": false,
-                    "query": {
-                      "datasource": {
-                        "name": "prometheus"
-                      },
-                      "group": "prometheus",
-                      "kind": "DataQuery",
-                      "spec": {
-                        "editorMode": "code",
-                        "expr": "avg(sum(slurm_node_mem_alloc) / sum(slurm_node_mem_total))",
-                        "legendFormat": "Average allocated memory",
+                        "expr": "\r\n(1 - sum(rate(node_cpu_seconds_total{mode=\"idle\"}[31s])) \r\n     / sum(count by (cpu, instance)(node_cpu_seconds_total{mode=\"idle\"}))\r\n)",
+                        "instant": false,
+                        "legendFormat": "Cluster CPU %",
                         "range": true
                       },
                       "version": "v0"
@@ -554,13 +533,58 @@
                       "kind": "DataQuery",
                       "spec": {
                         "editorMode": "code",
-                        "expr": "avg(slurm_cpus_alloc / slurm_cpus_total)",
-                        "legendFormat": "average CPU load",
+                        "expr": "(\r\n  1 -\r\n  sum(node_memory_MemAvailable_bytes)\r\n  /\r\n  sum(node_memory_MemTotal_bytes)\r\n)",
+                        "instant": false,
+                        "legendFormat": "Cluster Mem %",
+                        "range": true
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "A"
+                  }
+                },
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "prometheus"
+                      },
+                      "group": "prometheus",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorMode": "code",
+                        "expr": "slurm_cpus_alloc / slurm_cpus_total",
+                        "instant": false,
+                        "legendFormat": "Cluster CPU alloc %",
                         "range": true
                       },
                       "version": "v0"
                     },
                     "refId": "C"
+                  }
+                },
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "hidden": false,
+                    "query": {
+                      "datasource": {
+                        "name": "prometheus"
+                      },
+                      "group": "prometheus",
+                      "kind": "DataQuery",
+                      "spec": {
+                        "editorMode": "code",
+                        "expr": "\r\nsum(slurm_node_mem_alloc)\r\n/\r\nsum(slurm_node_mem_total)",
+                        "instant": false,
+                        "legendFormat": "Cluster Mem alloc %",
+                        "range": true
+                      },
+                      "version": "v0"
+                    },
+                    "refId": "D"
                   }
                 }
               ],
