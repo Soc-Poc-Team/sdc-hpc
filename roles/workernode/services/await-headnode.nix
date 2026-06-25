@@ -7,6 +7,8 @@
 let
   enable = userConfig.worker.awaitHeadnode;
   headnode = "headnode.${userConfig.tailscale.domain}";
+
+  pharos = pkgs.callPackage ../../../packages/pharos { };
 in
 {
   config = lib.mkIf enable {
@@ -35,19 +37,25 @@ in
         RemainAfterExit = true;
       };
 
-      path = with pkgs; [
-        iputils
-        coreutils
-      ];
+      path = [ pharos ];
 
-      # TODO: We might open a port on headnode as soon as cluster.target is completed there and check for that one instead
       script = ''
         echo "Waiting for ${headnode}..."
 
-        for i in $(seq 1 300); do
-          if ping -c1 -W1 ${headnode} >/dev/null 2>&1; then
+        for i in $(seq 1 ); do
+          output=$(pharos ${headnode} 1010)
+          rc=$?
+
+          if [ $rc -eq 0 ]; then
             echo "Headnode reachable."
             exit 0
+          elif [ $rc -eq 1 ]; then
+            echo "The version of this workernode is not supported by the headnode: ''${output}"
+            exit 1
+          elif [ $rc -eq 2 ]; then
+            exit 2
+          elif [ $rc -eq 3 ]; then
+            continue
           fi
 
           sleep 2
