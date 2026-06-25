@@ -1,4 +1,5 @@
 { pkgs, ... }:
+# https://en.wikipedia.org/wiki/Lighthouse_of_Alexandria
 pkgs.stdenv.mkDerivation {
   name = "pharos";
   version = "1.0";

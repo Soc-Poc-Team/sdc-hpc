@@ -13,7 +13,7 @@ in
     description = "Pharosd";
 
     requires = [ "cluster.target" ];
-    after = [ "cluster.target " ];
+    after = [ "cluster.target" ];
     requiredBy = [ "default.target" ];
 
     path = [
