@@ -15,8 +15,16 @@ static std::unordered_set<std::string> load_file(const std::string& path)
     std::string line;
     while (std::getline(file, line))
     {
-        if (!line.empty())
-            set.insert(line);
+        if (line.empty())
+            continue;
+
+        if (line[0] == '#') // ignore comments
+            continue;
+
+        if (!line.empty() && line.back() == '\r')
+            line.pop_back();
+
+        set.insert(line);
     }
 
     return set;
