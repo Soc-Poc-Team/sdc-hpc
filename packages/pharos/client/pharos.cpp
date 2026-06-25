@@ -5,6 +5,8 @@
 #include <string>
 #include <sys/socket.h>
 #include <unistd.h>
+#include <sys/types.h>
+#include <netdb.h>
 
 /*
 Exit codes:
@@ -42,20 +44,29 @@ int main(int argc, char* argv[])
     server.sin_family = AF_INET;
     server.sin_port = htons(std::stoi(argv[2]));
 
-    if (inet_pton(AF_INET, argv[1], &server.sin_addr) != 1)
-    {
-        std::cerr << "Invalid address\n";
-        close(sock);
-        return 2;
-    }
+    addrinfo hints{};
+    addrinfo* res = nullptr;
 
-    if (connect(sock, reinterpret_cast<sockaddr*>(&server), sizeof(server)) < 0)
+    hints.ai_family = AF_INET;
+    hints.ai_socktype = SOCK_STREAM;
+
+    int err = getaddrinfo(argv[1], argv[2], &hints, &res);
+    if (err != 0)
     {
-        perror("connect");
+        std::cerr << "getaddrinfo: " << gai_strerror(err) << "\n";
         close(sock);
         return 3;
     }
 
+    if (connect(sock, res->ai_addr, res->ai_addrlen) < 0)
+    {
+        perror("connect");
+        freeaddrinfo(res);
+        close(sock);
+        return 2;
+    }
+
+    freeaddrinfo(res);
     std::string request = std::string(token) + "\n";
 
     if (send(sock, request.c_str(), request.size(), 0) < 0)
@@ -64,6 +75,12 @@ int main(int argc, char* argv[])
         close(sock);
         return 3;
     }
+
+    timeval tv{};
+    tv.tv_sec = 5;
+    tv.tv_usec = 0;
+
+    setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
 
     char buffer[1024];
     ssize_t n = recv(sock, buffer, sizeof(buffer) - 1, 0);
