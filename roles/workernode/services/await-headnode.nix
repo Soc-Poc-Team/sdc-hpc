@@ -16,6 +16,8 @@ let
       lib.strings.splitString "\n" (builtins.readFile ../../../VERSION)
     )
   );
+
+  timeout = userConfig.worker.headnodeTimeout;
 in
 {
   config = lib.mkIf enable {
@@ -51,7 +53,7 @@ in
         echo "We are at version: ''${PHAROS_VERSION}"
         echo "Waiting for ${headnode}..."
 
-        TIMEOUT_SECONDS=20
+        TIMEOUT_SECONDS=${timeout}
         START_TIME=$(date +%s)
 
         while true; do
