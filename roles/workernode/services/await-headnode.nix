@@ -50,12 +50,24 @@ in
         export PHAROS_VERSION=${clientVersion}
         echo "We are at version: ''${PHAROS_VERSION}"
         echo "Waiting for ${headnode}..."
-        for i in $(seq 10); do
-        if output=$(${pharosClient} ${headnode} 1010); then
-          rc=0
-        else
-          rc=$?
-        fi
+
+        TIMEOUT_SECONDS=20
+        START_TIME=$(date +%s)
+
+        while true; do
+          NOW=$(date +%s)
+          ELAPSED=$((NOW - START_TIME))
+
+          if [ "$ELAPSED" -ge "$TIMEOUT_SECONDS" ]; then
+            echo "Timed out waiting for ${headnode}"
+            exit 1
+          fi
+
+          if output=$(${pharosClient} ${headnode} 1010); then
+            rc=0
+          else
+            rc=$?
+          fi
 
           case "$rc" in
             0)
@@ -79,9 +91,6 @@ in
               ;;
           esac
         done
-
-        echo "Timed out waiting for ${headnode}"
-        exit 1
       '';
     };
   };
