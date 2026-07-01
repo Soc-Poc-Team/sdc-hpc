@@ -9,6 +9,7 @@ let
   headnode = "headnode.${userConfig.tailscale.domain}";
 
   pharos = pkgs.callPackage ../../../packages/pharos { };
+  pharosClient = "${pharos}/bin/pharos";
 in
 {
   config = lib.mkIf enable {
@@ -43,7 +44,7 @@ in
         echo "Waiting for ${headnode}..."
 
         for i in $(seq 1 ); do
-          output=$(pharos ${headnode} 1010)
+          output=$(${pharosClient} ${headnode} 1010)
           rc=$?
 
           if [ $rc -eq 0 ]; then

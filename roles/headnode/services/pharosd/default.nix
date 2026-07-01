@@ -16,11 +16,8 @@ in
     after = [ "cluster.target" ];
     requiredBy = [ "default.target" ];
 
-    path = [
-      pharos
-    ];
-
     serviceConfig = {
+      ExecSearchPath = "${pharos}/bin";
       ExecStart = "pharosd 1010 ${version_file}";
     };
   };
