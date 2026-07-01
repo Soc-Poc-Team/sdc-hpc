@@ -51,8 +51,11 @@ in
         echo "We are at version: ''${PHAROS_VERSION}"
         echo "Waiting for ${headnode}..."
         for i in $(seq 10); do
-          output=$(${pharosClient} ${headnode} 1010)
+        if output=$(${pharosClient} ${headnode} 1010); then
+          rc=0
+        else
           rc=$?
+        fi
 
           case "$rc" in
             0)
