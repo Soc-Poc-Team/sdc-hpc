@@ -10,11 +10,17 @@ let
 
   pharos = pkgs.callPackage ../../../packages/pharos { };
   pharosClient = "${pharos}/bin/pharos";
+
+  clientVersion = builtins.head (
+    lib.filter (line: line != "" && !(lib.hasPrefix "#" line)) (
+      lib.strings.splitString "\n" (builtins.readFile ../../../VERSION)
+    )
+  );
 in
 {
   config = lib.mkIf enable {
     systemd.services.awaitHeadnode = {
-      description = "Wait for headnode to become reachable";
+      description = "Wait for headnode to become available";
 
       requiredBy = [
         "pre-cluster.target"
@@ -41,25 +47,34 @@ in
       path = [ pharos ];
 
       script = ''
+        export PHAROS_VERSION=${clientVersion}
+        echo "We are at version: ''${PHAROS_VERSION}"
         echo "Waiting for ${headnode}..."
-
-        for i in $(seq 1 ); do
+        for i in $(seq 10); do
           output=$(${pharosClient} ${headnode} 1010)
           rc=$?
 
-          if [ $rc -eq 0 ]; then
-            echo "Headnode reachable."
-            exit 0
-          elif [ $rc -eq 1 ]; then
-            echo "The version of this workernode is not supported by the headnode: ''${output}"
-            exit 1
-          elif [ $rc -eq 2 ]; then
-            exit 2
-          elif [ $rc -eq 3 ]; then
-            continue
-          fi
-
-          sleep 2
+          case "$rc" in
+            0)
+              echo "Headnode reachable."
+              exit 0
+              ;;
+            1)
+              echo "The version of this workernode is not supported by the headnode: ''${output}"
+              exit 1
+              ;;
+            2)
+              exit 2
+              ;;
+            3)
+              sleep 2
+              continue
+              ;;
+            *)
+              echo "Unexpected exit code: $rc"
+              exit "$rc"
+              ;;
+          esac
         done
 
         echo "Timed out waiting for ${headnode}"
