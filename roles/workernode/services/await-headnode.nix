@@ -53,7 +53,7 @@ in
         echo "We are at version: ''${PHAROS_VERSION}"
         echo "Waiting for ${headnode}..."
 
-        TIMEOUT_SECONDS=${timeout}
+        TIMEOUT_SECONDS=${builtins.toString timeout}
         START_TIME=$(date +%s)
 
         while true; do
