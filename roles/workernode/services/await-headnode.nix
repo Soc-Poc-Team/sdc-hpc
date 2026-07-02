@@ -56,6 +56,8 @@ in
         TIMEOUT_SECONDS=${builtins.toString timeout}
         START_TIME=$(date +%s)
 
+        last_stderr=""
+
         while true; do
           NOW=$(date +%s)
           ELAPSED=$((NOW - START_TIME))
@@ -65,10 +67,23 @@ in
             exit 1
           fi
 
-          if output=$(${pharosClient} ${headnode} 1010); then
+          stdout_file=$(mktemp)
+          stderr_file=$(mktemp)
+
+          if ${pharosClient} ${headnode} 1010 >"$stdout_file" 2>"$stderr_file"; then
             rc=0
           else
             rc=$?
+          fi
+
+          output=$(<"$stdout_file")
+          stderr_output=$(<"$stderr_file")
+
+          rm -f "$stdout_file" "$stderr_file"
+
+          if [ -n "$stderr_output" ] && [ "$stderr_output" != "$last_stderr" ]; then
+            echo "$stderr_output" >&2
+            last_stderr="$stderr_output"
           fi
 
           case "$rc" in
