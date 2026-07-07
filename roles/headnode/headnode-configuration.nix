@@ -54,6 +54,7 @@ in
     ./services/slurmctld.nix
     ./services/dashboard
     ./services/telemetry.nix
+    ./services/pharosd
   ];
   environment.systemPackages = [ persistToDisk ];
 

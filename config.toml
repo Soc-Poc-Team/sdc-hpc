@@ -21,6 +21,8 @@ acceptDHCPHostnames = false
 awaitHeadnode = true
 # Shows the journal on tty1
 showJournal = false
+# Timeout in seconds to reach headnode before giving up
+headnodeTimeout = 900
 
 [users.alice]
 passwordHash = "$6$niENrHi8EzNkxcQb$s0.Dc5HiGj3RyUEHIbi8sLZNBjA7Ibz1P2.odljSjYLlbjmX6n4d8B0lGEffjMEApf5rWqoU2Iq8fQiqWYGj71"

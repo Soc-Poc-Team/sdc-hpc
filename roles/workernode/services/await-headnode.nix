@@ -7,11 +7,22 @@
 let
   enable = userConfig.worker.awaitHeadnode;
   headnode = "headnode.${userConfig.tailscale.domain}";
+
+  pharos = pkgs.callPackage ../../../packages/pharos { };
+  pharosClient = "${pharos}/bin/pharos";
+
+  clientVersion = builtins.head (
+    lib.filter (line: line != "" && !(lib.hasPrefix "#" line)) (
+      lib.strings.splitString "\n" (builtins.readFile ../../../VERSION)
+    )
+  );
+
+  timeout = userConfig.worker.headnodeTimeout;
 in
 {
   config = lib.mkIf enable {
     systemd.services.awaitHeadnode = {
-      description = "Wait for headnode to become reachable";
+      description = "Wait for headnode to become available";
 
       requiredBy = [
         "pre-cluster.target"
@@ -35,26 +46,68 @@ in
         RemainAfterExit = true;
       };
 
-      path = with pkgs; [
-        iputils
-        coreutils
-      ];
+      path = [ pharos ];
 
-      # TODO: We might open a port on headnode as soon as cluster.target is completed there and check for that one instead
       script = ''
+        export PHAROS_VERSION=${clientVersion}
+        echo "We are at version: ''${PHAROS_VERSION}"
         echo "Waiting for ${headnode}..."
 
-        for i in $(seq 1 300); do
-          if ping -c1 -W1 ${headnode} >/dev/null 2>&1; then
-            echo "Headnode reachable."
-            exit 0
+        TIMEOUT_SECONDS=${builtins.toString timeout}
+        START_TIME=$(date +%s)
+
+        last_stderr=""
+
+        while true; do
+          NOW=$(date +%s)
+          ELAPSED=$((NOW - START_TIME))
+
+          if [ "$ELAPSED" -ge "$TIMEOUT_SECONDS" ]; then
+            echo "Timed out waiting for ${headnode}"
+            exit 1
           fi
 
-          sleep 2
-        done
+          stdout_file=$(mktemp)
+          stderr_file=$(mktemp)
 
-        echo "Timed out waiting for ${headnode}"
-        exit 1
+          if ${pharosClient} ${headnode} 1010 >"$stdout_file" 2>"$stderr_file"; then
+            rc=0
+          else
+            rc=$?
+          fi
+
+          output=$(<"$stdout_file")
+          stderr_output=$(<"$stderr_file")
+
+          rm -f "$stdout_file" "$stderr_file"
+
+          if [ -n "$stderr_output" ] && [ "$stderr_output" != "$last_stderr" ]; then
+            echo "$stderr_output" >&2
+            last_stderr="$stderr_output"
+          fi
+
+          case "$rc" in
+            0)
+              echo "Headnode reachable."
+              exit 0
+              ;;
+            1)
+              echo "The version of this workernode is not supported by the headnode: ''${output}"
+              exit 1
+              ;;
+            2)
+              exit 2
+              ;;
+            3)
+              sleep 2
+              continue
+              ;;
+            *)
+              echo "Unexpected exit code: $rc"
+              exit "$rc"
+              ;;
+          esac
+        done
       '';
     };
   };
