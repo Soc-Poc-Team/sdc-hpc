@@ -1,4 +1,4 @@
-{ pkgs, modulesPath, ... }:
+{ pkgs, ... }:
 let
   persistToDisk = pkgs.writeShellScriptBin "persist-to-disk" ''
     set -euo pipefail
@@ -47,7 +47,6 @@ let
 in
 {
   imports = [
-    (modulesPath + "/installer/cd-dvd/installation-cd-minimal.nix")
     ./services/jupyterhub.nix
     ./services/userhomes.nix
     ./services/grafana

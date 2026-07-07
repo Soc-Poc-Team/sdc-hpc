@@ -1,14 +1,12 @@
 (
   {
     pkgs,
-    modulesPath,
     lib,
     userConfig,
     ...
   }:
   {
     imports = [
-      (modulesPath + "/installer/cd-dvd/installation-cd-minimal.nix")
       ./services/mount-nfs.nix
       ./services/metrics.nix
       ./services/randomHostname.nix

@@ -36,6 +36,7 @@ let
 in
 {
   imports = [
+    ./iso-image.nix
     ./services/dask
     (import ./services/slurm.nix)
     ./targets/cluster.nix
