@@ -19,6 +19,7 @@ let
     createHome = true;
     hashedPassword = userData.passwordHash;
     uid = userData.uid;
+    openssh.authorizedKeys.keys = userData.sshKeys or [ ];
   }) userConfig.users;
 
   jupyterhubEnv = pkgs.python3.withPackages (
