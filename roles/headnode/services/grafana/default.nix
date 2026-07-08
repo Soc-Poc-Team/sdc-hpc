@@ -2,6 +2,7 @@
   config,
   pkgs,
   userConfig,
+  lib,
   ...
 }:
 let
@@ -86,6 +87,14 @@ in
       };
     };
   };
+
+  systemd.services.grafana = {
+    requiredBy = lib.mkForce [ "cluster.target" ];
+    requires = lib.mkForce [ "pre-cluster.target" ];
+    wantedBy = lib.mkForce [ ];
+    after = [ "cluster.target" ];
+  };
+
   services.prometheus = {
     enable = true;
     port = 9001;
@@ -118,6 +127,14 @@ in
       }
     ];
   };
+
+  systemd.services.prometheus = {
+    requiredBy = lib.mkForce [ "cluster.target" ];
+    requires = lib.mkForce [ "pre-cluster.target" ];
+    wantedBy = lib.mkForce [ ];
+    after = [ "cluster.target" ];
+  };
+
   services.loki = {
     enable = true;
     configuration = {
@@ -176,6 +193,14 @@ in
       limits_config.split_queries_by_interval = "24h";
     };
   };
+
+  systemd.services.loki = {
+    requiredBy = lib.mkForce [ "cluster.target" ];
+    requires = lib.mkForce [ "pre-cluster.target" ];
+    wantedBy = lib.mkForce [ ];
+    after = [ "cluster.target" ];
+  };
+
   services.promtail = {
     enable = true;
     configuration = {
@@ -211,6 +236,14 @@ in
       ];
     };
   };
+
+  systemd.services.promtail = {
+    requiredBy = lib.mkForce [ "cluster.target" ];
+    requires = lib.mkForce [ "pre-cluster.target" ];
+    wantedBy = lib.mkForce [ ];
+    after = [ "cluster.target" ];
+  };
+
   networking.firewall = {
     allowedTCPPorts = [
       config.services.promtail.configuration.server.http_listen_port
