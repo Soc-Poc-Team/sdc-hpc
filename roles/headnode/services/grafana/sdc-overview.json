@@ -1491,6 +1491,22 @@
                         }
                       }
                     ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "down",
+                      "scope": "series"
+                    },
+                    "properties": [
+                      {
+                        "id": "color",
+                        "value": {
+                          "fixedColor": "#960202",
+                          "mode": "fixed"
+                        }
+                      }
+                    ]
                   }
                 ]
               },
