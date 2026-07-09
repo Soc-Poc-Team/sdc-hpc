@@ -193,6 +193,7 @@
           sne = pkgs.callPackage ./roles/headnode/modules/slurm-node-exporter { };
           slurm = pkgs.slurm;
           pharos = pkgs.callPackage ./packages/pharos { };
+          sdc-hitman = pkgs.callPackage ./packages/sdc-hitman { };
         };
         default = headnode.config.system.build.isoImage;
         head = headnode.config.system.build.isoImage;
