@@ -69,15 +69,14 @@ for node in $TARGETS; do
 done
 
 if [[ $NOW -eq 0 ]]; then
-  echo "Waiting for nodes to drain..."
+  echo "Waiting for allocations to finish..."
 
   while true; do
     BUSY=0
 
     for node in $TARGETS; do
-      STATE=$(scontrol show node "$node" | awk -F= '/State=/ {print $2}' | awk '{print $1}')
-
-      if [[ $STATE != "IDLE" && $STATE != "DOWN" ]]; then
+      CPUALLOC=$(scontrol show node "$node" | awk -F= '/CPUAlloc=/ {print $2}' | awk '{print $1}')
+      if [[ ${CPUALLOC:-0} -gt 0 ]]; then
         BUSY=1
         break
       fi
@@ -85,9 +84,15 @@ if [[ $NOW -eq 0 ]]; then
 
     [[ $BUSY -eq 0 ]] && break
 
-    sleep 10
+    sleep 1
   done
 fi
+
+echo "Marking nodes DOWN..."
+
+for node in $TARGETS; do
+  scontrol update NodeName="$node" State=DOWN Reason="sdc-hitman shutdown"
+done
 
 if [[ $DIRTY -eq 0 ]]; then
   echo "Removing nodes from Slurm..."
