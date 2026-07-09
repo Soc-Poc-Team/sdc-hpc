@@ -145,19 +145,25 @@ in
       };
       common = {
         path_prefix = config.services.loki.dataDir;
-        storage.filesystem = {
-          chunks_directory = "${config.services.loki.dataDir}/chunks";
-          rules_directory = "${config.services.loki.dataDir}/rules";
+        storage = {
+          filesystem = {
+            chunks_directory = "${config.services.loki.dataDir}/chunks";
+            rules_directory = "${config.services.loki.dataDir}/rules";
+          };
         };
-        replication_factor = 1;
         ring = {
           kvstore.store = "inmemory";
-          instance_addr = "127.0.0.1";
           # see https://git.fh-aachen.de/bigdata/cape-canaveral/small-data-cluster/-/work_items/174
           instance_interface_names = [
             "tailscale0"
           ];
         };
+        replication_factor = 1;
+      };
+      frontend = {
+        instance_interface_names = [
+          "tailscale0"
+        ];
       };
 
       ingester.chunk_encoding = "snappy";
