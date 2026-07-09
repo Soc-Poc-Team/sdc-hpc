@@ -93,6 +93,7 @@ in
     description = "Jupyterhub development server";
 
     requires = [ "pre-cluster.target" ];
+    after = [ "pre-cluster.target" ];
     requiredBy = [ "cluster.target" ];
 
     path = with pkgs; [

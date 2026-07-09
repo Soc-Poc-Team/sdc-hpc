@@ -2,6 +2,7 @@
   config,
   pkgs,
   userConfig,
+  lib,
   ...
 }:
 let
@@ -86,6 +87,14 @@ in
       };
     };
   };
+
+  systemd.services.grafana = {
+    requiredBy = lib.mkForce [ "cluster.target" ];
+    requires = lib.mkForce [ "pre-cluster.target" ];
+    wantedBy = lib.mkForce [ ];
+    after = [ "cluster.target" ];
+  };
+
   services.prometheus = {
     enable = true;
     port = 9001;
@@ -118,6 +127,14 @@ in
       }
     ];
   };
+
+  systemd.services.prometheus = {
+    requiredBy = lib.mkForce [ "cluster.target" ];
+    requires = lib.mkForce [ "pre-cluster.target" ];
+    wantedBy = lib.mkForce [ ];
+    after = [ "cluster.target" ];
+  };
+
   services.loki = {
     enable = true;
     configuration = {
@@ -128,13 +145,25 @@ in
       };
       common = {
         path_prefix = config.services.loki.dataDir;
-        storage.filesystem = {
-          chunks_directory = "${config.services.loki.dataDir}/chunks";
-          rules_directory = "${config.services.loki.dataDir}/rules";
+        storage = {
+          filesystem = {
+            chunks_directory = "${config.services.loki.dataDir}/chunks";
+            rules_directory = "${config.services.loki.dataDir}/rules";
+          };
+        };
+        ring = {
+          kvstore.store = "inmemory";
+          # see https://git.fh-aachen.de/bigdata/cape-canaveral/small-data-cluster/-/work_items/174
+          instance_interface_names = [
+            "tailscale0"
+          ];
         };
         replication_factor = 1;
-        ring.kvstore.store = "inmemory";
-        ring.instance_addr = "127.0.0.1";
+      };
+      frontend = {
+        instance_interface_names = [
+          "tailscale0"
+        ];
       };
 
       ingester.chunk_encoding = "snappy";
@@ -176,6 +205,14 @@ in
       limits_config.split_queries_by_interval = "24h";
     };
   };
+
+  systemd.services.loki = {
+    requiredBy = lib.mkForce [ "cluster.target" ];
+    requires = lib.mkForce [ "pre-cluster.target" ];
+    wantedBy = lib.mkForce [ ];
+    after = [ "cluster.target" ];
+  };
+
   services.promtail = {
     enable = true;
     configuration = {
@@ -211,6 +248,14 @@ in
       ];
     };
   };
+
+  systemd.services.promtail = {
+    requiredBy = lib.mkForce [ "cluster.target" ];
+    requires = lib.mkForce [ "pre-cluster.target" ];
+    wantedBy = lib.mkForce [ ];
+    after = [ "cluster.target" ];
+  };
+
   networking.firewall = {
     allowedTCPPorts = [
       config.services.promtail.configuration.server.http_listen_port
