@@ -4,20 +4,19 @@
   "metadata": {
     "name": "cefeq4w1vgu80f",
     "namespace": "default",
-    "uid": "8e747889-3407-47eb-80ad-adf3cd8cbb83",
-    "resourceVersion": "1782219001320997",
+    "uid": "5ab5e64d-2910-48a3-b62f-258cabd75288",
+    "resourceVersion": "1783592852785992",
     "generation": 1,
-    "creationTimestamp": "2026-06-23T12:50:01Z",
+    "creationTimestamp": "2026-07-09T10:27:32Z",
     "labels": {
-      "grafana.app/deprecatedInternalID": "2250367322050560"
+      "grafana.app/deprecatedInternalID": "3509118669336576"
     },
     "annotations": {
       "grafana.app/createdBy": "access-policy:service",
       "grafana.app/managedBy": "classic-file-provisioning",
       "grafana.app/managerId": "headnode control",
-      "grafana.app/sourceChecksum": "47bba04a4394077e875bf5c52ff360b9",
-      "grafana.app/sourcePath": "/nix/store/yqa7x2ik76p21fnnslxj5pndv8ihpw9b-sdc-overview.json",
-      "grafana.app/sourceTimestamp": "1000",
+      "grafana.app/sourceChecksum": "a6da32633ee2a2a73fd71dced60b0090",
+      "grafana.app/sourcePath": "/nix/store/pv8zzr0zjj6xb2w33qq28ikq9lmnimcn-sdc-overview.json",
       "grafana.app/folder": ""
     }
   },
@@ -703,7 +702,7 @@
                       "spec": {
                         "editorMode": "code",
                         "exemplar": false,
-                        "expr": "sum by (state) (\r\n  label_replace(slurm_cpus_idle, \"state\", \"idle\", \"\", \"\")\r\nor\r\n  label_replace(slurm_cpu_alloc, \"state\", \"allocated\", \"\", \"\")\r\nor\r\n  label_replace(slurm_cpu_, \"state\", \"mix\", \"\", \"\")\r\nor\r\n  label_replace(slurm_cpu_other, \"state\", \"other\", \"\", \"\")\r\n)",
+                        "expr": "sum by (state) (\r\n  label_replace(slurm_cpus_idle, \"state\", \"idle\", \"\", \"\")\r\nor\r\n  label_replace(slurm_cpus_alloc, \"state\", \"allocated\", \"\", \"\")\r\nor\r\n  label_replace(slurm_cpus_mix, \"state\", \"mix\", \"\", \"\")\r\nor\r\n  label_replace(slurm_cpus_other, \"state\", \"other\", \"\", \"\")\r\n)\r\nand\r\n(\r\n  sum by (state) (\r\n    label_replace(slurm_cpus_idle, \"state\", \"idle\", \"\", \"\")\r\n  or\r\n    label_replace(slurm_cpus_alloc, \"state\", \"allocated\", \"\", \"\")\r\n  or\r\n    label_replace(slurm_cpus_mix, \"state\", \"mix\", \"\", \"\")\r\n  or\r\n    label_replace(slurm_cpus_other, \"state\", \"other\", \"\", \"\")\r\n  ) > 0\r\n)",
                         "instant": true,
                         "legendFormat": "__auto",
                         "range": false
@@ -744,7 +743,8 @@
                   {
                     "matcher": {
                       "id": "byName",
-                      "options": "alloc"
+                      "options": "allocated",
+                      "scope": "series"
                     },
                     "properties": [
                       {
