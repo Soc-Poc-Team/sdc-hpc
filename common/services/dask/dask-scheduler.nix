@@ -58,6 +58,10 @@ in
         "pre-cluster.target"
       ];
 
+      after = [
+        "pre-cluster.target"
+      ];
+
       requiredBy = [ "cluster.target" ];
     };
 
