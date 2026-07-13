@@ -20,6 +20,14 @@ slurm-node-exporter:
   image: nixos/nix
   script:
     - nix --accept-flake-config --extra-experimental-features "nix-command flakes" build .#devel.sne
+sdc-hitman:
+  stage: depends
+  timeout: 10m
+  tags:
+    - bigdatalab-sdc
+  image: nixos/nix
+  script:
+    - nix --accept-flake-config --extra-experimental-features "nix-command flakes" build .#devel.sdc-hitman
 worker:
   stage: build
   timeout: 1h
