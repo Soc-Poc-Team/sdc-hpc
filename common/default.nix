@@ -33,6 +33,9 @@ let
       notebook
     ]
   );
+
+  # https://git.fh-aachen.de/bigdata/cape-canaveral/small-data-cluster/-/work_items/146
+  sdc-hitman = pkgs.callPackage ../packages/sdc-hitman { };
 in
 {
   imports = [
@@ -80,6 +83,7 @@ in
     btop
     zlib
     stdenv.cc.cc
+    sdc-hitman
   ];
 
   programs.fish.enable = true;
