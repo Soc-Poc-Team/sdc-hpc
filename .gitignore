@@ -1,6 +1,8 @@
 result
 result-*
 
+results/
+
 isos/
 *.qcow2
 munge.key
@@ -10,3 +12,6 @@ config.toml
 
 # Direnv
 .direnv/
+
+# gitlab-ci-local
+.gitlab-ci-local/

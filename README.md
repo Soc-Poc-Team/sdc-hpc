@@ -43,7 +43,8 @@ between reboots. This means any changes you make, every file you create are
 discarded on reboot.
 
 If you require data persistance, you have the option of dedicating a whole drive
-to the headnode. Refer to the [disko](#disko) section for this.
+to the headnode. Refer to the [disko](#disko) section for this. At the current
+stage of development we encourage the use of an external storage system.
 
 Which version you should choose depends on your requirements.
 
@@ -54,16 +55,9 @@ Building locally:
 
 1. Install Nix package manager
 2. Adjust config.toml to your needs
-3. Run `nix build` and `nix build .#worker`
-4. Burn the ISOs to a boot medium, plug them in and boot into them.
-
-or via CI/CD pipeline:
-
-1. Fork this repository
-2. Adjust config.toml to your needs
-3. Commit changes to trigger build-pipeline
-4. Download the ISOs from your git platform
-5. Burn the ISOs to a boot medium, plug them in and boot into them.
+3. Run `./build-batch.sh`
+4. Burn the ISOs (in ./results dir) to a boot medium, plug them in and boot into
+   them.
 
 ### Configure your cluster
 
@@ -102,20 +96,13 @@ This repository does not provide a pre-built ISOs. You will have to build them
 yourself. Currently we support building the ISOs via gitlab and github CI/CD
 pipelines, or building them locally on your system.
 
-##### CI/CD
-
-If you are running your own gitlab runner or are using the github runners,
-pushing changes of the `config.toml` or any of the nix files triggers a pipeline
-that builds the ISOs. When the building process is finished, your ISOs can be
-downloaded from your repository.
-
 ##### Locally
 
 To build the ISOs locally, you have to install
 [nix](https://nixos.org/download/) on your system.
 
-Then you can build the headnode ISO by running `nix build` and the worker ISO by
-running `nix build .#worker`. The resulting ISOs can be found under
+Then you can build the headnode ISO by running `nix build .#head` and the worker
+ISO by running `nix build .#worker`. The resulting ISOs can be found under
 `result/iso/`.
 
 #### Burning the ISOs to USB sticks
@@ -153,7 +140,8 @@ Live-ISO. You do not require multiple harddrives.
 
 ## Development
 
-This project provides a developer shell. You can enter it with `nix develop`.
+This project provides a developer shell. You can enter it with `nix develop` or
+using direnv.
 
 ## Requirements
 
@@ -204,6 +192,8 @@ backend:
 We do not gather any other data.
 
 Telemetry can be opted out by setting `telemetry = false` in your config.toml.
+
+**Note:** Currently telemetry is disabled.
 
 ## Publications
 

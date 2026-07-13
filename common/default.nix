@@ -1,20 +1,28 @@
-{ pkgs, config, ... }:
+{
+  pkgs,
+  lib,
+  config,
+  sops-nix,
+  userConfig,
+  ...
+}:
 let
-  tomlConfig = builtins.fromTOML (builtins.readFile ../config.toml);
-  enabled = tomlConfig.wifi.enabled;
 
   # Map the users into the required Nix user structure
   nixUsers = builtins.mapAttrs (userName: userData: {
     isNormalUser = true;
-    extraGroups = [ "wheel" "smalldatacluster" ];
+    extraGroups = [
+      "wheel"
+      "smalldatacluster"
+    ];
     home = "/homes/${userName}";
     createHome = true;
     hashedPassword = userData.passwordHash;
     uid = userData.uid;
-  }) tomlConfig.users;
+  }) userConfig.users;
 
-  jupyterhubEnv = pkgs.python3.withPackages (p:
-    with p; [
+  jupyterhubEnv = pkgs.python3.withPackages (
+    p: with p; [
       jupyterhub
       jupyterlab
       batchspawner
@@ -22,16 +30,34 @@ let
       jupyter
       jupyter-core
       notebook
-    ]);
-in {
+    ]
+  );
+in
+{
   imports = [
-    (import ./services/dask-worker.nix { tomlConf = tomlConfig; })
-    (import ./services/slurm.nix { tomlConf = tomlConfig; })
-    ./services/python-venv-setup.nix
-    (import ./services/tailscale.nix { tomlConf = tomlConfig; })
+    ./services/dask
+    (import ./services/slurm.nix)
+    ./targets/cluster.nix
+    (import ./services/tailscale.nix)
+    ./services/tailscale-tidy.nix
+    ./services/avahi.nix
+    sops-nix.nixosModules.sops # import sops module for all hosts
   ];
 
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+  nix.settings.experimental-features = [
+    "nix-command"
+    "flakes"
+  ];
+
+  documentation.man.generateCaches = false; # https://git.fh-aachen.de/bigdata/cape-canaveral/small-data-cluster/-/work_items/109
+
+  boot.kernelPackages = lib.mkIf (lib.versionOlder pkgs.linux.version "6.18.22") (
+    lib.mkDefault pkgs.linuxPackages_6_18
+  );
+
+  system.extraDependencies = [
+    (import ./environments/jlabkernels.nix { inherit pkgs; })
+  ];
 
   environment.systemPackages = with pkgs; [
     git
@@ -43,42 +69,42 @@ in {
     neovim
     gcc-unwrapped
     nfs-utils
-    python312
-    python312Packages.pip
+    python313
+    python313Packages.pip # Why?
     virtualenv
     jupyterhubEnv
-
+    btop
     zlib
     stdenv.cc.cc
   ];
 
+  programs.fish.enable = true;
+
   users = {
-    defaultUserShell = pkgs.bashInteractive;
+    defaultUserShell = pkgs.fish; # For developer convenience - may be switched back to bash later
     mutableUsers = false;
-    groups = { smalldatacluster = { }; };
+    groups = {
+      smalldatacluster = { };
+    };
     users = nixUsers;
   };
 
-  networking.enableIPv6 = false; # we want to be able to handle networking easy
-  networking.firewall.enable = true;
+  console.keyMap = pkgs.lib.mkForce "de";
 
-  networking.wireless.enable = enabled;
-  networking.wireless.networks."${tomlConfig.wifi.ssid}".psk =
-    "${tomlConfig.wifi.pwd}";
-
-  services.openssh.enable = true;
-  services.avahi = {
-    enable = true;
-    nssmdns4 = true;
-    publish = {
-      enable = true;
-      addresses = true;
-      domain = true;
-      hinfo = true;
-      userServices = true;
-      workstation = true;
+  networking = {
+    enableIPv6 = false; # we want to be able to handle networking easy
+    firewall.enable = true;
+    dhcpcd = {
+      # See Issue #82
+      setHostname = userConfig.worker.acceptDHCPHostnames;
     };
   };
+  # networking.wieless alongside networkmanager is no longer supported. TODO: check NM implementation
+  # networking.wireless.enable = enabled;
+  # networking.wireless.networks."${userConfig.wifi.ssid}".psk =
+  #   "${userConfig.wifi.pwd}";
+
+  services.openssh.enable = true;
 
   environment.interactiveShellInit = ''
     alias jkl='sudo loadkeys colemak'

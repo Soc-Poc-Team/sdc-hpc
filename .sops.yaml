@@ -1,0 +1,13 @@
+keys:
+  - &ture age19t4uxzk4jqragg3y4f8aark03ux47n7rkd5a07xx56tuqrz4d4hs3qhc8q
+  - &bentzin age1x4xyfk8wsa8tgpw66m93y9k0mnr2646eeqe9dfld42ha2p8q3ptq57d5xf
+creation_rules:
+  - path_regex: secrets(/|\\)bentzin\.json$
+    key_groups:
+      - age:
+          - *ture
+          - *bentzin
+  - path_regex: secrets(/|\\)test\.json$
+    key_groups:
+      - age:
+          - age19t4uxzk4jqragg3y4f8aark03ux47n7rkd5a07xx56tuqrz4d4hs3qhc8q

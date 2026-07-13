@@ -1,6 +1,5 @@
 { pkgs, modulesPath, ... }:
 let
-  tomlConfig = builtins.fromTOML (builtins.readFile ../../config.toml);
   persistToDisk = pkgs.writeShellScriptBin "persist-to-disk" ''
     set -euo pipefail
 
@@ -45,27 +44,24 @@ let
       exit "$status"
     fi
   '';
-in {
+in
+{
   imports = [
     (modulesPath + "/installer/cd-dvd/installation-cd-minimal.nix")
-    (import ./services/dask-scheduler.nix { tomlConf = tomlConfig; })
-    (import ./services/jupyterhub.nix { tomlConf = tomlConfig; })
-    (import ./services/userhomes.nix { tomlConf = tomlConfig; })
-    ./services/grafana.nix
-    (import ./services/dashboard.nix { tomlConf = tomlConfig; })
-    (import ./services/tailscale-api.nix { tomlConf = tomlConfig; })
-    (import ./services/telemetry.nix { tomlConf = tomlConfig; })
+    ./services/jupyterhub.nix
+    ./services/userhomes.nix
+    ./services/grafana
+    ./services/slurmctld.nix
+    ./services/dashboard
+    ./services/telemetry.nix
   ];
   environment.systemPackages = [ persistToDisk ];
 
   networking = {
     hostName = "headnode";
-    useDHCP = true;
-    wireless = {
-      enable = true;
-      userControlled.enable = true;
-    };
   };
+
+  services.dask.scheduler.enable = true;
 
   isoImage = {
     makeEfiBootable = true;
@@ -74,11 +70,12 @@ in {
     # isoName = nixpkgs.lib.mkForce "headnode.iso";
     appendToMenuLabel = " Headnode";
     squashfsCompression = "zstd -Xcompression-level 6";
-    contents = [{
-      source =
-        ./.; # mount the whole repo inside the iso for disko install with grub
-      target = "/repo/small-data-cluster";
-    }];
+    contents = [
+      {
+        source = ./.; # mount the whole repo inside the iso for disko install with grub
+        target = "/repo/small-data-cluster";
+      }
+    ];
   };
 
 }

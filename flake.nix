@@ -8,7 +8,7 @@
   };
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.05";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
     disko = {
       url = "github:nix-community/disko/latest";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -17,148 +17,214 @@
       url = "github:numtide/treefmt-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    sops-nix = {
+      url = "github:Mic92/sops-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     systems.url = "github:nix-systems/default";
 
   };
 
-  outputs = { self, nixpkgs, disko, systems, treefmt-nix, ... }:
+  outputs =
+    {
+      self,
+      nixpkgs,
+      disko,
+      systems,
+      treefmt-nix,
+      sops-nix,
+      ...
+    }:
     let
       system = "x86_64-linux";
       pkgs = nixpkgs.legacyPackages.${system};
-    in {
+      prodConfig = builtins.fromTOML (builtins.readFile ./config.toml);
+      devConfigString = builtins.getEnv "SDC_SECRETS";
 
+      # TODO: remane back to userConfig as soon as it is suported again
+      tmpConfig =
+        if devConfigString != "" then
+          pkgs.lib.warn "using impure SDC_SECRETS from environment" (builtins.fromJSON devConfigString)
+        else
+          prodConfig;
+      # See https://git.fh-aachen.de/bigdata/cape-canaveral/small-data-cluster/-/work_items/94#note_306186
+      userConfig =
+        if tmpConfig.worker.acceptDHCPHostnames == true then
+          builtins.throw "Invalid configuration: worker.acceptDHCPHostnames must not be enabled. See https://git.fh-aachen.de/bigdata/cape-canaveral/small-data-cluster/-/work_items/94"
+        else
+          tmpConfig;
+      mkBase =
+        role: modules:
+        nixpkgs.lib.nixosSystem ({
+          inherit system;
+          specialArgs = {
+            inherit sops-nix userConfig;
+          };
+          modules =
+            let
+              roles = {
+                "worker" = ./roles/workernode/workernode-configuration.nix;
+                "headnode" = ./roles/headnode/headnode-configuration.nix;
+              };
+              roleConfig =
+                if roles ? ${role} then roles.${role} else abort "Only roles 'worker' or 'headnode' are supported!";
+            in
+            [
+              ./common
+              roleConfig
+              {
+                config._module.args = {
+                  flake = self;
+                  inherit userConfig;
+                };
+              }
+            ]
+            ++ modules;
+        });
+
+    in
+    {
+      inherit userConfig;
       # for `nix fmt`
-      formatter = let
-        # Small tool to iterate over each systems
-        eachSystem = f:
-          nixpkgs.lib.genAttrs (import systems)
-          (system: f nixpkgs.legacyPackages.${system});
+      formatter =
+        let
+          # Small tool to iterate over each systems
+          eachSystem = f: nixpkgs.lib.genAttrs (import systems) (system: f nixpkgs.legacyPackages.${system});
 
-        # Eval the treefmt modules from ./treefmt.nix
-        treefmtEval =
-          eachSystem (pkgs: treefmt-nix.lib.evalModule pkgs ./treefmt.nix);
-      in eachSystem (pkgs: treefmtEval.${pkgs.system}.config.build.wrapper);
+          # Eval the treefmt modules from ./treefmt.nix
+          treefmtEval = eachSystem (pkgs: treefmt-nix.lib.evalModule pkgs ./treefmt.nix);
+        in
+        eachSystem (pkgs: treefmtEval.${pkgs.system}.config.build.wrapper);
 
-      devShells.${system}.default = pkgs.mkShell {
-        packages = with pkgs; [ git qemu neovim alejandra mkpasswd ];
-      };
+      devShells.${system}.default =
+        let
+          create-secret = pkgs.callPackage ./packages/create-secret.nix { };
+
+          customPackages = [ create-secret ];
+        in
+        pkgs.mkShell {
+          packages =
+            with pkgs;
+            [
+              git
+              qemu
+              neovim
+              alejandra
+              mkpasswd
+              sops
+              age
+              gitlab-ci-local
+            ]
+            ++ customPackages;
+        };
 
       nixosConfigurations = {
-        headnode = nixpkgs.lib.nixosSystem {
-          inherit system;
-          modules = [
-            ./common
-            ./roles/headnode/headnode-configuration.nix
-            { config._module.args = { flake = self; }; }
-            disko.nixosModules.disko
-            ({ modulesPath, ... }: {
+        headnode = mkBase "headnode" [
+          disko.nixosModules.disko
+          (
+            { modulesPath, ... }:
+            {
               imports = [
                 (modulesPath + "/installer/scan/not-detected.nix")
                 (modulesPath + "/profiles/all-hardware.nix")
               ];
-            })
-            {
-              boot.loader.systemd-boot.enable = true;
-              boot.loader.efi.canTouchEfiVariables = true;
-              boot.initrd.availableKernelModules = [
-                "xhci_pci"
-                "ahci"
-                "nvme"
-                "usbhid"
-                "uas"
-                "sd_mod"
-                "rtsx_pci_sdmmc"
-              ];
-              system.stateVersion = "24.05";
             }
-            {
-              disko.devices = {
-                disk = {
-                  main = {
-                    # When using disko-install, we will overwrite this value from the commandline
-                    device = "/dev/disk/by-id/some-disk-id";
-                    type = "disk";
-                    content = {
-                      type = "gpt";
-                      partitions = {
-                        MBR = {
-                          type = "EF02"; # for grub MBR
-                          size = "1M";
-                          priority = 1; # Needs to be first partition
+          )
+          {
+            boot.loader.systemd-boot.enable = true;
+            boot.loader.efi.canTouchEfiVariables = true;
+            boot.initrd.availableKernelModules = [
+              "xhci_pci"
+              "ahci"
+              "nvme"
+              "usbhid"
+              "uas"
+              "sd_mod"
+              "rtsx_pci_sdmmc"
+            ];
+            system.stateVersion = "24.05";
+          }
+          {
+            disko.devices = {
+              disk = {
+                main = {
+                  # When using disko-install, we will overwrite this value from the commandline
+                  device = "/dev/disk/by-id/some-disk-id";
+                  type = "disk";
+                  content = {
+                    type = "gpt";
+                    partitions = {
+                      MBR = {
+                        type = "EF02"; # for grub MBR
+                        size = "1M";
+                        priority = 1; # Needs to be first partition
+                      };
+                      ESP = {
+                        type = "EF00";
+                        size = "500M";
+                        content = {
+                          type = "filesystem";
+                          format = "vfat";
+                          mountpoint = "/boot";
+                          mountOptions = [ "umask=0077" ];
                         };
-                        ESP = {
-                          type = "EF00";
-                          size = "500M";
-                          content = {
-                            type = "filesystem";
-                            format = "vfat";
-                            mountpoint = "/boot";
-                            mountOptions = [ "umask=0077" ];
-                          };
-                        };
-                        root = {
-                          size = "100%";
-                          content = {
-                            type = "filesystem";
-                            format = "ext4";
-                            mountpoint = "/";
-                          };
+                      };
+                      root = {
+                        size = "100%";
+                        content = {
+                          type = "filesystem";
+                          format = "ext4";
+                          mountpoint = "/";
                         };
                       };
                     };
                   };
                 };
               };
-            }
-          ];
-        };
+            };
+          }
+        ];
 
-        workernode = nixpkgs.lib.nixosSystem {
-          system = "x86_64-linux";
-          modules =
-            [ ./common ./roles/workernode/workernode-configuration.nix ];
-        };
+        workernode = mkBase "worker" [ ];
       };
       packages.x86_64-linux = rec {
+        devel = {
+          pne = pkgs.callPackage ./roles/headnode/modules/slurm-node-exporter { };
+        };
         default = headnode.config.system.build.isoImage;
         head = headnode.config.system.build.isoImage;
         worker = workernode.config.system.build.isoImage;
 
-        headnode = nixpkgs.lib.nixosSystem {
-          inherit system;
-          modules = [
-            ./common
-            ./roles/headnode/headnode-configuration.nix
-            { config._module.args = { flake = self; }; }
-            ({ modulesPath, ... }: {
+        headnode = mkBase "headnode" [
+          (
+            { modulesPath, ... }:
+            {
               imports = [
                 (modulesPath + "/installer/cd-dvd/installation-cd-minimal.nix")
               ];
-            })
-            {
-              boot.kernelParams = [ "copytoram" ];
-              image.baseName = nixpkgs.lib.mkForce "headnode";
             }
-          ];
-        };
-        workernode = nixpkgs.lib.nixosSystem {
-          inherit system;
-          modules = [
-            ./common
-            ./roles/workernode/workernode-configuration.nix
-            ({ ... }: { networking.hostName = ""; })
-          ];
-        };
+          )
+          {
+            boot.kernelParams = [ "copytoram" ];
+            image.baseName = nixpkgs.lib.mkForce "headnode";
+          }
+        ];
+        workernode = mkBase "worker" [
+          (
+            { ... }:
+            {
+              networking.hostName = "";
+            }
+          )
+        ];
 
-        vm_headnode = (nixpkgs.lib.nixosSystem {
-          inherit system;
-          modules = [
-            ./common
-            ./roles/headnode/headnode-configuration.nix
+        vm_headnode =
+          (mkBase "headnode" [
             (nixpkgs + "/nixos/modules/virtualisation/qemu-vm.nix")
             (nixpkgs + "/nixos/modules/profiles/qemu-guest.nix")
-            ({ config, pkgs, ... }:
+            (
+              { config, pkgs, ... }:
               let
                 isoimage = pkgs.runCommandLocal "headnode.iso" { } ''
                   set -Eeuf -o pipefail
@@ -170,7 +236,8 @@
                     ln -s "$headnode" $out
                   fi
                 '';
-              in {
+              in
+              {
                 virtualisation = {
                   memorySize = 8192;
                   cores = 6;
@@ -182,35 +249,37 @@
                     fsType = "tmpfs";
                     options = [ "mode=0755" ];
                   };
-                  forwardPorts = [{
-                    from = "host";
-                    host.port = 2222;
-                    guest.port = 22;
-                  }];
+                  forwardPorts = [
+                    {
+                      from = "host";
+                      host.port = 2222;
+                      guest.port = 22;
+                    }
+                  ];
                   qemu = {
                     options = [ ];
-                    drives = [{
-                      file = "${isoimage}";
-                      driveExtraOpts = {
-                        media = "cdrom";
-                        format = "raw";
-                        readonly = "on";
-                      };
-                    }];
+                    drives = [
+                      {
+                        file = "${isoimage}";
+                        driveExtraOpts = {
+                          media = "cdrom";
+                          format = "raw";
+                          readonly = "on";
+                        };
+                      }
+                    ];
                   };
                 };
-              })
-          ];
-        }).config.system.build.vm;
+              }
+            )
+          ]).config.system.build.vm;
 
-        vm_workernode = (nixpkgs.lib.nixosSystem {
-          inherit system;
-          modules = [
-            ./common
-            ./roles/workernode/workernode-configuration.nix
+        vm_workernode =
+          (mkBase "worker" [
             (nixpkgs + "/nixos/modules/virtualisation/qemu-vm.nix")
             (nixpkgs + "/nixos/modules/profiles/qemu-guest.nix")
-            ({ config, pkgs, ... }:
+            (
+              { config, pkgs, ... }:
               let
                 isoimage = pkgs.runCommandLocal "workernode.iso" { } ''
                   set -Eeuf -o pipefail
@@ -222,10 +291,11 @@
                     ln -s "$workernode" $out
                   fi
                 '';
-              in {
+              in
+              {
                 virtualisation = {
                   memorySize = 4096;
-                  cores = 4;
+                  cores = 6;
                   useDefaultFilesystems = false;
                   #diskImage = "/dev/null";
                   # useBootLoader = true;
@@ -234,37 +304,32 @@
                     fsType = "tmpfs";
                     options = [ "mode=0755" ];
                   };
-                  forwardPorts = [{
-                    from = "host";
-                    host.port = 2223;
-                    guest.port = 22;
-                  }];
                   qemu = {
-                    drives = [{
-                      file = "${isoimage}";
-                      driveExtraOpts = {
-                        media = "cdrom";
-                        format = "raw";
-                        readonly = "on";
-                      };
-                    }];
+                    drives = [
+                      {
+                        file = "${isoimage}";
+                        driveExtraOpts = {
+                          media = "cdrom";
+                          format = "raw";
+                          readonly = "on";
+                        };
+                      }
+                    ];
                   };
                 };
-              })
-          ];
-        }).config.system.build.vm;
+              }
+            )
+          ]).config.system.build.vm;
       };
       apps.x86_64-linux = {
         default = {
           type = "app";
-          program =
-            "${self.outputs.packages.x86_64-linux.vm_headnode}/bin/run-headnode-vm";
+          program = "${self.outputs.packages.x86_64-linux.vm_headnode}/bin/run-headnode-vm";
         };
 
         worker = {
           type = "app";
-          program =
-            "${self.outputs.packages.x86_64-linux.vm_workernode}/bin/run-worker-vm";
+          program = "${self.outputs.packages.x86_64-linux.vm_workernode}/bin/run-worker-vm";
         };
       };
     };

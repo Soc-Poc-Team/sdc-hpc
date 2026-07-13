@@ -1,9 +1,14 @@
-{ tomlConf, ... }:
-{ config, pkgs, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  userConfig,
+  ...
+}:
 let
-  tailscaleDomain = tomlConf.tailscale.domain;
-  authKey = tomlConf.tailscale.authKey;
-in {
+  authKey = userConfig.tailscale.authKey;
+in
+{
   services.tailscale.enable = true;
   services.resolved.enable = true;
 
@@ -12,60 +17,58 @@ in {
     description = "Automatic connection to Tailscale";
 
     # make sure tailscale is running before trying to connect to tailscale
+
     after = [
-      "network-online.target"
-      "tailscale-headnode-tidy.service"
       "tailscaled.service"
     ];
-    wants = [
+
+    requires = [
       "network-online.target"
-      "tailscale-headnode-tidy.service"
       "tailscaled.service"
     ];
-    wantedBy = [ "multi-user.target" ];
-    before = [ "slurmctld.service" "slurmd.service" ];
+
+    wantedBy = [ "pre-cluster.target" ];
+
     serviceConfig.Type = "oneshot";
 
-    path = [ pkgs.curl pkgs.hostname ];
-    # have the job run this shell script
-    script = with pkgs; ''
-      # wait for tailscaled to settle
-      sleep 2
+    path = [
+      pkgs.curl
+      pkgs.hostname
 
-      # check if we are already authenticated to tailscale
-      # do tailscale down to force and approve route if change
-      status="$(${tailscale}/bin/tailscale status -json | ${jq}/bin/jq -r .BackendState)"
-      if [ $status = "Running" ]; then # if so, then do nothing
-        exit 0
-      fi
+    ];
 
+    # Exit codes follow BSD spec
+    script = ''
+      set -euo pipefail
 
-      ${tailscale}/bin/tailscale up -authkey ${authKey} --hostname=$(hostname)
-      sleep 2
+      SOCK="/var/run/tailscale/tailscaled.sock"
+      TS="${lib.getExe pkgs.tailscale}"
+      JQ="${lib.getExe pkgs.jq}"
 
-      if [ "$(hostname)" = "nixos" ]; then
-        echo "Running on a worker, getting hostname from headnode.."
+      wait_for() {
+        for _ in $(seq 1 30); do
+          "$@" && return 0
+          sleep 1
+        done
+        return 1
+      }
 
-        hn=$(curl -s http://headnode.${tailscaleDomain}:9100/get-hostname)
+      fail() {
+        echo "$1"
+        exit "$2"
+      }
 
-        if [ -z "$hn" ]; then
-          echo "Failed to retrieve hostname from headnode."
-          exit 1
-        fi
+      wait_for test -S "$SOCK" || fail "tailscaled is dysfunctional - failing" 69 # BSD Spec: Service unavailable
 
-        echo "Succesful hostname retrieval, setting $hn to hostname"
+      [ "$(hostname)" != "nixos" ] || fail "Running on a worker with illegal hostname - failing" 68 # BSD Spec: Hostname error
 
-        hostnamectl set-hostname --transient "$hn"
+      status="$($TS status -json | $JQ -r .BackendState || true)"
 
-        ${tailscale}/bin/tailscale up --hostname=$hn
-        sleep 2
+      [ "$status" = "Running" ] && exit 0
 
-      else
-        echo "Running on Headnode!"
-      fi
+      $TS up -authkey "${authKey}" --hostname="$(hostname)"
 
-      sleep 2
-
+      wait_for "$TS" status >/dev/null 2>&1 || fail "tailscaled failed to come up - failing" 69
     '';
   };
 
