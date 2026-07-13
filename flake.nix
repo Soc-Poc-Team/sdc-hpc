@@ -8,7 +8,7 @@
   };
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-26.05";
     disko = {
       url = "github:nix-community/disko/latest";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -190,7 +190,10 @@
       };
       packages.x86_64-linux = rec {
         devel = {
-          pne = pkgs.callPackage ./roles/headnode/modules/slurm-node-exporter { };
+          sne = pkgs.callPackage ./roles/headnode/modules/slurm-node-exporter { };
+          slurm = pkgs.slurm;
+          pharos = pkgs.callPackage ./packages/pharos { };
+          sdc-hitman = pkgs.callPackage ./packages/sdc-hitman { };
         };
         default = headnode.config.system.build.isoImage;
         head = headnode.config.system.build.isoImage;

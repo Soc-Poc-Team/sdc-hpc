@@ -1,4 +1,9 @@
-{ config, userConfig, ... }:
+{
+  config,
+  userConfig,
+  pkgs,
+  ...
+}:
 let
   tailscaleDomain = userConfig.tailscale.domain;
 in
@@ -20,40 +25,40 @@ in
     ];
   };
 
-  services.promtail = {
+  services.alloy = {
     enable = true;
-    configuration = {
-      server = {
-        http_listen_port = 28183;
-        grpc_listen_port = 0;
-      };
-      clients = [ { url = "http://headnode.${tailscaleDomain}:3100/loki/api/v1/push"; } ];
-      positions = {
-        filename = "/tmp/positions.yaml";
-      };
-      scrape_configs = [
-        {
-          job_name = "journal";
-          journal = {
-            max_age = "12h";
-            labels = {
-              job = "systemd-journal";
-              host = "worker1";
-            };
-          };
-          relabel_configs = [
-            {
-              source_labels = [ "__journal__systemd_unit" ];
-              target_label = "unit";
-            }
-          ];
-        }
-      ];
-    };
+    configPath = pkgs.writeText "worker-config.alloy" ''
+      discovery.relabel "journal" {
+              targets = []
+
+              rule {
+                      source_labels = ["__journal__systemd_unit"]
+                      target_label  = "unit"
+              }
+      }
+
+      loki.source.journal "journal" {
+              max_age       = "12h0m0s"
+              relabel_rules = discovery.relabel.journal.rules
+              forward_to    = [loki.write.default.receiver]
+              labels        = {
+                      host = "worker1",
+                      job  = "systemd-journal",
+              }
+      }
+
+      loki.write "default" {
+              endpoint {
+                      url = "http://headnode.${tailscaleDomain}:3100/loki/api/v1/push"
+              }
+              external_labels = {}
+      }
+
+    '';
   };
+
   networking.firewall = {
     allowedTCPPorts = [
-      config.services.promtail.configuration.server.http_listen_port
       config.services.prometheus.exporters.node.port
       8080
     ];

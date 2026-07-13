@@ -1,0 +1,4 @@
+# This file is used to specify a version for the cluster.
+# The first line that does not start with a '#' is the current version
+# All lines below are additional versions compatible with the headnode.
+3.0
