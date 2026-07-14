@@ -22,18 +22,6 @@ let
     openssh.authorizedKeys.keys = userData.sshKeys or [ ];
   }) userConfig.users;
 
-  jupyterhubEnv = pkgs.python3.withPackages (
-    p: with p; [
-      jupyterhub
-      jupyterlab
-      batchspawner
-      (callPackage ../roles/headnode/modules/wrapspawner/BAKdefault.nix { })
-      jupyter
-      jupyter-core
-      notebook
-    ]
-  );
-
   # https://git.fh-aachen.de/bigdata/cape-canaveral/small-data-cluster/-/work_items/146
   sdc-hitman = pkgs.callPackage ../packages/sdc-hitman { };
 in
@@ -68,28 +56,24 @@ in
 
   environment.systemPackages = with pkgs; [
     git
-    ncdu
+    # editors
     vim
-    wget
-    ranger
-    jq
     neovim
+    helix
+
+    # system packages
     gcc-unwrapped
-    nfs-utils
     python313
-    python313Packages.pip # Why?
-    virtualenv
-    jupyterhubEnv
+
+    # tools
     btop
-    zlib
-    stdenv.cc.cc
     sdc-hitman
   ];
 
   programs.fish.enable = true;
 
   users = {
-    defaultUserShell = pkgs.fish; # For developer convenience - may be switched back to bash later
+    defaultUserShell = pkgs.fish;
     mutableUsers = false;
     groups = {
       smalldatacluster = { };
@@ -107,20 +91,8 @@ in
       setHostname = userConfig.worker.acceptDHCPHostnames;
     };
   };
-  # networking.wieless alongside networkmanager is no longer supported. TODO: check NM implementation
-  # networking.wireless.enable = enabled;
-  # networking.wireless.networks."${userConfig.wifi.ssid}".psk =
-  #   "${userConfig.wifi.pwd}";
 
   services.openssh.enable = true;
-
-  environment.interactiveShellInit = ''
-    alias jkl='sudo loadkeys colemak'
-    alias logf='sudo journalctl --no-pager -f -u'
-    alias log='sudo journalctl --no-pager -u'
-    alias sstatus='sudo systemctl status'
-    alias srestart='sudo systemctl restart'
-  '';
 
   environment.etc."munge/munge.key" = {
     mode = "0600";
@@ -138,21 +110,6 @@ in
     '';
   };
 
-  environment.etc."slurm/test-submit.sh" = {
-    mode = "0777";
-    text = ''
-      #!/usr/bin/env bash
-      #SBATCH --job-name=hello_world     # Job name
-      #SBATCH --output=hello_world.out    # Output file
-      #SBATCH --error=hello_world.err      # Error file
-      #SBATCH --partition=debug            # Partition name
-      #SBATCH --ntasks=1                   # Number of tasks
-      #SBATCH --time=00:01:00              # Time limit (hh:mm:ss)
-
-
-      echo "Hello, World from SLURM!!"
-    '';
-  };
   services.getty.extraArgs = [ "--delay=5" ];
   environment.etc.issue.text = ''
     ███████╗███╗   ███╗ █████╗ ██╗     ██╗         ██████╗  █████╗ ████████╗ █████╗      ██████╗██╗     ██╗   ██╗███████╗████████╗███████╗██████╗
