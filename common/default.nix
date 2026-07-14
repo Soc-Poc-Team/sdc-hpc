@@ -52,6 +52,7 @@ in
 
   system.extraDependencies = [
     (import ./environments/jlabkernels.nix { inherit pkgs; })
+    (import ./environments/jlab.nix { inherit pkgs; })
   ];
 
   environment.systemPackages = with pkgs; [
