@@ -28,17 +28,13 @@ let
     c.JupyterHub.hub_ip = "headnode.${tailscaleDomain}"
     c.JupyterHub.ip = "0.0.0.0"
     c.JupyterHub.authenticator_class = "jupyterhub.auth.PAMAuthenticator"
-    #c.JupyterHub.spawner_class = 'batchspawner.SlurmSpawner'
     c.JupyterHub.spawner_class = 'wrapspawner.ProfilesSpawner'
 
     c.Authenticator.allowed_users = set(${"[${builtins.concatStringsSep ", " quotedUserNames}]"})
 
-
     c.Spawner.notebook_dir = '${userDataDir}/{username}'
     c.Spawner.http_timeout = 300
     c.Spawner.start_timeout = 600
-
-    # c.Spawner.env_keep = ["PATH"]
 
     c.Spawner.default_url = '/lab'
 
@@ -88,7 +84,6 @@ let
     echo "PATH is: $PATH"
     ${jupyterhubEnv}/bin/batchspawner-singleuser ${jupyterhubEnv}/bin/.jupyterhub-singleuser-wrapped --debug
     {{epilogue}}
-
     """
   '';
 in
