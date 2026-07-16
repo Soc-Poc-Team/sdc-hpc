@@ -81,7 +81,6 @@ let
     set -euo pipefail
     trap 'echo SIGTERM received' TERM
     {{prologue}}
-    echo "PATH is: $PATH"
     ${jupyterhubEnv}/bin/batchspawner-singleuser ${jupyterhubEnv}/bin/.jupyterhub-singleuser-wrapped --debug
     {{epilogue}}
     """
