@@ -11,7 +11,8 @@ generate-check-pipeline:
   tags:
     - bigdatalab-sdc
   image: nixos/nix
-  script: ./ci/generate_check_stage.sh > check_stage.yml
+  script:
+    - nix --accept-flake-config --extra-experimental-features "nix-command flakes" develop .#ci-basic --command ./ci/generate_check_stage.sh > check_stage.yml
   artifacts:
     paths:
       - check_stage.yml
