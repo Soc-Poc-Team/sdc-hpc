@@ -1,9 +1,20 @@
 stages:
+  - setup
   - check
   - depends
   - build
 variables:
   NIX_BUILD_SHELL: "/bin/bash"
+generate-check-pipeline:
+  stage: setup
+  timeout: 1h
+  tags:
+    - bigdatalab-sdc
+  image: nixos/nix
+  script: ./ci/generate_check_stage.sh > check_stage.yml
+  artifacts:
+    paths:
+      - check_stage.yml
 treefmt:
   stage: check
   timeout: 1h
@@ -12,6 +23,12 @@ treefmt:
   image: nixos/nix
   script:
     - nix --accept-flake-config --extra-experimental-features "nix-command flakes" fmt -- --fail-on-change
+check-pipeline:
+  stage: check
+  trigger:
+    include:
+      - artifact: check_stage.yml
+        job: generate-check-pipeline
 slurm-node-exporter:
   stage: depends
   timeout: 10m
