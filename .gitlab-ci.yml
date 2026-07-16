@@ -28,6 +28,14 @@ sdc-hitman:
   image: nixos/nix
   script:
     - nix --accept-flake-config --extra-experimental-features "nix-command flakes" build .#devel.sdc-hitman
+pharos:
+  stage: depends
+  timeout: 10m
+  tags:
+    - bigdatalab-sdc
+  image: nixos/nix
+  script:
+    - nix --accept-flake-config --extra-experimental-features "nix-command flakes" build .#devel.pharos
 worker:
   stage: build
   timeout: 1h
