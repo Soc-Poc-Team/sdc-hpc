@@ -51,6 +51,11 @@ in
         Type = "simple";
       };
 
+      serviceConfig = {
+        Restart = "on-failure";
+        RestartSec = "5s";
+      };
+
       path = dask-env;
       inherit environment;
 
@@ -69,8 +74,7 @@ in
         "pre-cluster.target"
       ];
 
-      # TODO: switch to requiredBy as soon as we start working with dask
-      wantedBy = [ "cluster.target" ];
+      requiredBy = [ "cluster.target" ];
     };
 
     networking.firewall.allowedTCPPorts = [

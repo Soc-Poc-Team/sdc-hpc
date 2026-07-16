@@ -28,21 +28,19 @@ let
     c.JupyterHub.hub_ip = "headnode.${tailscaleDomain}"
     c.JupyterHub.ip = "0.0.0.0"
     c.JupyterHub.authenticator_class = "jupyterhub.auth.PAMAuthenticator"
-    #c.JupyterHub.spawner_class = 'batchspawner.SlurmSpawner'
     c.JupyterHub.spawner_class = 'wrapspawner.ProfilesSpawner'
 
     c.Authenticator.allowed_users = set(${"[${builtins.concatStringsSep ", " quotedUserNames}]"})
-
 
     c.Spawner.notebook_dir = '${userDataDir}/{username}'
     c.Spawner.http_timeout = 300
     c.Spawner.start_timeout = 600
 
-    c.Spawner.env_keep = ["PATH"]
-
     c.Spawner.default_url = '/lab'
 
     c.SlurmSpawner.batch_submit_cmd = "${pkgs.slurm}/bin/sbatch --parsable"
+    c.SlurmSpawner.batch_query_cmd = "${pkgs.slurm}/bin/squeue -h -j {job_id} -o '%T %B'"
+    c.SlurmSpawner.batch_cancel_cmd = "${pkgs.slurm}/bin/scancel {job_id}"
     c.SlurmSpawner.exec_prefix = "${pkgs.sudo}/bin/sudo -E -u {username}"
     c.SlurmSpawner.batchspawner_singleuser_cmd = '${jupyterhubEnv}/bin/.batchspawner-singleuser-wrapped'
     c.SlurmSpawner.cmd = "${jupyterhubEnv}/bin/.jupyterhub-singleuser-wrapped"
@@ -68,7 +66,7 @@ let
     echo "Spawning..."
     export JUPYTERHUB_API_TOKEN JUPYTERHUB_API_URL JPY_API_TOKEN JUPYTERHUB_CLIENT_ID JUPYTERHUB_OAUTH_CALLBACK JUPYTERHUB_USER JUPYTERHUB_BASE_URL JUPYTERHUB_SERVICE_PREFIX
     export JUPYTER_PATH=${jlabKernels}
-    export PATH=/run/wrappers/bin:$PATH
+    export PATH
 
     echo $JUPYTERHUB_SERVICE_URL
 
@@ -85,7 +83,6 @@ let
     {{prologue}}
     ${jupyterhubEnv}/bin/batchspawner-singleuser ${jupyterhubEnv}/bin/.jupyterhub-singleuser-wrapped --debug
     {{epilogue}}
-
     """
   '';
 in
@@ -97,23 +94,22 @@ in
     after = [ "pre-cluster.target" ];
     requiredBy = [ "cluster.target" ];
 
-    path = with pkgs; [
-      python3Packages.jupyterlab
-      python3Packages.jupyterhub
-      python3Packages.jupyter
-      python3Packages.notebook
+    path = [
+      jupyterhubEnv
+      # https://github.com/NixOS/nixpkgs/tree/nixos-26.05/nixos/modules/system
+      config.system.path
     ];
 
     environment = {
-      LD_LIBRARY_PATH = "$LD_LIBRARY_PATH:${pkgs.lib.makeLibraryPath [ pkgs.stdenv.cc.cc ]}";
+      LD_LIBRARY_PATH = "${pkgs.lib.makeLibraryPath [ pkgs.stdenv.cc.cc ]}";
     };
+
     serviceConfig = {
       Restart = "always";
       ExecStart = "${jupyterhubEnv}/bin/jupyterhub --config ${jupyterhubConfig}";
       User = "root";
       StateDirectory = "jupyterhub";
       WorkingDirectory = "/var/lib/jupyterhub";
-      Environment = "PATH=${jupyterhubEnv}/bin:/run/current-system/sw/bin/:$PATH";
     };
   };
 
