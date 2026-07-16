@@ -1,5 +1,5 @@
 #!/usr/bin/env nix
-#! nix --accept-flake-config --extra-experimental-features "nix-command flakes" develop .#ci-basic --command bash
+#! nix --accept-flake-config --extra-experimental-features ``nix-command flakes`` develop .#ci-basic --command bash
 # shellcheck shell=bash
 set -euo pipefail
 shopt -s nullglob

@@ -1,5 +1,5 @@
 #!/usr/bin/env nix
-#! nix --accept-flake-config --extra-experimental-features "nix-command flakes" develop .#ci-basic --command bash
+#! nix --accept-flake-config --extra-experimental-features ``nix-command flakes`` develop .#ci-basic --command bash
 # LICENSE
 # shellcheck shell=bash
 # This job checks if the date of the LICENSE file matches the current year and if authors are listed in alphabetical order
