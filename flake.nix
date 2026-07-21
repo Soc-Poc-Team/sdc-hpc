@@ -97,28 +97,34 @@
         in
         eachSystem (pkgs: treefmtEval.${pkgs.system}.config.build.wrapper);
 
-      devShells.${system}.default =
-        let
-          create-secret = pkgs.callPackage ./packages/create-secret.nix { };
+      devShells.${system} = {
+        default =
+          let
+            create-secret = pkgs.callPackage ./packages/create-secret.nix { };
 
-          customPackages = [ create-secret ];
-        in
-        pkgs.mkShell {
-          packages =
-            with pkgs;
-            [
-              git
-              qemu
-              neovim
-              alejandra
-              mkpasswd
-              sops
-              age
-              gitlab-ci-local
-            ]
-            ++ customPackages;
+            customPackages = [ create-secret ];
+          in
+          pkgs.mkShell {
+            packages =
+              with pkgs;
+              [
+                git
+                qemu
+                neovim
+                alejandra
+                mkpasswd
+                sops
+                age
+                gitlab-ci-local
+              ]
+              ++ customPackages;
+          };
+        ci-basic = pkgs.mkShell {
+          packages = with pkgs; [
+            gnused
+          ];
         };
-
+      };
       nixosConfigurations = {
         headnode = mkBase "headnode" [
           disko.nixosModules.disko

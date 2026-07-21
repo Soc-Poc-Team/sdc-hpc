@@ -1,8 +1,12 @@
 { pkgs, ... }:
 {
   projectRootFile = "flake.nix";
-  settings.excludes = [ "*.toml" ];
-
+  settings = {
+    excludes = [
+      "*.toml"
+      "check_stage.yml"
+    ];
+  };
   programs.deadnix.enable = true;
   programs.deno.enable = pkgs.stdenv.hostPlatform.system != "riscv64-linux";
   programs.mdsh.enable = true;
