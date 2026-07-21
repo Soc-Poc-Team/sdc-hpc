@@ -33,7 +33,7 @@ stages:
 YAML
 
 for check in "${checks[@]}"; do
-  job_name="$(sed -n '2{/^[[:space:]]*#/ { s/^[[:space:]]*#[[:space:]]*//; p; }}' "$check")"
+  job_name="$(sed -n '/^#!/d; /^[[:space:]]*#/ { s/^[[:space:]]*#[[:space:]]*//; p; }; q' "$check")"
 
   if [[ -z $job_name ]]; then
     job_name="${check##*/}"
