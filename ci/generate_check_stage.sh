@@ -47,12 +47,13 @@ for check in "${checks[@]}"; do
 
   used_names["$job_name"]=1
 
+  check_command="./$check || { status=\$?; exit \"\$status\"; }"
+
   printf '%s:\n' "$(yaml_quote "$job_name")"
   printf '  stage: check\n'
   printf '  script:\n'
-  printf '    - %s\n' "$(yaml_quote "./$check")"
+  printf '    - %s\n' "$(yaml_quote "$check_command")"
   printf '  allow_failure:\n'
   printf '    exit_codes:\n'
   printf '      - 2\n\n'
-
 done
