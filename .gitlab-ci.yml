@@ -30,6 +30,7 @@ check-pipeline:
     include:
       - artifact: check_stage.yml
         job: generate-check-pipeline
+    strategy: depend
 slurm-node-exporter:
   stage: depends
   timeout: 10m
