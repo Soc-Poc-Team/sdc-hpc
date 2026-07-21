@@ -1,10 +1,21 @@
-#!/usr/bin/env nix
-#! nix --accept-flake-config --extra-experimental-features ``nix-command flakes`` develop .#ci-basic --command bash
+#!/usr/bin/env bash
 # LICENSE
 # shellcheck shell=bash
 # This job checks if the date of the LICENSE file matches the current year and if authors are listed in alphabetical order
 # Exit codes: 1 = general fail, 2 = fail because of year, 3 = author sorting fail
-set -euo pipefail
+#!/usr/bin/env bash
+set -eo pipefail
+
+nix_env="$(
+  nix \
+    --accept-flake-config \
+    --extra-experimental-features "nix-command flakes" \
+    print-dev-env .#ci-basic
+)"
+eval "$nix_env"
+unset nix_env
+
+set -u
 
 license_file="LICENSE"
 current_year="$(date +%Y)"
