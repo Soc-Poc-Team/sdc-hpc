@@ -191,9 +191,8 @@ backend:
 
 We do not gather any other data.
 
-Telemetry can be opted out by setting `telemetry = false` in your config.toml.
-
-**Note:** Currently telemetry is disabled.
+Telemetry can be opted out by setting `telemetry = false` in your config.toml or
+in your secrets file.
 
 ## Publications
 
