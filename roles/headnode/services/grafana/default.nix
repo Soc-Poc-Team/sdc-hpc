@@ -73,13 +73,13 @@ in
           {
             name = "Prometheus";
             type = "prometheus";
-            url = "http://localhost:${config.services.prometheus.port}";
+            url = "http://localhost:${builtins.toString config.services.prometheus.port}";
             uid = "prometheus";
           }
           {
             name = "Loki";
             type = "loki";
-            url = "http://localhost:${config.services.loki.configuration.server.http_listen_port}";
+            url = "http://localhost:${builtins.toString config.services.loki.configuration.server.http_listen_port}";
             uid = "loki";
           }
         ];
@@ -88,7 +88,7 @@ in
         let
           provisionGrafanaLabs =
             {
-              name ? "grafanalabs-${id}-${revision}",
+              name ? "grafanalabs-${toString id}-${toString revision}",
               id,
               revision,
               hash,
@@ -149,7 +149,7 @@ in
     scrapeConfigs = [
       {
         job_name = "Slurm";
-        static_configs = [ { targets = [ "headnode:${slurmExporterPort}" ]; } ];
+        static_configs = [ { targets = [ "headnode:${toString slurmExporterPort}" ]; } ];
       }
     ];
   };
@@ -263,7 +263,7 @@ in
 
       loki.write "default" {
               endpoint {
-                      url = "http://localhost:${config.services.loki.configuration.server.http_listen_port}/loki/api/v1/push"
+                      url = "http://localhost:${builtins.toString config.services.loki.configuration.server.http_listen_port}/loki/api/v1/push"
               }
               external_labels = {}
       }

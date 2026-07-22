@@ -68,7 +68,7 @@ in
     networking.firewall.allowedTCPPorts = [
       8787
       8786
-      8000
+      config.services.jupyterhub.port
     ];
   };
 }

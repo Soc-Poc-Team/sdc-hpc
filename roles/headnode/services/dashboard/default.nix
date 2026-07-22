@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ config, pkgs, ... }:
 let
   website = pkgs.stdenvNoCC.mkDerivation {
     name = "sdc-dashboard";
@@ -32,8 +32,9 @@ in
           sub_filter_types text/html application/json;
         '';
       };
-      locations."/jhub".proxyPass = "http://localhost:8000";
-      locations."/grafana".proxyPass = "http://localhost:2342";
+      locations."/jhub".proxyPass = "http://localhost:${toString config.services.jupyterhub.port}";
+      locations."/grafana".proxyPass =
+        "http://localhost:${toString config.services.grafana.settings.server.http_port}";
     };
   };
   networking.firewall = {
