@@ -73,13 +73,13 @@ in
           {
             name = "Prometheus";
             type = "prometheus";
-            url = "http://localhost:9001";
+            url = "http://localhost:${config.services.prometheus.port}";
             uid = "prometheus";
           }
           {
             name = "Loki";
             type = "loki";
-            url = "http://localhost:3100";
+            url = "http://localhost:${config.services.loki.configuration.server.http_listen_port}";
             uid = "loki";
           }
         ];
@@ -149,7 +149,7 @@ in
     scrapeConfigs = [
       {
         job_name = "Slurm";
-        static_configs = [ { targets = [ "headnode:9092" ]; } ];
+        static_configs = [ { targets = [ "headnode:${slurmExporterPort}" ]; } ];
       }
     ];
   };
@@ -263,7 +263,7 @@ in
 
       loki.write "default" {
               endpoint {
-                      url = "http://localhost:3100/loki/api/v1/push"
+                      url = "http://localhost:${config.services.loki.configuration.server.http_listen_port}/loki/api/v1/push"
               }
               external_labels = {}
       }
