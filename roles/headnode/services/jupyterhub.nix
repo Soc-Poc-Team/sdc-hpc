@@ -1,6 +1,7 @@
 {
   config,
   pkgs,
+  lib,
   userConfig,
   ...
 }:
@@ -21,8 +22,58 @@ let
     ]
   );
 
+  profileConfig = builtins.fromTOML (builtins.readFile ../../../profiles.toml);
+
+  defaults = profileConfig.defaults or { };
+
+  mkProfile =
+    rawProfile:
+    let
+      profile = defaults // rawProfile;
+
+      cores = profile.cores or 1;
+      gpus = profile.gpus or 0;
+
+      coreLabel = "${toString cores} core" + lib.optionalString (cores != 1) "s";
+
+      gpuLabel = lib.optionalString (gpus > 0) (
+        ", ${toString gpus} GPU" + lib.optionalString (gpus != 1) "s"
+      );
+
+      generatedLabel = "${profile.name}: ${coreLabel}, ${profile.memory}${gpuLabel}";
+
+      gres =
+        if profile ? gres then
+          profile.gres
+        else if gpus == 0 then
+          null
+        else if profile ? gpu_type then
+          "gpu:${profile.gpu_type}:${toString gpus}"
+        else
+          "gpu:${toString gpus}";
+    in
+    {
+      display = profile.label or generatedLabel;
+      key = profile.id;
+
+      options = {
+        req_partition = profile.partition;
+        req_nprocs = toString cores;
+        req_runtime = profile.runtime;
+        req_memory = profile.memory;
+      }
+      // lib.optionalAttrs (gres != null) {
+        req_gres = gres;
+      };
+    };
+
+  profiles = map mkProfile profileConfig.profiles;
+
+  profilesJson = builtins.toJSON profiles;
+
   jupyterhubConfig = pkgs.writeText "jupyterhub_config.py" ''
     import batchspawner
+    import json
     import os
 
     c.JupyterHub.hub_ip = "headnode.${tailscaleDomain}"
@@ -44,11 +95,17 @@ let
     c.SlurmSpawner.exec_prefix = "${pkgs.sudo}/bin/sudo -E -u {username}"
     c.SlurmSpawner.batchspawner_singleuser_cmd = '${jupyterhubEnv}/bin/.batchspawner-singleuser-wrapped'
     c.SlurmSpawner.cmd = "${jupyterhubEnv}/bin/.jupyterhub-singleuser-wrapped"
+
+    profiles = json.loads(${builtins.toJSON profilesJson})
+
     c.ProfilesSpawner.profiles = [
-    ('Small: 1 core, 128 MB', 'slurm1c128mb0gpu', 'batchspawner.SlurmSpawner', dict(req_partition='debug', req_nprocs='1', req_runtime='1-00:00:00', req_memory='128M')),
-    ('Medium: 1 core, 2048 MB', 'slurm1c2gb0gpu', 'batchspawner.SlurmSpawner', dict(req_partition='debug', req_nprocs='1', req_runtime='1-00:00:00', req_memory='2048M')),
-    ('Medium+: 2 core, 2048 MB', 'slurm2c2gb0gpu', 'batchspawner.SlurmSpawner', dict(req_partition='debug', req_nprocs='2', req_runtime='1-00:00:00', req_memory='2048M')),
-    ('GPU: 4 cores, 16 GB, 1 GPU', 'slurm4c16gb1gpu', 'batchspawner.SlurmSpawner', dict(req_partition='debug', req_nprocs='4', req_runtime='1-00:00:00', req_memory='16G', req_gres='gpu:1')),
+        (
+            profile["display"],
+            profile["key"],
+            "batchspawner.SlurmSpawner",
+            profile["options"],
+        )
+        for profile in profiles
     ]
 
     c.SlurmSpawner.batch_script = """#!/usr/bin/env bash
