@@ -1,3 +1,7 @@
+# Use this file to define your profiles
+# Keep in mind: There profiles must fit onto a single worker
+# If your largest worker has 64 GB or ram, then your biggest profile here can have a maximum mem requirement of 65536
+
 [defaults]
 partition = "debug"
 runtime = "1-00:00:00"
