@@ -1,6 +1,9 @@
 # Use this file to define your profiles
-# Keep in mind: There profiles must fit onto a single worker
-# If your largest worker has 64 GB or ram, then your biggest profile here can have a maximum mem requirement of 65536
+# Keep in mind: These profiles must fit onto a single worker
+# If your largest worker has 32 GB of RAM, the biggest profile can request
+# a maximum of 32768M or 32G
+#
+# Note: The profiles here are just examples - adjust them to your needs!
 
 [defaults]
 partition = "debug"
@@ -8,21 +11,45 @@ runtime = "1-00:00:00"
 
 [[profiles]]
 id = "slurm1c128mb0gpu"
-name = "Small"
+name = "Tiny"
 cores = 1
 memory = "128M"
 
 [[profiles]]
-id = "slurm1c2gb0gpu"
-name = "Medium"
+id = "slurm1c512mb0gpu"
+name = "Extra Small"
 cores = 1
-memory = "2048M"
+memory = "512M"
 
 [[profiles]]
-id = "slurm2c2gb0gpu"
-name = "Medium+"
+id = "slurm1c2gb0gpu"
+name = "Small"
+cores = 1
+memory = "2G"
+
+[[profiles]]
+id = "slurm2c4gb0gpu"
+name = "Medium"
 cores = 2
-memory = "2048M"
+memory = "4G"
+
+[[profiles]]
+id = "slurm4c8gb0gpu"
+name = "Medium+"
+cores = 4
+memory = "8G"
+
+[[profiles]]
+id = "slurm4c16gb0gpu"
+name = "Large"
+cores = 4
+memory = "16G"
+
+[[profiles]]
+id = "slurm8c24gb0gpu"
+name = "Extra Large"
+cores = 8
+memory = "24G"
 
 [[profiles]]
 id = "slurm4c16gb1gpu"
