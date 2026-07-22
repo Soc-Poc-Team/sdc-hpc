@@ -48,6 +48,7 @@ let
     ('Small: 1 core, 128 MB', 'slurm1c128mb0gpu', 'batchspawner.SlurmSpawner', dict(req_partition='debug', req_nprocs='1', req_runtime='1-00:00:00', req_memory='128M')),
     ('Medium: 1 core, 2048 MB', 'slurm1c2gb0gpu', 'batchspawner.SlurmSpawner', dict(req_partition='debug', req_nprocs='1', req_runtime='1-00:00:00', req_memory='2048M')),
     ('Medium+: 2 core, 2048 MB', 'slurm2c2gb0gpu', 'batchspawner.SlurmSpawner', dict(req_partition='debug', req_nprocs='2', req_runtime='1-00:00:00', req_memory='2048M')),
+    ('GPU: 4 cores, 16 GB, 1 GPU', 'slurm4c16gb1gpu', 'batchspawner.SlurmSpawner', dict(req_partition='debug', req_nprocs='4', req_runtime='1-00:00:00', req_memory='16G', req_gres='gpu:1')),
     ]
 
     c.SlurmSpawner.batch_script = """#!/usr/bin/env bash
