@@ -10,16 +10,16 @@ partition = "debug"
 runtime = "1-00:00:00"
 
 [[profiles]]
-id = "slurm1c128mb0gpu"
+id = "slurm1c512mb0gpu"
 name = "Tiny"
 cores = 1
-memory = "128M"
+memory = "512M"
 
 [[profiles]]
-id = "slurm1c512mb0gpu"
+id = "slurm1c1gb0gpu"
 name = "Extra Small"
 cores = 1
-memory = "512M"
+memory = "1G"
 
 [[profiles]]
 id = "slurm1c2gb0gpu"
