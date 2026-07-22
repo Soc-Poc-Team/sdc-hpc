@@ -1,0 +1,29 @@
+[defaults]
+partition = "debug"
+runtime = "1-00:00:00"
+
+[[profiles]]
+id = "slurm1c128mb0gpu"
+name = "Small"
+cores = 1
+memory = "128M"
+
+[[profiles]]
+id = "slurm1c2gb0gpu"
+name = "Medium"
+cores = 1
+memory = "2048M"
+
+[[profiles]]
+id = "slurm2c2gb0gpu"
+name = "Medium+"
+cores = 2
+memory = "2048M"
+
+[[profiles]]
+id = "slurm4c16gb1gpu"
+name = "GPU"
+cores = 4
+memory = "16G"
+gpus = 1
+enabled = false
