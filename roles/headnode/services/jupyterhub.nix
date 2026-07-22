@@ -96,8 +96,8 @@ let
     c.SlurmSpawner.batchspawner_singleuser_cmd = '${jupyterhubEnv}/bin/.batchspawner-singleuser-wrapped'
     c.SlurmSpawner.cmd = "${jupyterhubEnv}/bin/.jupyterhub-singleuser-wrapped"
 
+    # https://git.fh-aachen.de/bigdata/cape-canaveral/small-data-cluster/-/work_items/175
     profiles = json.loads(${builtins.toJSON profilesJson})
-
     c.ProfilesSpawner.profiles = [
         (
             profile["display"],
