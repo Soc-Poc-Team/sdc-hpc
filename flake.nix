@@ -39,21 +39,9 @@
     let
       system = "x86_64-linux";
       pkgs = nixpkgs.legacyPackages.${system};
-      prodConfig = builtins.fromTOML (builtins.readFile ./config.toml);
-      devConfigString = builtins.getEnv "SDC_SECRETS";
-
-      # TODO: remane back to userConfig as soon as it is suported again
-      tmpConfig =
-        if devConfigString != "" then
-          pkgs.lib.warn "using impure SDC_SECRETS from environment" (builtins.fromJSON devConfigString)
-        else
-          prodConfig;
-      # See https://git.fh-aachen.de/bigdata/cape-canaveral/small-data-cluster/-/work_items/94#note_306186
-      userConfig =
-        if tmpConfig.worker.acceptDHCPHostnames == true then
-          builtins.throw "Invalid configuration: worker.acceptDHCPHostnames must not be enabled. See https://git.fh-aachen.de/bigdata/cape-canaveral/small-data-cluster/-/work_items/94"
-        else
-          tmpConfig;
+      userConfig = pkgs.callPackage ./userConfig.nix {
+        warn = pkgs.lib.warn;
+      };
       mkBase =
         role: modules:
         nixpkgs.lib.nixosSystem ({
@@ -101,8 +89,12 @@
         default =
           let
             create-secret = pkgs.callPackage ./packages/create-secret.nix { };
+            sdc-keygen = pkgs.callPackage ./packages/sdc-keygen.nix { };
 
-            customPackages = [ create-secret ];
+            customPackages = [
+              create-secret
+              sdc-keygen
+            ];
           in
           pkgs.mkShell {
             packages =

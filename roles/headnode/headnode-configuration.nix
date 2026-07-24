@@ -54,6 +54,7 @@ in
     ./services/dashboard
     ./services/telemetry.nix
     ./services/pharosd
+    ./sshKey.nix
   ];
   environment.systemPackages = [ persistToDisk ];
 
