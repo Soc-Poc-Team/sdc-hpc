@@ -39,7 +39,7 @@
     let
       system = "x86_64-linux";
       pkgs = nixpkgs.legacyPackages.${system};
-      userConfig = import ./userConfig.nix {
+      userConfig = pkgs.callPackage ./userConfig.nix {
         warn = pkgs.lib.warn;
       };
       mkBase =
