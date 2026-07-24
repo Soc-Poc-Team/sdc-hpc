@@ -14,13 +14,23 @@
       ./services/await-headnode.nix
     ];
 
-    # use a static uid as default to ensure it is the same on all nodes.. nix has reservations for this
-    users.users.slurm = {
-      name = "slurm";
-      group = "slurm";
-      uid = 307; # https://github.com/NixOS/nixpkgs/blob/0d6d1ce1e3bf7ee9125b42ec42706af8e62f3794/nixos/modules/misc/ids.nix#L341C15-L341C18
+    users = {
+      users = {
+
+        # use a static uid as default to ensure it is the same on all nodes.. nix has reservations for this
+        slurm = {
+          name = "slurm";
+          group = "slurm";
+          uid = 307; # https://github.com/NixOS/nixpkgs/blob/0d6d1ce1e3bf7ee9125b42ec42706af8e62f3794/nixos/modules/misc/ids.nix#L341C15-L341C18
+        };
+        root = {
+          openssh.authorizedKeys.keys = [
+            userConfig.worker.public_ssh_key
+          ];
+        };
+      };
+      groups.slurm.gid = 307;
     };
-    users.groups.slurm.gid = 307;
 
     networking = {
       useDHCP = lib.mkForce true; # networkmanager.nix sets this to false
