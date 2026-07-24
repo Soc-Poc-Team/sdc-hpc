@@ -101,8 +101,12 @@
         default =
           let
             create-secret = pkgs.callPackage ./packages/create-secret.nix { };
+            sdc-keygen = pkgs.callPackage ./packages/sdc-keygen.nix { };
 
-            customPackages = [ create-secret ];
+            customPackages = [
+              create-secret
+              sdc-keygen
+            ];
           in
           pkgs.mkShell {
             packages =
