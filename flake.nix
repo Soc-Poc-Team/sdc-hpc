@@ -89,7 +89,7 @@
         default =
           let
             create-secret = pkgs.callPackage ./packages/create-secret.nix { };
-            sdc-keygen = pkgs.callPackage ./packages/sdc-keygen.nix { };
+            sdc-keygen = pkgs.callPackage ./packages/sdc-keygen.nix { inherit userConfig; };
 
             customPackages = [
               create-secret

@@ -3,6 +3,7 @@
   openssh,
   jq,
   sops,
+  userConfig,
 }:
 let
   ssh-keygen = "${openssh}/bin/ssh-keygen";
@@ -42,7 +43,7 @@ writeShellScriptBin "sdc-keygen" ''
 
   generate_key() {
     # https://gist.github.com/kraftb/9918106?permalink_comment_id=4349155#gistcomment-4349155
-    (exec 3>&1; ${ssh-keygen} -qt ed25519 -N "" -f /proc/self/fd/3 <<<y >/dev/null 2>&1) || {
+    (exec 3>&1; ${ssh-keygen} -qt ed25519 -N "" -f /proc/self/fd/3 -C "root@headnode.${userConfig.tailscale.domain}" <<<y >/dev/null 2>&1) || {
       status=$?
       [[ "$status" -eq 255 ]] || return "$status"
     }
