@@ -108,6 +108,7 @@
                 sops
                 age
                 gitlab-ci-local
+                jq
               ]
               ++ customPackages;
           };
