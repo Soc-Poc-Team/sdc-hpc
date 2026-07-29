@@ -220,6 +220,7 @@
           slurm = pkgs.slurm;
           pharos = pkgs.callPackage ./packages/pharos { };
           sdc-hitman = pkgs.callPackage ./packages/sdc-hitman { };
+          docs = pkgs.callPackage ./docs { inherit render-docs; };
         };
         default = headnode.config.system.build.isoImage;
         head = headnode.config.system.build.isoImage;

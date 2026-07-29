@@ -36,5 +36,3 @@ metadata:
   csquotes: true
   link-citations: true
   reference-section-title: References
-include-in-header:
-  - docs/header.tex

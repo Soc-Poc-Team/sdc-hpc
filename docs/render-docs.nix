@@ -1,8 +1,6 @@
 {
   pkgs,
   packages,
-  docsRoot ? "docs",
-  outputRoot ? "build/docs",
 }:
 # Maybe we should expose the renderd docs as a nix package itself rather then doing it like this
 pkgs.writeShellApplication {
@@ -13,9 +11,11 @@ pkgs.writeShellApplication {
   text = ''
     set -euo pipefail
 
-    docs_root="''${DOCS_ROOT:-${docsRoot}}"
-    output_root="''${OUTPUT_ROOT:-${outputRoot}}"
+    docs_root="''${DOCS_ROOT:-"docs"}"
+    output_root="''${OUTPUT_ROOT:-"docs"}"
     defaults_file="$docs_root/defaults.yaml"
+
+    ls -R "$docs_root"
 
     if [[ ! -d "$docs_root" ]]; then
       echo "Documentation directory not found: $docs_root" >&2
@@ -56,9 +56,11 @@ pkgs.writeShellApplication {
         return
       fi
 
+
       pandoc_options=(
         "--defaults=$defaults_file"
         "--resource-path=$resource_path"
+        "--include-in-header=$docs_root/header.tex"
         "--output=$output_file"
       )
 
