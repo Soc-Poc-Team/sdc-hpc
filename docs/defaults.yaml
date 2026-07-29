@@ -5,7 +5,7 @@ pdf-engine: lualatex
 toc: true
 toc-depth: 3
 number-sections: true
-highlight-style: tango
+syntax-highlighting: tango
 variables:
   documentclass: scrreprt
   classoption:
@@ -13,6 +13,7 @@ variables:
     - headings=normal
   papersize: a4
   fontsize: 11pt
+  date: '\today'
   geometry:
     - top=24mm
     - bottom=26mm
@@ -32,7 +33,6 @@ variables:
   table-use-row-colors: true
 metadata:
   lang: en
-  date: \today
   csquotes: true
   link-citations: true
   reference-section-title: References

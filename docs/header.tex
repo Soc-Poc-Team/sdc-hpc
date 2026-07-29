@@ -11,13 +11,33 @@
 \usepackage{fvextra}
 \usepackage{upquote}
 \usepackage{tcolorbox}
+\usepackage{graphicx}
 
 \definecolor{CodeBackground}{HTML}{F5F7F9}
 \definecolor{RuleColor}{HTML}{D8DEE4}
 
+\providecommand{\DocumentWebsite}{}
+\providecommand{\DocumentSource}{}
+\providecommand{\DocumentEmail}{}
+\providecommand{\DocumentTitleImage}{}
+
+\graphicspath{
+  {docs/}
+  {./}
+}
+
+\newcommand{\DocumentContactLinks}{%
+  \href{\DocumentWebsite}{Website}%
+  \enspace\textbullet\enspace
+  \href{\DocumentSource}{Source code}%
+  \enspace\textbullet\enspace
+  \href{mailto:\DocumentEmail}{Email}%
+}
+
 \setlist{nosep}
 \setlength{\emergencystretch}{3em}
 \setlength{\headheight}{14pt}
+\setlength{\footskip}{24pt}
 \setlength{\LTpre}{0.5em}
 \setlength{\LTpost}{0.5em}
 
@@ -30,9 +50,74 @@
 \fancyhf{}
 \fancyhead[L]{\small\nouppercase{\leftmark}}
 \fancyhead[R]{\small\thepage}
+\fancyfoot[C]{\footnotesize\DocumentContactLinks}
 \renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+\fancypagestyle{plain}{
+  \fancyhf{}
+  \fancyhead[R]{\small\thepage}
+  \fancyfoot[C]{\footnotesize\DocumentContactLinks}
+  \renewcommand{\headrulewidth}{0pt}
+  \renewcommand{\footrulewidth}{0.4pt}
+}
 
 \setkomafont{chapter}{\normalfont\huge\bfseries}
+
+\makeatletter
+\renewcommand{\maketitle}{
+  \begin{titlepage}
+    \thispagestyle{empty}
+    \centering
+
+    \vspace*{1.5cm}
+
+    {
+      \Huge
+      \bfseries
+      \@title
+      \par
+    }
+
+    \vspace{1.5cm}
+
+    {
+      \Large
+      \begin{tabular}[t]{c}
+        \@author
+      \end{tabular}
+      \par
+    }
+
+    \vfill
+
+    \ifx\DocumentTitleImage\empty
+    \else
+      \includegraphics[
+        width=0.65\textwidth,
+        height=0.32\textheight,
+        keepaspectratio
+      ]{\DocumentTitleImage}
+    \fi
+
+    \vfill
+
+    {
+      \large
+      \@date
+      \par
+    }
+
+    \vspace{1.5cm}
+
+    {
+      \footnotesize
+      \DocumentContactLinks
+      \par
+    }
+  \end{titlepage}
+}
+\makeatother
 
 \AtBeginDocument{
   \ifcsname Highlighting\endcsname
