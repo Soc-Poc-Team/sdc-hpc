@@ -1,0 +1,46 @@
+\usepackage{microtype}
+\usepackage{parskip}
+\usepackage{xurl}
+\usepackage{bookmark}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{caption}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{fvextra}
+\usepackage{upquote}
+\usepackage{tcolorbox}
+
+\definecolor{CodeBackground}{HTML}{F5F7F9}
+\definecolor{RuleColor}{HTML}{D8DEE4}
+
+\setlist{nosep}
+\setlength{\emergencystretch}{3em}
+\setlength{\headheight}{14pt}
+\setlength{\LTpre}{0.5em}
+\setlength{\LTpost}{0.5em}
+
+\captionsetup{
+  font=small,
+  labelfont=bf
+}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\nouppercase{\leftmark}}
+\fancyhead[R]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\titleformat{\chapter}
+  {\normalfont\huge\bfseries}
+  {\thechapter}
+  {1em}
+  {}
+
+\RecustomVerbatimEnvironment{Highlighting}{Verbatim}{
+  breaklines,
+  breakanywhere,
+  commandchars=\\\{\}
+}

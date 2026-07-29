@@ -83,6 +83,10 @@
             ++ modules;
         });
 
+      docsshell = import ./docs/docsshell.nix {
+        inherit pkgs;
+      };
+
     in
     {
       inherit userConfig;
@@ -97,27 +101,33 @@
         in
         eachSystem (pkgs: treefmtEval.${pkgs.system}.config.build.wrapper);
 
-      devShells.${system}.default =
-        let
-          create-secret = pkgs.callPackage ./packages/create-secret.nix { };
+      devShells.${system} = {
+        inherit docsshell;
+        default =
+          let
+            create-secret = pkgs.callPackage ./packages/create-secret.nix { };
 
-          customPackages = [ create-secret ];
-        in
-        pkgs.mkShell {
-          packages =
-            with pkgs;
-            [
-              git
-              qemu
-              neovim
-              alejandra
-              mkpasswd
-              sops
-              age
-              gitlab-ci-local
-            ]
-            ++ customPackages;
-        };
+            customPackages = [
+              create-secret
+            ];
+          in
+          pkgs.mkShell {
+            packages =
+              with pkgs;
+              [
+                git
+                qemu
+                neovim
+                alejandra
+                mkpasswd
+                sops
+                age
+                gitlab-ci-local
+                jq
+              ]
+              ++ customPackages;
+          };
+      };
 
       nixosConfigurations = {
         headnode = mkBase "headnode" [
