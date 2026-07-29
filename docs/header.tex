@@ -4,7 +4,6 @@
 \usepackage{bookmark}
 \usepackage{enumitem}
 \usepackage{fancyhdr}
-\usepackage{titlesec}
 \usepackage{caption}
 \usepackage{booktabs}
 \usepackage{longtable}
@@ -33,14 +32,14 @@
 \fancyhead[R]{\small\thepage}
 \renewcommand{\headrulewidth}{0.4pt}
 
-\titleformat{\chapter}
-  {\normalfont\huge\bfseries}
-  {\thechapter}
-  {1em}
-  {}
+\setkomafont{chapter}{\normalfont\huge\bfseries}
 
-\RecustomVerbatimEnvironment{Highlighting}{Verbatim}{
-  breaklines,
-  breakanywhere,
-  commandchars=\\\{\}
+\AtBeginDocument{
+  \ifcsname Highlighting\endcsname
+    \RecustomVerbatimEnvironment{Highlighting}{Verbatim}{
+      breaklines,
+      breakanywhere,
+      commandchars=\\\{\}
+    }
+  \fi
 }
