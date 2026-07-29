@@ -12,7 +12,7 @@ let
     librsvg
     ghostscript
     poppler-utils
-    nodePackages.mermaid-cli
+    mermaid-cli
     python3Packages.pygments
     fontconfig
     libertinus

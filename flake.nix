@@ -83,10 +83,14 @@
             ++ modules;
         });
 
-      docsshell = import ./docs/docsshell.nix {
+      docsEnvironment = import ./docs/docsshell.nix {
         inherit pkgs;
       };
 
+      render-docs = import ./docs/render-docs.nix {
+        inherit pkgs;
+        inherit (docsEnvironment) packages;
+      };
     in
     {
       inherit userConfig;
@@ -102,13 +106,13 @@
         eachSystem (pkgs: treefmtEval.${pkgs.system}.config.build.wrapper);
 
       devShells.${system} = {
-        inherit docsshell;
         default =
           let
             create-secret = pkgs.callPackage ./packages/create-secret.nix { };
 
             customPackages = [
               create-secret
+              render-docs
             ];
           in
           pkgs.mkShell {
@@ -127,6 +131,18 @@
               ]
               ++ customPackages;
           };
+
+        docsshell = pkgs.mkShell {
+          packages = docsEnvironment.packages ++ [ render-docs ];
+
+          shellHook = ''
+            export TEXMFHOME="$PWD/.texmf"
+            export XDG_CACHE_HOME="''${XDG_CACHE_HOME:-$PWD/.cache}"
+
+            mkdir -p "$TEXMFHOME" "$XDG_CACHE_HOME"
+          '';
+        };
+
       };
 
       nixosConfigurations = {

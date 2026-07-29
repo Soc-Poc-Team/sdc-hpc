@@ -2,9 +2,9 @@
   pkgs,
   packages,
   docsRoot ? "docs",
-  outputRoot ? "build",
+  outputRoot ? "build/docs",
 }:
-
+# Maybe we should expose the renderd docs as a nix package itself rather then doing it like this
 pkgs.writeShellApplication {
   name = "render-docs";
 
@@ -29,7 +29,7 @@ pkgs.writeShellApplication {
 
     mkdir -p "$output_root"
 
-    build_directory() {
+    render_directory() {
       local source_directory="$1"
       local document_name
       local output_file
@@ -82,11 +82,11 @@ pkgs.writeShellApplication {
           exit 1
         fi
 
-        build_directory "$source_directory"
+        render_directory "$source_directory"
       done
     else
       while IFS= read -r -d $'\0' source_directory; do
-        build_directory "$source_directory"
+        render_directory "$source_directory"
       done < <(
         find "$docs_root" \
           -mindepth 1 \
