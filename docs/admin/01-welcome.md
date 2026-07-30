@@ -104,3 +104,14 @@ Do not use the software for safety-critical, mission-critical, or legally
 regulated workloads unless you have completed an appropriate technical,
 security, operational, and legal review and have implemented sufficient
 independent safeguards.
+
+## Publications
+
+The `small-data-cluster` project and its underlying concept were presented at
+_ISC High Performance 2025_ as: "HPC On-Demand: Dynamic On-Demand
+Cluster—Computing for SMEs on COTS Computers".
+
+## Acknowledgements
+
+This work was supported by the German Federal Ministry of Education and Research
+(BMBF) under grant number `02L19C602` as part of the WIRKsam project.
