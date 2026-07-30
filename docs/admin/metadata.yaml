@@ -7,9 +7,8 @@ subject: small-data-cluster
 keywords:
   - documentation
   - admin
-header-includes:
-  - |
-    \def\DocumentWebsite{https://example.org}
-    \def\DocumentSource{https://git.fh-aachen.de/bigdata/cape-canaveral/small-data-cluster}
-    \def\DocumentEmail{contact@example.org}
-    \def\DocumentTitleImage{login-screen.png}
+header-includes: |
+  \def\DocumentWebsite{https://example.org}
+  \def\DocumentSource{https://git.fh-aachen.de/bigdata/cape-canaveral/small-data-cluster}
+  \def\DocumentEmail{contact@example.org}
+  \def\DocumentTitleImage{login-screen.png}
