@@ -115,3 +115,6 @@ Cluster—Computing for SMEs on COTS Computers".
 
 This work was supported by the German Federal Ministry of Education and Research
 (BMBF) under grant number `02L19C602` as part of the WIRKsam project.
+
+You can learn more abour the WIRKsam project by visiting the
+[wirksam.new](https://wirksam.nrw/) website.
