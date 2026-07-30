@@ -63,3 +63,43 @@ node requires its own bootable USB drive.
 > another. Internally, the clusters are distinguished by their respective
 > Tailscale domains. Further information about this configuration is provided in
 > the Tailscale section.
+
+## Existing Network
+
+The `small-data-cluster` requires internet access during both deployment and
+operation. During deployment, the build machine uses the internet to download
+and build Nix packages. During operation, internet access is used to establish a
+VPN mesh between the headnode, worker nodes, and—depending on your
+configuration—client machines.
+
+A **VPN mesh** is a private, encrypted network in which participating devices
+can communicate with one another as though they were connected to the same local
+network. [https://tailscale.com/learn/understanding-mesh-vpns]
+
+The cluster does not depend on a particular local network topology or a specific
+set of firewall rules. You should not need to adjust or worry too much about
+your local network toplogy to run a `small-data-cluster`.
+
+As long as every cluster node has unrestricted internet access with a reasonable
+connection speed (approximately 50 Mbit/s or higher) no additional network
+configuration should normally be required. However, be aware that the cluster
+uses an external coordination service to establish and manage the VPN mesh
+between its nodes.
+
+The cluster nodes must be connected through a wired Ethernet network (commonly
+also known as "LAN Port & LAN Cable"). The network connection must be available
+automatically and must not require interactive authentication, a captive portal,
+user-specific credentials, or manually installed client certificates.
+
+The cluster has currently been tested only with one active wired Ethernet
+connection per node. Other configurations with additional network interfaces may
+work, but they are not officially tested. Such configurations may also stop
+working after future updates.
+
+> Cluster updates must be applied manually by rebuilding the images and
+> reflashing the USB drives. So dont worry, that your cluster may just stop
+> working - There are no auto updates.
+
+Worker nodes use the MAC address of the first detected network interface as
+their identifier because they are unique hardware-associated identifiers.
+[https://en.wikipedia.org/wiki/MAC_address]
