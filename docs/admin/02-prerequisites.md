@@ -72,8 +72,8 @@ and build Nix packages. During operation, internet access is used to establish a
 VPN mesh between the headnode, worker nodes, and—depending on your
 configuration—client machines.
 
-A **VPN mesh** is a private, encrypted network in which participating devices
-can communicate with one another as though they were connected to the same local
+A "VPN mesh" is a private, encrypted network in which participating devices can
+communicate with one another as though they were connected to the same local
 network. [https://tailscale.com/learn/understanding-mesh-vpns]
 
 The cluster does not depend on a particular local network topology or a specific
@@ -103,3 +103,44 @@ working after future updates.
 Worker nodes use the MAC address of the first detected network interface as
 their identifier because they are unique hardware-associated identifiers.
 [https://en.wikipedia.org/wiki/MAC_address]
+
+## Tailscale
+
+[Tailscale](https://tailscale.com/) is a networking service that creates a
+private mesh VPN between authorized devices. A Tailscale network is called a
+"tailnet". Devices within a tailnet communicate through encrypted connections
+based on the [WireGuard](https://www.wireguard.com/) protocol, allowing cluster
+nodes to reach one another without depending on the organization’s existing
+network topology. This even works over multiple locations.
+
+The `small-data-cluster` uses Tailscale to connect the headnode, worker nodes,
+and optionally client machines through a common private network. This simplifies
+deployment across different physical networks and locations. Tailscale provides
+the external control plane used to authenticate devices, distribute network
+information, and coordinate connections. The actual cluster traffic is encrypted
+and is transferred directly between devices whenever possible.
+
+Using an externally operated coordination service is a trade-off we made for
+deployment simplicity and convenience. Your organization should evaluate whether
+relying on this service is compatible with its security policies,
+data-protection requirements, and operational constraints.
+
+When the use of the hosted Tailscale control plane is not acceptable, you may
+consider implementing an alternative based on
+[Headscale](https://headscale.net/stable/). Headscale is an open-source,
+self-hosted implementation of the Tailscale control server. However, Headscale
+is not currently integrated into the standard `small-data-cluster` deployment
+and requires changes to the project.
+
+> Note: This is something we are actively thinking about implementing ourself.
+> At the time of writing these pages is does not seem to be on the horizion
+> however.
+
+During the setup process, you will need to generate an API key and an
+authentication key for the `small-data-cluster`. You will also need your tailnet
+DNS name, referred to as the "Tailscale domain" inside parts of thsi project.
+This name commonly ends in `.ts.net` and identifies your tailnet for DNS and
+API-related configuration.
+
+We recommend [creating a Tailscale account](https://login.tailscale.com/start)
+before starting with the cluster setup.
