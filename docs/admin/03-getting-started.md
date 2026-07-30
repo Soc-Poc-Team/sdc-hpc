@@ -106,3 +106,76 @@ after changing the configuration. On Linux distributions using `systemd`, run:
 ```bash
 sudo systemctl restart nix-daemon
 ```
+
+## Optional: Install direnv
+
+`direnv` is a shell extension that automatically loads and unloads
+project-specific environment variables when you enter or leave a directory. It
+uses an `.envrc` file stored in the project directory to define the environment
+that should be activated.
+
+Learn more about `direnv` on their official website
+[direnv.net](https://direnv.net/).
+
+The `small-data-cluster` repository uses `direnv` to provide convenient access
+to its development environment and automatically make relevant tools and
+settings available. `direnv` also configures tools for you and handles some part
+of the secret management system. Without `direnv`, you may need to enter the
+development environment manually whenever you start working with the repository
+and you will not profit from automatic tool setup.
+
+You can install `direnv` using your operating system’s package manager. On a
+Nix-enabled system, you can install it for the current user with:
+
+```bash
+nix profile install nixpkgs#direnv
+```
+
+The `nix profile install` command adds the selected package to the user’s Nix
+profile.
+
+> Note: When you are a bit more fammilar with Nix, i personally strongly
+> recommend not to use `nix profiles` and opt for more reproducable solutions
+> like adding it to your system Packages via the configuration.
+
+After installation, `direnv` must be connected to your shell using a shell hook.
+Add the appropriate command for your shell to its configuration file.
+
+### Bash
+
+Add the following line to the end of `~/.bashrc`:
+
+```bash
+eval "$(direnv hook bash)"
+```
+
+Apply the change by restarting Bash or running:
+
+```bash
+source ~/.bashrc
+```
+
+### Fish
+
+Fish is the default shell on the `small-data-cluster`. Add the following line to
+`~/.config/fish/config.fish`:
+
+```fish
+direnv hook fish | source
+```
+
+Apply the change by restarting Fish or running:
+
+```fish
+source ~/.config/fish/config.fish
+```
+
+`direnv` requires explicit authorization before loading a new or modified
+`.envrc` file. Because an `.envrc` file may contain executable shell commands,
+inspect its contents before running `direnv allow`, particularly when working
+with repositories obtained from an untrusted source.
+
+Once authorized, the development environment will be loaded automatically
+whenever you enter the repository directory and unloaded when you leave it.
+
+We will come to this after cloning the repository.
