@@ -144,3 +144,52 @@ API-related configuration.
 
 We recommend [creating a Tailscale account](https://login.tailscale.com/start)
 before starting with the cluster setup.
+
+## TLDR;
+
+You need to have these at hand:
+
+- A Nix enabled Linux machine
+- One USB drive per node
+- Internet
+- A [Tailscale](https://tailscale.com) account
+
+## Issues and Pitfalls
+
+This section describes known issues, common misconceptions, and potential
+pitfalls for administrators. It will be expanded as additional limitations or
+operational concerns are identified.
+
+### Secure Boot
+
+[Secure Boot](https://learn.microsoft.com/en-us/windows-hardware/design/device-experiences/oem-secure-boot)
+is a firmware security feature that allows a device to boot only software whose
+digital signature is trusted by the system firmware. It is intended to reduce
+the risk of unauthorized or modified bootloaders being executed during startup.
+
+Secure Boot may be enabled on machines intended for use with the
+`small-data-cluster`. At the current stage of development, the project does not
+provide signed boot images or a supported procedure for enrolling custom signing
+keys. As a result, cluster nodes may fail to boot while Secure Boot is enabled.
+
+You must therefore disable Secure Boot in the device’s UEFI or firmware settings
+before booting a `small-data-cluster` image. Where organizational policies
+permit it, Secure Boot may be disabled temporarily for testing or permanently on
+machines dedicated exclusively to the cluster.
+
+Disabling Secure Boot removes one layer of protection against unauthorized
+modifications to the boot process. This decision should therefore be reviewed in
+the context of your organization. Cluster hardware should be physically
+protected against unauthorized access or tampering, and access to firmware
+settings should be restricted where possible. Physical protection alone,
+however, does not fully replace the security guarantees provided by Secure Boot.
+
+The exact procedure for disabling Secure Boot depends on the device manufacturer
+and firmware version. Consult the manufacturer’s documentation or search for
+instructions using terms such as:
+
+`Disable Secure Boot on <device model>`
+
+For example:
+
+`Disable Secure Boot on Dell OptiPlex <model number>`
