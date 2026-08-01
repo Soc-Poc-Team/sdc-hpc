@@ -3,8 +3,7 @@
   render-docs,
 }:
 pkgs.stdenvNoCC.mkDerivation {
-  pname = "small-data-cluster-docs";
-  version = "1";
+  name = "small-data-cluster-docs";
 
   src = ./.;
 

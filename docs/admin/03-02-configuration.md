@@ -217,3 +217,137 @@ copy beside the encrypted file. Decrypted secrets may also remain temporarily
 available in process environments, editor buffers, shell history, temporary
 files, or build outputs. Restrict access to the build machine and close
 applications containing sensitive values when they are no longer required.
+
+#### Configuration options
+
+The unencrypted `config.toml` file and the encrypted JSON configuration provide
+the same logical configuration options. Only their syntax and storage format
+differ.
+
+Option names are case-sensitive and must be written exactly as documented below.
+Values included in the configuration templates are placeholders and should not
+be treated as secure or recommended defaults.
+
+###### Tailscale Configuration
+
+The `tailscale` section configures the Tailscale network used to connect the
+headnode, workernodes, and authorized client devices.
+
+| Option    | Type   | Description                                                            |
+| --------- | ------ | ---------------------------------------------------------------------- |
+| `domain`  | String | The Tailscale domain, also referred to as the tailnet DNS name.        |
+| `authKey` | String | An authentication key used to register cluster nodes with the tailnet. |
+| `apiKey`  | String | An API key used by the project to interact with the Tailscale API.     |
+
+> **Security warning:** The authentication key and API key are sensitive
+> credentials. Do not publish them, include them in documentation, or commit
+> them to Git in unencrypted form. Configure their permissions and expiration
+> according to your organization’s security requirements.
+
+###### Headnode Configuration
+
+The `headnode` section currently only has options regarding access to the
+Grafana instance running on the headnode.
+
+| Option                 | Type    | Description                                                                 |
+| ---------------------- | ------- | --------------------------------------------------------------------------- |
+| `grafana_enable_admin` | Boolean | Enables or disables access to the configured Grafana administrator account. |
+| `grafana_admin`        | String  | Sets the username of the Grafana administrator account.                     |
+| `grafana_password`     | String  | Sets the password of the Grafana administrator account.                     |
+
+> **Warning:** The Grafana administrator password may be readable from the Nix
+> store or generated build artifacts. Do not reuse a password that protects any
+> other account or system. Administrative access should remain disabled unless
+> it is explicitly required.
+
+The password included in the configuration template is insecure and must be
+replaced before deployment.
+
+###### Workernode Configuration
+
+The `worker` section controls the startup, identification, and diagnostic
+behavior of workernodes.
+
+| Option                | Type    | Description                                                                                                                                               |
+| --------------------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `acceptDHCPHostnames` | Boolean | Determines whether workernodes use hostnames provided through DHCP. When set to `false`, unique hostnames derived from the nodes’ MAC addresses are used. |
+| `awaitHeadnode`       | Boolean | Determines whether a workernode waits until the headnode is reachable before starting its cluster services.                                               |
+| `showJournal`         | Boolean | Determines whether the system journal is displayed on the first virtual console, `tty1`.                                                                  |
+| `headnodeTimeout`     | Integer | Specifies how many seconds a workernode waits for the headnode to become reachable before giving up.                                                      |
+
+When `acceptDHCPHostnames` is disabled, a workernode’s identity depends on its
+detected network interface and MAC address. Replacing a network adapter or
+changing the interface detection order may therefore cause the node to receive a
+different hostname.
+
+> **Note:** the "acceptDHCPHostnames" feature is currently not stable and
+> therefore not available. Set this option to `false`!
+
+###### User Configuration
+
+The `users` section defines the user accounts created on the cluster. Each child
+entry beneath `users` represents one account, and the entry name becomes the
+username.
+
+| Option         | Type             | Description                                                                                                                       |
+| -------------- | ---------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `passwordHash` | String           | The cryptographic hash of the user’s login password. Plaintext passwords must not be entered here.                                |
+| `uid`          | Integer          | The numeric user ID assigned to the account. It is uniquely shared within the cluster.                                            |
+| `sshKeys`      | Array of strings | A list of public SSH keys authorized to access the user account. This option may be omitted when no SSH keys should be installed. |
+
+Additional accounts can be created by adding further entries beneath `users`.
+Both usernames and numeric user IDs must be unique.
+
+> **Security warning:** `passwordHash` must contain a password hash, not the
+> original password. The hash included in the configuration template is public
+> and must not be used in a real deployment.
+
+###### Telemetry Configuration
+
+The `telemetry` section controls whether the project’s telemetry functionality
+is enabled.
+
+_About Telemetry:_
+
+This is a research project. Thus we are interested in gathering basic, anonymous
+usage data to measure interest in this project. Example datapoint that we
+periodically send on each deployed cluster to our backend:
+
+```json
+{
+  "type": "de.fh-aachen.bigdata.hpc-on-demand-telemetry",
+  "cluster": "1745849932",
+  "nodes": [
+    {
+      "cores": 2,
+      "cpu_load": 27,
+      "free_mem": 7527,
+      "cpus": 2,
+      "sockets": 1,
+      "last_busy": 1745849940,
+      "hostname": "headnode",
+      "real_memory": 11679,
+      "alloc_memory": 0,
+      "alloc_cpus": 0,
+      "alloc_idle_cpus": 2,
+      "slurmd_start_time": 1745849940,
+      "tres": "cpu=2,mem=11679M,billing=2",
+      "version": "23.11.10",
+      "state": ["IDLE", "DYNAMIC_NORM"],
+      "reason": "",
+      "reason_set_by_user": "root",
+      "reason_changed_at": {
+        "set": true,
+        "infinite": false,
+        "number": 0
+      }
+    }
+  ]
+}
+```
+
+**We do not gather any other data. Telemetry can be opted out!**
+
+| Option    | Type    | Description                                                        |
+| --------- | ------- | ------------------------------------------------------------------ |
+| `enabled` | Boolean | Enables or disables telemetry collection and its related services. |
