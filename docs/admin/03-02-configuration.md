@@ -351,3 +351,105 @@ periodically send on each deployed cluster to our backend:
 | Option    | Type    | Description                                                        |
 | --------- | ------- | ------------------------------------------------------------------ |
 | `enabled` | Boolean | Enables or disables telemetry collection and its related services. |
+
+#### What You Need to Configure
+
+This section summarizes the configuration values that must be provided before
+you can continue with the deployment guide.
+
+##### Tailscale Credentials
+
+You must provide all three options in the `tailscale` section:
+
+- `domain`
+- `authKey`
+- `apiKey`
+
+If you followed the earlier instructions, you should already have a Tailscale
+account and access to a tailnet.
+
+The authentication key is used to register cluster nodes with the tailnet
+without requiring an interactive login. The API key allows the project to
+interact with the Tailscale API, while the domain identifies the tailnet used by
+the cluster. These credentials must be treated as secrets and must not be
+committed to the repository in unencrypted form.
+
+**TODO:** Add instructions for generating the Tailscale authentication and API
+keys. This section must also explain how to configure the tailnet’s access rules
+so that the headnode and workernodes can communicate as required. Tailscale
+recommends using grants for new access-policy configurations.
+
+##### Grafana Credentials
+
+The Grafana administrator account is primarily required for development,
+troubleshooting, and changes to the Grafana configuration.
+
+For regular cluster use, you can disable administrator access through the
+`grafana_enable_admin` option without affecting the dashboards and monitoring
+functionality available to ordinary users.
+
+When administrator access is enabled, replace the template username and password
+with deployment-specific credentials. Do not reuse the Grafana password for any
+other account or service. Remember that the configured password is readable from
+the Nix store and generated build artifacts.
+
+##### User Accounts
+
+At least one complete entry must be added to the `users` section before building
+the cluster. Without a configured user account, you will not be able to sign in
+and use the deployed system.
+
+The configured accounts are used for both:
+
+- JupyterHub, which is the primary interface intended for less-experienced
+  cluster users
+- SSH access to the cluster nodes
+
+Each configured user corresponds to an actual operating-system account created
+on **every node** in the cluster. A user entry requires:
+
+- A unique username
+- A unique numeric user ID in `uid`
+- A password hash in `passwordHash`
+- Optionally, one or more public SSH keys in `sshKeys`
+
+Usernames and UIDs must remain consistent across the cluster because shared file
+ownership and permissions are associated with numeric UIDs.
+
+###### Generating a Password Hash
+
+The project development shell provides the `mkpasswd` command. Generate a
+SHA-512 crypt password hash by running:
+
+```console
+mkpasswd --method=sha-512
+```
+
+Enter the intended password when prompted. The command prints a salted password
+hash beginning with `$6$`. Copy the complete output into the user’s
+`passwordHash` option. Do not provide the password directly as a command-line
+argument. Entering it at the prompt prevents the plaintext password from being
+stored in your shell history or exposed as part of the command line.
+
+The password hash is not the plaintext password, but it should still be treated
+as sensitive information. Anyone who obtains it can attempt to recover the
+password through offline guessing attacks. Use a strong, unique password and
+store the hash only in the selected cluster configuration.
+
+###### Adding SSH Keys
+
+To enable SSH key authentication, add the user’s public SSH keys to `sshKeys`.
+Public keys commonly begin with identifiers such as `ssh-ed25519` or
+`ecdsa-sha2-nistp256`.
+
+Never add a private SSH key to the cluster configuration. Private keys must
+remain exclusively on the client devices from which users connect.
+
+> **Important:** Users cannot be added or removed at runtime through an
+> administrative interface or the command line etc. User management is
+> intentionally declarative: all required accounts must be defined before the
+> images are built.
+>
+> Adding, removing, or changing a user requires updating the configuration,
+> rebuilding the affected images, and redeploying them. The `small-data-cluster`
+> is not designed to support dynamic runtime user administration.
