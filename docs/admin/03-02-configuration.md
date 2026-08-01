@@ -228,7 +228,7 @@ Option names are case-sensitive and must be written exactly as documented below.
 Values included in the configuration templates are placeholders and should not
 be treated as secure or recommended defaults.
 
-###### Tailscale Configuration
+##### Tailscale Configuration
 
 The `tailscale` section configures the Tailscale network used to connect the
 headnode, workernodes, and authorized client devices.
@@ -244,7 +244,7 @@ headnode, workernodes, and authorized client devices.
 > them to Git in unencrypted form. Configure their permissions and expiration
 > according to your organization’s security requirements.
 
-###### Headnode Configuration
+##### Headnode Configuration
 
 The `headnode` section currently only has options regarding access to the
 Grafana instance running on the headnode.
@@ -263,7 +263,7 @@ Grafana instance running on the headnode.
 The password included in the configuration template is insecure and must be
 replaced before deployment.
 
-###### Workernode Configuration
+##### Workernode Configuration
 
 The `worker` section controls the startup, identification, and diagnostic
 behavior of workernodes.
@@ -283,7 +283,7 @@ different hostname.
 > **Note:** the "acceptDHCPHostnames" feature is currently not stable and
 > therefore not available. Set this option to `false`!
 
-###### User Configuration
+##### User Configuration
 
 The `users` section defines the user accounts created on the cluster. Each child
 entry beneath `users` represents one account, and the entry name becomes the
@@ -302,7 +302,7 @@ Both usernames and numeric user IDs must be unique.
 > original password. The hash included in the configuration template is public
 > and must not be used in a real deployment.
 
-###### Telemetry Configuration
+##### Telemetry Configuration
 
 The `telemetry` section controls whether the project’s telemetry functionality
 is enabled.
