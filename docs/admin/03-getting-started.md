@@ -351,6 +351,45 @@ the following sections.
 For improved protection of sensitive configuration values, you can create a
 SOPS-encrypted JSON file in the `secrets/` directory.
 
+Before creating an encrypted configuration, you must have an
+[age](https://github.com/FiloSottile/age) identity at:
+
+```text
+~/.config/sops/age/keys.txt
+```
+
+On Linux, this is the default location in which SOPS searches for age
+identities. The `age-keygen` command is already available in the project’s
+development environment.
+
+Create the required directory and generate a new key:
+
+```bash
+mkdir -p ~/.config/sops/age
+age-keygen -o ~/.config/sops/age/keys.txt
+chmod 600 ~/.config/sops/age/keys.txt
+```
+
+The command generates a private age identity and prints its corresponding public
+recipient key. The private identity begins with `AGE-SECRET-KEY-1` and must be
+kept confidential. Do not commit `keys.txt` to Git, copy it into the project
+repository, or share it with other users. Anyone who obtains this identity may
+be able to decrypt secrets encrypted for it.
+
+You can display the corresponding public recipient key again at any time by
+running:
+
+```bash
+age-keygen -y ~/.config/sops/age/keys.txt
+```
+
+The resulting public key begins with `age1` and may be shared. Sharing the
+public recipient key does not reveal the private identity.
+
+> **Advice:** Store a secure backup of `keys.txt`. If the private identity is
+> lost and no other authorized identity can decrypt the secrets, the encrypted
+> configuration cannot be recovered.
+
 From the root of the repository, run:
 
 ```console
@@ -418,6 +457,10 @@ or runtime due to how the `small-data-cluster` works.
 >
 > If this occurs, run `create-secret` again. Use `--force` when a partially
 > created file already exists and you have confirmed that it is safe to replace.
+
+You can make changes to your encrypted configuration by running
+`sops secrets/username.json` from the repo root! If your json is invalid, you
+will be promted to fix your issues or abort.
 
 Do not manually decrypt the secrets file into the repository or save a plaintext
 copy beside the encrypted file. Decrypted secrets may also remain temporarily
