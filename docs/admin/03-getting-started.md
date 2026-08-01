@@ -179,3 +179,71 @@ Once authorized, the development environment will be loaded automatically
 whenever you enter the repository directory and unloaded when you leave it.
 
 We will come to this after cloning the repository.
+
+### Cloning the Repository
+
+The `small-data-cluster` is distributed as a Git repository. Cloning the
+repository downloads a local copy of the source code, documentation,
+configuration files, and development tools to your build machine. You can then
+configure the project and build the cluster’s ISO and virtual-machine images
+locally.
+
+Because the complete project source is available, you may also modify any part
+of it to suit your specific requirements. Be aware that custom modifications may
+affect compatibility with future updates and are not covered by the project’s
+limited support.
+
+A public mirror of the `small-data-cluster` repository is available at:
+
+https://git-ce.fh-aachen.de/bigdatalab/hpc-on-demand
+
+You can clone the repository using either HTTPS or SSH. No credentials are
+required to access the public repository. The following command clones the
+`main` branch into `~/small-data-cluster`:
+
+```bash
+git clone https://git-ce.fh-aachen.de/bigdatalab/hpc-on-demand.git ~/small-data-cluster
+```
+
+Other branches may also be checked out, but only the `main` branch should be
+considered the default supported version. No guarantee of stability,
+compatibility, or completeness is provided for other branches.
+
+Enter the cloned repository directory and authorize its `direnv` configuration:
+
+```bash
+cd ~/small-data-cluster
+direnv allow
+```
+
+> **Note:** Before running `direnv allow`, ensure that `direnv` is installed and
+> connected to your shell as described in
+> [Optional: Install direnv](#optional-install-direnv). The command authorizes
+> the repository’s `.envrc` file, which may execute shell commands on your build
+> machine. Review the file before authorizing it when working with a modified or
+> untrusted copy of the repository.
+
+After authorization, Nix will download or build the dependencies required for
+working with the project. The initial setup may take some time, depending on
+your internet connection, hardware, and whether the required build results are
+available from a binary cache.
+
+The development environment will also initialize the project’s secret-management
+tooling. It may attempt to decrypt configuration secrets for your user. This
+attempt will most likely fail during the initial setup because your own secret
+configuration has not yet been created and is not included in the public
+repository. This is expected at this stage.
+
+The `direnv` environment also creates or connects to a `tmux` session containing
+windows for several common development and deployment tasks:
+
+- `build-batch` provides commands for building ISO and virtual-machine images.
+- `vms` provides commands for testing a virtualized headnode and workernode as
+  QEMU virtual machines on the build machine.
+- `flash` provides access to the flashing utility used to write
+  `small-data-cluster` images to bootable USB drives.
+
+> **Important:** Complete the following configuration steps before using the
+> commands displayed in these `tmux` windows. Until the cluster configuration
+> and required secrets have been created, the suggested build, virtualization,
+> and flashing commands are not expected to work correctly. Do not run them yet.
