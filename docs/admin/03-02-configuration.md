@@ -453,3 +453,184 @@ remain exclusively on the client devices from which users connect.
 > Adding, removing, or changing a user requires updating the configuration,
 > rebuilding the affected images, and redeploying them. The `small-data-cluster`
 > is not designed to support dynamic runtime user administration.
+
+### Configuring the Flash Tool
+
+**THIS SECTION MAY BE SPLIT UP INTO A CONFIG AND A DEPLOYMENT PART**
+
+The flash tool writes the generated workernode ISO image to one or more
+authorized USB drives. Because this process overwrites the selected devices
+completely, the tool uses an authorization file to restrict which drives it may
+access.
+
+**You will need to flash later as the last step before deployment - if you want,
+you can skip this section for now.**
+
+> **Warning:** Flashing a device destroys its existing partition table,
+> filesystems, and data. Carefully verify every device identifier before adding
+> it to the authorization file. Disconnect unrelated USB storage devices
+> whenever possible.
+
+The authorization file contains one device identifier per line. These
+identifiers correspond to entries under `/dev/disk/by-id/` and must be provided
+without the `/dev/disk/by-id/` prefix.
+
+Using identifiers from `/dev/disk/by-id/` is safer than directly using names
+such as `/dev/sdb`, because names under `/dev/sd*` may change when devices are
+connected, removed, or detected in a different order.
+
+#### Identifying USB Drives
+
+Connect the USB drives that you intend to use and inspect the available block
+devices:
+
+```bash
+lsblk -o NAME,PATH,MODEL,SERIAL,TRAN,SIZE,TYPE,MOUNTPOINTS
+```
+
+Use the model, serial number, capacity, transport type, and mounted filesystems
+to identify each intended target.
+
+You can then list the persistent identifiers assigned to USB storage devices:
+
+```bash
+for device in /dev/disk/by-id/usb-*; do
+  [[ "$device" == *-part* ]] && continue
+  printf '%s -> %s\n' "$(basename "$device")" "$(readlink -f "$device")"
+done
+```
+
+The output shows each USB identifier and the corresponding device under `/dev`,
+for example:
+
+```text
+usb-USB_SanDisk_3.2Gen1_00010501092224214341-0:0 -> /dev/sdb
+```
+
+Copy only the identifier on the left-hand side. Do not include the `-> /dev/sdX`
+portion.
+
+Entries ending in suffixes such as `-part1` identify individual partitions
+rather than complete drives and must not be added to the authorization file. The
+flash tool must write to the complete device.
+
+Be particularly careful with generic card-reader identifiers such as:
+
+```text
+usb-Generic-_SD_MMC_CRW_28203008282014000-0:0
+```
+
+Such an identifier may refer to an SD-card reader rather than a permanently
+attached storage device. Authorize it only when you have confirmed that the
+inserted card is an intended flashing target.
+
+#### Creating the Authorization File
+
+Add one verified device identifier per line to:
+
+```text
+dev/.write_authorization
+```
+
+For example, a file authorizing several USB drives may contain:
+
+```text
+usb-USB_SanDisk_3.2Gen1_00010501092224214341-0:0
+usb-USB_SanDisk_3.2Gen1_00010505092224214333-0:0
+usb-USB_SanDisk_3.2Gen1_00016409092224213732-0:0
+```
+
+The entries must match the filenames under `/dev/disk/by-id/` exactly. Blank
+lines or shortened identifiers should not be used.
+
+Only add drives that are dedicated to the `small-data-cluster`. Remove an entry
+when the corresponding device should no longer be writable by the flash tool.
+
+> **Important:** The authorization file reduces the risk of accidentally writing
+> to an unrelated device, but it does not verify the physical identity or
+> current contents of a drive. You remain responsible for confirming that every
+> authorized identifier belongs to the intended target.
+
+#### Verifying the Script Paths
+
+The flash script uses relative paths for both the ISO image and the
+authorization file. In the provided script, these are configured as:
+
+```bash
+ISO="results/worker/iso/workernode.iso"
+AUTH_FILE=".write_authorization"
+```
+
+Relative paths are resolved from the directory in which the script is executed,
+not necessarily from the directory containing the script.
+
+When the authorization file is stored at `dev/.write_authorization` and the
+script is started from the repository root, configure the script to use:
+
+```bash
+AUTH_FILE="dev/.write_authorization"
+```
+
+The ISO path assumes that the generated workernode image exists at (which is
+where the `build-batch` script puts it):
+
+```text
+results/worker/iso/workernode.iso
+```
+
+Ensure that the image has finished building before attempting to flash any
+drives.
+
+#### Performing a Dry Run
+
+Always perform a dry run before writing to the USB drives:
+
+```bash
+./dev/flash.sh --dry
+```
+
+The dry run lists the authorized devices and displays the `dd` commands that
+would be executed without modifying the drives.
+
+Review the output carefully and confirm that:
+
+- Every listed device is an intended target.
+- No internal disk or unrelated external drive appears.
+- The device identifiers match the authorization file.
+- The workernode ISO path is correct.
+- The selected devices have the expected model and capacity.
+
+The script silently ignores connected USB devices that are not present in the
+authorization file.
+
+#### Flashing the Authorized Drives
+
+After confirming the dry-run output, execute the script without `--dry`:
+
+```console
+./dev/flash.sh
+```
+
+The script uses `sudo dd` to write the workernode ISO to every connected and
+authorized device. Multiple authorized drives are written concurrently.
+
+You may be prompted for your `sudo` password. Do not disconnect a drive, shut
+down the build machine, or interrupt the script while writing is in progress.
+
+The script waits until all writing operations have completed and uses `sync` to
+ensure that buffered data is written to the devices before returning.
+
+Before flashing, unmount any mounted partitions belonging to the target drives.
+Their mount points can be identified using `lsblk`. A mounted partition can be
+unmounted with:
+
+```bash
+sudo umount /dev/sdX1
+```
+
+Replace `/dev/sdX1` with the actual partition shown by `lsblk`. Do not unmount
+or write to a device unless you have positively identified it.
+
+After the script completes, allow the system to finish processing the devices
+before physically removing them. The resulting USB drives can then be used to
+boot the workernodes.
