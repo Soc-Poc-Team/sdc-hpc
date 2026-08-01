@@ -3,7 +3,7 @@ to: pdf
 standalone: true
 pdf-engine: lualatex
 toc: true
-toc-depth: 3
+toc-depth: 6
 number-sections: true
 highlight-style: tango
 variables:
