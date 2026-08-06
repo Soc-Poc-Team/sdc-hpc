@@ -4,11 +4,9 @@ author:
   - Ture Bentzin
   - BigDataLab
 subject: small-data-cluster
+description: Administration and deployment guide for the Small Data Cluster
 keywords:
   - documentation
   - admin
-header-includes: |
-  \def\DocumentWebsite{https://bigdata.fh-aachen.de}
-  \def\DocumentSource{https://git-ce.fh-aachen.de/bigdatalab/hpc-on-demand}
-  \def\DocumentEmail{bentzin@shk.fh-aachen.de}
-  \def\DocumentTitleImage{../bdl-logo.png}
+  - high-performance computing
+  - Small Data Cluster

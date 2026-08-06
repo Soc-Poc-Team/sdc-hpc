@@ -13,10 +13,9 @@ variables:
     - headings=normal
   papersize: a4
   fontsize: 11pt
-  date: '\today'
   geometry:
-    - top=24mm
-    - bottom=26mm
+    - top=25mm
+    - bottom=30mm
     - left=25mm
     - right=25mm
   mainfont: Libertinus Serif
@@ -25,8 +24,8 @@ variables:
   mathfont: Libertinus Math
   linestretch: 1.08
   colorlinks: true
-  linkcolor: MidnightBlue
-  urlcolor: RoyalBlue
+  linkcolor: BrandColor
+  urlcolor: BrandColor
   citecolor: ForestGreen
   links-as-notes: false
   code-block-font-size: \small
@@ -35,4 +34,5 @@ metadata:
   lang: en
   csquotes: true
   link-citations: true
+  creator: Small Data Cluster documentation
   reference-section-title: References

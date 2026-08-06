@@ -195,7 +195,7 @@ limited support.
 
 A public mirror of the `small-data-cluster` repository is available at:
 
-https://git-ce.fh-aachen.de/bigdatalab/hpc-on-demand
+https://fhac.de/FB05/hpc-on-demand
 
 You can clone the repository using either HTTPS or SSH. No credentials are
 required to access the public repository. The following command clones the
