@@ -8,6 +8,7 @@
 \usepackage{booktabs}
 \usepackage{longtable}
 \usepackage{array}
+\usepackage{etoolbox}
 \usepackage{fvextra}
 \usepackage{upquote}
 \usepackage{tcolorbox}
@@ -44,6 +45,14 @@
 \setlength{\footskip}{34pt}
 \setlength{\LTpre}{0.5em}
 \setlength{\LTpost}{0.5em}
+
+% Keep wide tables inside the text area and allow their prose cells to wrap.
+\AtBeginEnvironment{longtable}{%
+  \small
+  \setlength{\tabcolsep}{4pt}%
+  \setlength{\emergencystretch}{4em}%
+  \sloppy
+}
 
 \captionsetup{
   font=small,
@@ -141,10 +150,17 @@
 \makeatother
 
 \AtBeginDocument{
+  % Apply wrapping to plain as well as syntax-highlighted code blocks.
+  \fvset{
+    breaklines=true,
+    breakanywhere=true,
+    breaknonspaceingroup=true
+  }
   \ifcsname Highlighting\endcsname
     \RecustomVerbatimEnvironment{Highlighting}{Verbatim}{
-      breaklines,
-      breakanywhere,
+      breaklines=true,
+      breakanywhere=true,
+      breaknonspaceingroup=true,
       commandchars=\\\{\}
     }
   \fi
