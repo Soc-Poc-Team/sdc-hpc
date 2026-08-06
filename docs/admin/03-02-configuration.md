@@ -583,7 +583,7 @@ drives.
 
 #### Performing a Dry Run
 
-Always perform a dry run before writing to the USB drives:
+You may perform a dry run before writing to the USB drives:
 
 ```bash
 ./dev/flash.sh --dry
