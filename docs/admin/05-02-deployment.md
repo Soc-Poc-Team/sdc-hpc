@@ -600,24 +600,30 @@ If a freshly flashed image repeatedly fails on one machine but works on another,
 the issue is likely related to the original machine's hardware or firmware
 configuration rather than the image itself.
 
-### Request support
+### Contact us
 
-If you report a problem with a node, collect as much of the following
-information as possible:
+We do not provide general support for the `small-data-cluster`. However, we are
+interested in learning about problems encountered during deployment or
+operation, especially when you have identified a possible cause or solution.
 
-- Manufacturer and exact model of the machine
-- CPU model
-- Amount of memory
-- Ethernet adapter model, if known
-- USB drive model
-- Project revision or Git commit
-- Whether the node is a headnode or worker node
-- Whether Secure Boot is disabled
-- Whether the same USB drive works on another machine
-- The exact error message
-- A photograph or transcript of the last visible boot messages
-- Any relevant system log output
+Feel free to contact us at TODO ADD CONTACT INFORMATION.
 
-Providing precise information makes it significantly easier to distinguish
-configuration errors, unsupported hardware, networking problems, and actual
-defects in the `small-data-cluster`.
+When reporting a problem, include as much relevant information as possible:
+
+- Manufacturer and exact model of the affected machine.
+- CPU model.
+- Amount of installed memory.
+- Project revision or Git commit.
+- Whether the affected node is the headnode or a worker node.
+- The exact error message.
+- Relevant system log output.
+- A short description of what you expected to happen.
+- A short description of what happened instead.
+- The steps required to reproduce the problem, if known.
+
+Do not include passwords, API keys, authentication keys, private SSH keys, or
+other secrets in a problem report.
+
+Providing precise information helps us distinguish configuration errors,
+unsupported hardware, networking problems, and defects in the
+`small-data-cluster`.
