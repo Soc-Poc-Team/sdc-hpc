@@ -9,7 +9,7 @@ section before beginning the deployment of a cluster.
 The `small-data-cluster` is a Nix and NixOS-based project. Therefore, a machine
 capable of executing Nix builds is required.
 
-You can learn more about Nix and Nixos here at [nixos.org](https://nixos.org/).
+You can learn more about Nix and NixOS at [nixos.org](https://nixos.org/).
 
 Setting up either a NixOS machine or a Nix-enabled Linux machine is
 straightforward and is well documented on the
@@ -19,7 +19,7 @@ installed. Both options are suitable for building the cluster.
 
 During the setup process, you will build NixOS images for both the worker nodes
 and the headnode. Once the cluster has been deployed, users will interact with
-these NixOS systems through SSH or preferebly JupyterHub.
+these NixOS systems through SSH or, preferably, JupyterHub.
 
 One of the following options may be convenient for your build environment:
 
@@ -56,7 +56,7 @@ to compatible ports to benefit from the increased transfer speed.
 
 The theoretical minimum number of nodes required for a functional
 `small-data-cluster` is one: the headnode itself. A deployment may consist of a
-single head node or one head node combined with any number of worker nodes. Each
+single headnode or one headnode combined with any number of worker nodes. Each
 node requires its own bootable USB drive.
 
 > **Note:** Multiple `small-data-cluster` deployments can operate alongside one
@@ -64,7 +64,7 @@ node requires its own bootable USB drive.
 > Tailscale domains. Further information about this configuration is provided in
 > the Tailscale section.
 
-## Existing Network
+## Existing network
 
 The `small-data-cluster` requires internet access during both deployment and
 operation. During deployment, the build machine uses the internet to download
@@ -74,14 +74,16 @@ configuration—client machines.
 
 A "VPN mesh" is a private, encrypted network in which participating devices can
 communicate with one another as though they were connected to the same local
-network. [https://tailscale.com/learn/understanding-mesh-vpns]
+network. See Tailscale’s
+[introduction to mesh VPNs](https://tailscale.com/learn/understanding-mesh-vpns)
+for more information.
 
 The cluster does not depend on a particular local network topology or a specific
 set of firewall rules. You should not need to adjust or worry too much about
-your local network toplogy to run a `small-data-cluster`.
+your local network topology to run a `small-data-cluster`.
 
 As long as every cluster node has unrestricted internet access with a reasonable
-connection speed (approximately 50 Mbit/s or higher) no additional network
+connection speed (approximately 50 Mbit/s or higher), no additional network
 configuration should normally be required. However, be aware that the cluster
 uses an external coordination service to establish and manage the VPN mesh
 between its nodes.
@@ -96,13 +98,14 @@ connection per node. Other configurations with additional network interfaces may
 work, but they are not officially tested. Such configurations may also stop
 working after future updates.
 
-> Cluster updates must be applied manually by rebuilding the images and
-> reflashing the USB drives. So dont worry, that your cluster may just stop
-> working - There are no auto updates.
+> **Note:** Cluster updates must be applied manually by rebuilding the images
+> and reflashing the USB drives. There are no automatic updates that could
+> unexpectedly change the running cluster.
 
 Worker nodes use the MAC address of the first detected network interface as
-their identifier because they are unique hardware-associated identifiers.
-[https://en.wikipedia.org/wiki/MAC_address]
+their identifier because MAC addresses are hardware-associated identifiers. See
+[MAC address](https://en.wikipedia.org/wiki/MAC_address) for background
+information.
 
 ## Tailscale
 
@@ -132,29 +135,28 @@ self-hosted implementation of the Tailscale control server. However, Headscale
 is not currently integrated into the standard `small-data-cluster` deployment
 and requires changes to the project.
 
-> Note: This is something we are actively thinking about implementing ourself.
-> At the time of writing these pages is does not seem to be on the horizion
-> however.
+> **Note:** We are considering support for Headscale, but it is not currently
+> planned for an upcoming release.
 
 During the setup process, you will need to generate an API key and an
 authentication key for the `small-data-cluster`. You will also need your tailnet
-DNS name, referred to as the "Tailscale domain" inside parts of thsi project.
-This name commonly ends in `.ts.net` and identifies your tailnet for DNS and
+DNS name, referred to as the "Tailscale domain" in parts of this project. This
+name commonly ends in `.ts.net` and identifies your tailnet for DNS and
 API-related configuration.
 
 We recommend [creating a Tailscale account](https://login.tailscale.com/start)
 before starting with the cluster setup.
 
-## TLDR;
+## Requirements summary
 
-You need to have these at hand:
+Before continuing, ensure that you have:
 
-- A Nix enabled Linux machine
+- A Nix-enabled Linux machine
 - One USB drive per node
 - Internet
 - A [Tailscale](https://tailscale.com) account
 
-## Issues and Pitfalls
+## Issues and pitfalls
 
 This section describes known issues, common misconceptions, and potential
 pitfalls for administrators. It will be expanded as additional limitations or

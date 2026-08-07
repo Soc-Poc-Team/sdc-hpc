@@ -5,7 +5,7 @@ we would like to thank you for checking out our project. Please note that the
 `small-data-cluster` is still a research project and currently receives only
 limited support from our team.
 
-## What does the SDC offer you and your company?
+## What the SDC offers you and your company
 
 Many companies in Germany do not fully use the data available to them to
 optimize their processes or learn more about their products, customers, and
@@ -35,29 +35,29 @@ control over, your cluster:
 - The `config.toml` file in your checked-out repository, unless secrets are
   managed using SOPS
 
-### Shared file-system access and data confidentiality
+### Shared filesystem access and data confidentiality
 
-Be aware that every worker node may have access to the head node’s shared file
-system. Depending on the cluster configuration, this may allow users, workloads,
-or compromised worker nodes to read, modify, delete, or extract files stored
-within the shared file system.
+Be aware that every worker node may have access to the headnode’s shared
+filesystem. Depending on the cluster configuration, this may allow users,
+workloads, or compromised worker nodes to read, modify, delete, or extract files
+stored within the shared filesystem.
 
-The shared file system must therefore be treated as part of the cluster’s
-trusted computing environment and as a potential attack surface. Isolation
-between worker nodes, users, jobs, and datasets should not be assumed unless it
-has been explicitly configured, tested, and independently verified.
+The shared filesystem must therefore be treated as part of the cluster’s trusted
+computing environment and as a potential attack surface. Isolation between
+worker nodes, users, jobs, and datasets should not be assumed unless it has been
+explicitly configured, tested, and independently verified.
 
 A compromised account, workload, worker node, credential, image, or
 administrative system may result in unauthorized access to confidential
-information or other cluster resources. Data accessible through the shared file
-system may also be exposed through incorrectly configured permissions, malicious
-workloads, vulnerable dependencies, or unintended interactions between
+information or other cluster resources. Data accessible through the shared
+filesystem may also be exposed through incorrectly configured permissions,
+malicious workloads, vulnerable dependencies, or unintended interactions between
 concurrent jobs.
 
 When confidential, personal, regulated, proprietary, or otherwise sensitive data
 is stored or processed on the cluster, access should be restricted to authorized
-and trusted individuals. This includes physical access to machiens and flash
-media. Apply the principle of least privilege!
+and trusted individuals. This includes physical access to machines and flash
+media. Apply the principle of least privilege.
 
 You should also consider implementing additional safeguards, including:
 
@@ -111,10 +111,10 @@ The `small-data-cluster` project and its underlying concept were presented at
 _ISC High Performance 2025_ as: "HPC On-Demand: Dynamic On-Demand
 Cluster—Computing for SMEs on COTS Computers".
 
-## Acknowledgements
+## Acknowledgments
 
 This work was supported by the German Federal Ministry of Education and Research
 (BMBF) under grant number `02L19C602` as part of the WIRKsam project.
 
-You can learn more abour the WIRKsam project by visiting the
+You can learn more about the WIRKsam project by visiting the
 [wirksam.new](https://wirksam.nrw/) website.

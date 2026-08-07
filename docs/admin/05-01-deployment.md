@@ -7,7 +7,7 @@ hardware.
 
 Alternatively, you can test the cluster virtually before deploying it to
 physical machines. The `vms` window in the prepared `tmux` session contains two
-panes with commands for starting a virtual headnode and a virtual workernode.
+panes with commands for starting a virtual headnode and a virtual worker node.
 
 Run the prepared commands to start the virtual machines. Performance in this
 environment may be significantly lower than on physical hardware and should not
@@ -15,17 +15,17 @@ be considered representative of a real deployment. You may interact with the
 virtual machines through the terminals provided in the `tmux` panes or detach
 from the session while they continue running.
 
-## Flashing the Images
+## Flash the images
 
-The `small-data-cluster` includes a flashing utility that can write the
-workernode image to multiple USB drives concurrently. Its configuration and
-safety mechanisms were described earlier in the section on configuring the flash
-tool. Ensure that the authorization file has been prepared and that all listed
-devices have been carefully verified before continuing.
+The `small-data-cluster` includes a flashing utility that can write the worker
+image to multiple USB drives concurrently. Its configuration and safety
+mechanisms were described earlier in the section on configuring the flash tool.
+Ensure that the authorization file has been prepared and that all listed devices
+have been carefully verified before continuing.
 
-### Flashing the Workernode Images
+### Flash the worker images
 
-To write the workernode image to the authorized USB drives:
+To write the worker image to the authorized USB drives:
 
 1. Insert the intended USB drives into the build machine.
 2. Attach to the `small-data-cluster` `tmux` session.
@@ -49,9 +49,9 @@ drives, the USB ports, and the build machine’s USB controller. This is expecte
 
 After the command has completed successfully and returned to the prompt, the USB
 drives can be removed from the build machine. Each successfully written drive
-now contains the workernode image.
+now contains the worker image.
 
-### Flashing the Headnode Image
+### Flash the headnode image
 
 The headnode image is not written by the multi-device flash tool. It must
 currently be written manually using `dd`.
@@ -76,8 +76,8 @@ intended for the headnode.
 > its partitions.
 
 You may write the headnode image in a separate terminal while the flash tool is
-writing the workernode images. Ensure that the headnode drive is not included in
-the workernode authorization file.
+writing the worker images. Ensure that the headnode drive is not included in the
+worker authorization file.
 
 > **Important:** Do not rebuild the cluster images while any flashing operation
 > is in progress. Rebuilding may update the `results/` links while another
@@ -85,6 +85,6 @@ the workernode authorization file.
 > receive images from different builds.
 >
 > After changing the cluster configuration, rebuild and reflash the headnode and
-> **all** workernode drives. Do not operate a cluster whose nodes were created
-> from different configurations or build revisions, as this may result in
+> **all** worker drives. Do not operate a cluster whose nodes were created from
+> different configurations or build revisions, as this may result in
 > incompatible services, credentials, or cluster behavior.

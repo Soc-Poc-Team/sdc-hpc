@@ -1,4 +1,4 @@
-## Cluster Hardware
+## Cluster hardware
 
 The `small-data-cluster` is designed to run on standard `x86_64` hardware. This
 includes most modern desktop computers, workstations, servers, and mini-PCs.
@@ -11,7 +11,7 @@ device.
 Older, unusual, or highly specialized hardware may require additional drivers or
 firmware that are not included in the standard images.
 
-### Physical Security
+### Physical security
 
 Physical access to cluster hardware must be treated as a security-sensitive
 privilege.
@@ -53,14 +53,14 @@ If Secure Boot remains enabled, the machine's firmware may refuse to start the
 image or may display an error indicating that the bootloader, operating system,
 or signature is not trusted.
 
-Refer to the earlier [Secure Boot] section before changing this setting to learn
-more.
+Refer to the earlier [Secure Boot](#secure-boot) section before changing this
+setting to learn more.
 
 > **Important:** Disabling Secure Boot removes one layer of protection from the
 > system's boot process. Ensure that this is acceptable according to your
 > organization's security requirements before continuing.
 
-### Preparing the Hardware
+### Prepare the hardware
 
 Before starting the cluster, prepare each machine as follows:
 
@@ -74,10 +74,9 @@ Before starting the cluster, prepare each machine as follows:
 5. Verify that Secure Boot has been disabled.
 6. Insert the prepared USB drive into the machine.
 
-> **Note:** You dont need to attach mouse, keyboard or monitor. All
-> `small-data-cluster` nodes can be run in "headless" mode. You can interact
-> with the entire cluster using a webbrowser. This also includes a way to use
-> the command line.
+> **Note:** You do not need to attach a mouse, keyboard, or monitor. All
+> `small-data-cluster` nodes can run in headless mode. You can interact with the
+> entire cluster, including its command-line interface, through a web browser.
 
 When possible, connect the USB drive directly to a USB port on the machine
 rather than through an external hub.
@@ -86,10 +85,10 @@ If both the drive and machine support USB 3.0 or newer, use a compatible
 high-speed port. USB 3.0 ports are commonly identified by a blue connector
 insert, although some manufacturers do not always follow this convention.
 
-### Starting the Cluster
+### Start the cluster
 
 The recommended startup order is to start the headnode first and then start the
-workernodes.
+worker nodes.
 
 Starting the headnode first is not strictly required, but it simplifies the
 startup process.
@@ -100,18 +99,18 @@ Proceed as follows:
 2. Power on the machine.
 3. Ensure that the machine boots from the USB drive.
 4. Wait until the headnode has completed its startup process.
-5. Insert USB drives and start the workernodes.
-6. Allow the workernodes to complete their startup and connect to the headnode.
+5. Insert USB drives and start the worker nodes.
+6. Allow the worker nodes to complete their startup and connect to the headnode.
 
-The workernodes can be configured to wait for the headnode to become reachable.
+The worker nodes can be configured to wait for the headnode to become reachable.
 The length of this waiting period is controlled by the `headnodeTimeout`
 configuration option.
 
-If the timeout is reached before the headnode becomes available, the workernode
+If the timeout is reached before the headnode becomes available, the worker node
 may stop attempting to start its cluster services. In that case, resolve the
-problem and reboot the affected workernode.
+problem and reboot the affected worker node.
 
-### Recognizing a Successful Headnode Boot
+### Recognize a successful headnode boot
 
 When a monitor is connected to the headnode, the startup process produces a
 significant amount of text while Linux and the cluster services are initialized.
@@ -128,24 +127,22 @@ small-data-cluster
 banner is displayed.
 
 The presence of this banner indicates that the machine has successfully booted
-the cluster image. Some services may not serve their interfaces directly - this
-is fine and expected behavior. Everything should be available after a few
-minutes - you dont need to wait for this! Do not assume that a machine has
-failed simply because the boot process pauses for several seconds during service
-initialization.
+the cluster image. Some services may not make their interfaces available
+immediately; this is expected. Everything should be available after a few
+minutes. Do not assume that a machine has failed simply because the boot process
+pauses for several seconds during service initialization.
 
-### Workernode Startup
+### Worker startup
 
-Workernodes generally require no manual interaction after they have successfully
-booted. Aithough you may use the TTY on the workernodes by presing
-`CTRL + ALT + F2` (up to F9) to open regular terminals with the local user
-"nixos".
+Worker nodes generally require no manual interaction after they have
+successfully booted. However, you can open a TTY on a worker node by pressing
+`Ctrl+Alt+F2` through `Ctrl+Alt+F9` and sign in as the local user `nixos`.
 
-If `showJournal` is enabled in the cluster configuration, workernodes display
+If `showJournal` is enabled in the cluster configuration, worker nodes display
 system log output on `tty1`. This can be useful when diagnosing startup
 problems.
 
-During startup, a workernode will attempt to:
+During startup, a worker node will attempt to:
 
 1. Initialize its hardware.
 2. Configure its network connection.
@@ -157,7 +154,7 @@ During startup, a workernode will attempt to:
 
 Depending on the network and hardware, this process may take several minutes.
 
-### Do Not Install the System to the Internal Disk
+### Do not install the system on the internal disk
 
 The `small-data-cluster` is intended to boot from the prepared USB drives. You
 do not need to install NixOS or the cluster software onto the internal disks of
@@ -179,7 +176,7 @@ If an installer or another operating system appears instead of the
 > especially if decryption keys, recovery keys, or already-unlocked volumes are
 > accessible to the running system.
 
-## Troubleshooting Boot Problems
+## Troubleshoot boot problems
 
 The most common problem during initial deployment is that the machine **does not
 boot** from the USB drive.
@@ -188,7 +185,7 @@ The exact configuration interface differs between manufacturers, but the general
 troubleshooting procedure is similar across most desktop computers,
 workstations, mini-PCs, and servers.
 
-### The Machine Boots Its Existing Operating System
+### The machine boots its existing operating system
 
 If the machine starts Windows, Linux, or another operating system already
 installed on its internal drive, it probably did not boot from the
@@ -212,8 +209,9 @@ Common keys used to open a boot menu include:
 - `F9`
 - `Esc`
 
-The exact key depends on the manufacturer and model. Use a search engine to find
-out specifics!
+The exact key depends on the manufacturer and model. Consult the manufacturer’s
+documentation or use a search engine to find the correct key for the specific
+model.
 
 The appropriate key is often briefly displayed immediately after powering on the
 computer, for example:
@@ -245,7 +243,7 @@ The entry may be displayed using:
 If both a UEFI and a legacy entry exist for the same USB drive, prefer the UEFI
 entry.
 
-### The USB Drive Does Not Appear in the Boot Menu
+### The USB drive does not appear in the boot menu
 
 If the USB device does not appear at all, first try another USB port.
 
@@ -269,7 +267,7 @@ related to the firmware configuration of the original machine.
 
 If no machine can detect the drive correctly, reflash the USB drive.
 
-### Entering the BIOS or UEFI Setup
+### Enter the BIOS or UEFI setup
 
 If selecting the USB device from the temporary boot menu does not solve the
 problem, you may need to change the machine's firmware configuration.
@@ -308,7 +306,7 @@ For example:
 Dell OptiPlex 7090 enter BIOS
 ```
 
-### Checking the Boot Order
+### Check the boot order
 
 Inside the firmware settings, look for a menu named something similar to:
 
@@ -343,7 +341,7 @@ or:
 Save Changes and Reboot
 ```
 
-### Secure Boot Errors
+### Secure Boot errors
 
 If you see messages similar to:
 
@@ -388,7 +386,7 @@ contact the person or department responsible for managing the hardware.
 Do not attempt to bypass organizational firmware restrictions without
 authorization.
 
-### The Machine Shows a Black Screen
+### The machine shows a black screen
 
 A black screen does not necessarily mean that the machine failed to boot.
 
@@ -413,7 +411,7 @@ If the machine appears to be running but no display is available, you may still
 be able to diagnose it through the network later. For initial deployment,
 however, using hardware with a working local display is strongly recommended.
 
-### The Machine Reboots or Returns to the Boot Menu
+### The machine reboots or returns to the boot menu
 
 If the machine begins to boot from the USB drive but immediately restarts or
 returns to the boot menu, possible causes include:
@@ -432,7 +430,7 @@ You can also test the image on a different computer. If the same image works on
 another system, the problem is likely specific to the original hardware or
 firmware configuration.
 
-### The Boot Process Stops With Error Messages
+### The boot process stops with error messages
 
 Linux displays many informational messages during startup. Messages containing
 terms such as `warning`, `failed`, or `error` do not always indicate that the
@@ -453,7 +451,7 @@ Record the error message exactly as displayed.
 If possible, take a photograph of the screen. The final lines shown before the
 system stops are usually the most useful for troubleshooting.
 
-### Network Interface Not Detected
+### Network interface not detected
 
 A node may boot successfully but fail later because its Ethernet adapter is not
 recognized.
@@ -483,7 +481,7 @@ If the physical connection works but Linux does not detect the network adapter,
 the hardware may require a driver or firmware component that is not included in
 the current image.
 
-### Network Connection Exists but the Node Cannot Reach the Internet
+### Network connection exists but the node cannot reach the internet
 
 The cluster requires internet access during normal startup.
 
@@ -505,9 +503,9 @@ authentication.
 If your organization's network requires additional authentication or
 configuration, the default image may not work without modification.
 
-### A Workernode Cannot Reach the Headnode
+### A worker node cannot reach the headnode
 
-If the headnode appears to start correctly but a workernode does not join the
+If the headnode appears to start correctly but a worker node does not join the
 cluster, first ensure that the headnode was given enough time to finish booting.
 
 Then verify that both machines:
@@ -518,19 +516,19 @@ Then verify that both machines:
 - Were built from the same cluster configuration.
 - Were built from a compatible project revision.
 
-If the workernode was started significantly earlier than the headnode, it may
+If the worker node was started significantly earlier than the headnode, it may
 also have reached its configured `headnodeTimeout`.
 
-Rebooting the workernode after the headnode is fully available is a simple first
-troubleshooting step.
+Rebooting the worker node after the headnode is fully available is a simple
+first troubleshooting step.
 
-### A Node Was Flashed With an Old Configuration
+### A node was flashed with an old configuration
 
 All nodes in one cluster should be built from the same project revision and
 configuration.
 
 If you change configuration values and rebuild the images, reflash the headnode
-and all affected workernode USB drives.
+and all affected worker USB drives.
 
 Do not intentionally operate a cluster containing images from different
 configurations unless you fully understand the compatibility implications.
@@ -548,7 +546,7 @@ Configuration differences may result in:
 If you suspect that one node contains an outdated image, the safest approach is
 to rebuild the complete image set and reflash the affected drive.
 
-### USB Drive Errors
+### USB drive errors
 
 USB flash drives are inexpensive storage devices and can fail.
 
@@ -566,7 +564,7 @@ cluster operation.
 
 Do not use a drive that reported write errors during flashing.
 
-### Testing Whether the Problem Is the Machine or the USB Drive
+### Test whether the problem is the machine or the USB drive
 
 When troubleshooting, changing one component at a time helps determine where the
 problem is located.
@@ -583,7 +581,7 @@ For example:
 This simple process can quickly distinguish a hardware-specific problem from a
 corrupted or defective USB drive.
 
-### Last Resort: Reflash the Image
+### Last resort: reflash the image
 
 When the cause of a boot problem is unclear, reflashing the affected USB drive
 is often a useful troubleshooting step.
@@ -602,7 +600,7 @@ If a freshly flashed image repeatedly fails on one machine but works on another,
 the issue is likely related to the original machine's hardware or firmware
 configuration rather than the image itself.
 
-### When Requesting Support
+### Request support
 
 If you report a problem with a node, collect as much of the following
 information as possible:
@@ -613,7 +611,7 @@ information as possible:
 - Ethernet adapter model, if known
 - USB drive model
 - Project revision or Git commit
-- Whether the node is a headnode or workernode
+- Whether the node is a headnode or worker node
 - Whether Secure Boot is disabled
 - Whether the same USB drive works on another machine
 - The exact error message

@@ -1,9 +1,9 @@
-## Configuring the `small-data-cluster`
+## Configure the `small-data-cluster`
 
 This section explains the required and optional configuration settings available
 within the project.
 
-### General Cluster Configuration
+### General cluster configuration
 
 There are two supported ways to provide the cluster configuration:
 
@@ -34,7 +34,7 @@ encrypted values, filenames, configuration structure, metadata, and potentially
 some unencrypted fields may remain visible. Ensure that only the intended
 recipients possess the keys required to decrypt the file.
 
-#### Using `config.toml`
+#### Use `config.toml`
 
 Open the `config.toml` file in the root of the repository with an editor of your
 choice, such as Vim, Helix (`hx`), Neovim, or Emacs.
@@ -96,7 +96,7 @@ the following sections.
 > Nix store. Do not assume that deleting the original configuration file after a
 > build removes all copies of its contents.
 
-#### Using an Encrypted JSON File
+#### Use an encrypted JSON file
 
 For improved protection of sensitive configuration values, you can create a
 SOPS-encrypted JSON file in the `secrets/` directory.
@@ -197,8 +197,8 @@ impure inputs.
 
 In this context, an **impure build** is a Nix evaluation that is allowed to
 access information outside the explicitly declared and locked flake inputs. This
-is necessary because the decryption of the secrets can not happen at build time
-or runtime due to how the `small-data-cluster` works.
+is necessary because the secrets cannot be decrypted at build time or runtime
+due to how the `small-data-cluster` works.
 
 > **Caution:** When the SOPS editor opens during `create-secret`, make at least
 > one change before closing it. Closing the editor without modifying the
@@ -208,9 +208,9 @@ or runtime due to how the `small-data-cluster` works.
 > If this occurs, run `create-secret` again. Use `--force` when a partially
 > created file already exists and you have confirmed that it is safe to replace.
 
-You can make changes to your encrypted configuration by running
-`sops secrets/username.json` from the repo root! If your json is invalid, you
-will be promted to fix your issues or abort.
+You can edit your encrypted configuration by running
+`sops secrets/<username>.json` from the repository root. If the JSON is invalid,
+SOPS prompts you to correct the errors or abort.
 
 Do not manually decrypt the secrets file into the repository or save a plaintext
 copy beside the encrypted file. Decrypted secrets may also remain temporarily
@@ -218,7 +218,7 @@ available in process environments, editor buffers, shell history, temporary
 files, or build outputs. Restrict access to the build machine and close
 applications containing sensitive values when they are no longer required.
 
-#### Configuration options
+### Configuration options
 
 The unencrypted `config.toml` file and the encrypted JSON configuration provide
 the same logical configuration options. Only their syntax and storage format
@@ -228,10 +228,10 @@ Option names are case-sensitive and must be written exactly as documented below.
 Values included in the configuration templates are placeholders and should not
 be treated as secure or recommended defaults.
 
-##### Tailscale Configuration
+#### Tailscale configuration
 
 The `tailscale` section configures the Tailscale network used to connect the
-headnode, workernodes, and authorized client devices.
+headnode, worker nodes, and authorized client devices.
 
 | Option    | Type   | Description                                                            |
 | --------- | ------ | ---------------------------------------------------------------------- |
@@ -244,10 +244,10 @@ headnode, workernodes, and authorized client devices.
 > them to Git in unencrypted form. Configure their permissions and expiration
 > according to your organization’s security requirements.
 
-##### Headnode Configuration
+#### Headnode configuration
 
-The `headnode` section currently only has options regarding access to the
-Grafana instance running on the headnode.
+The `headnode` section currently contains only options that control access to
+the Grafana instance running on the headnode.
 
 | Option                 | Type    | Description                                                                 |
 | ---------------------- | ------- | --------------------------------------------------------------------------- |
@@ -263,27 +263,27 @@ Grafana instance running on the headnode.
 The password included in the configuration template is insecure and must be
 replaced before deployment.
 
-##### Workernode Configuration
+#### Worker configuration
 
 The `worker` section controls the startup, identification, and diagnostic
-behavior of workernodes.
+behavior of worker nodes.
 
-| Option                | Type    | Description                                                                                                                                               |
-| --------------------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `acceptDHCPHostnames` | Boolean | Determines whether workernodes use hostnames provided through DHCP. When set to `false`, unique hostnames derived from the nodes’ MAC addresses are used. |
-| `awaitHeadnode`       | Boolean | Determines whether a workernode waits until the headnode is reachable before starting its cluster services.                                               |
-| `showJournal`         | Boolean | Determines whether the system journal is displayed on the first virtual console, `tty1`.                                                                  |
-| `headnodeTimeout`     | Integer | Specifies how many seconds a workernode waits for the headnode to become reachable before giving up.                                                      |
+| Option                | Type    | Description                                                                                                                                                |
+| --------------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `acceptDHCPHostnames` | Boolean | Determines whether worker nodes use hostnames provided through DHCP. When set to `false`, unique hostnames derived from the nodes’ MAC addresses are used. |
+| `awaitHeadnode`       | Boolean | Determines whether a worker node waits until the headnode is reachable before starting its cluster services.                                               |
+| `showJournal`         | Boolean | Determines whether the system journal is displayed on the first virtual console, `tty1`.                                                                   |
+| `headnodeTimeout`     | Integer | Specifies how many seconds a worker node waits for the headnode to become reachable before giving up.                                                      |
 
-When `acceptDHCPHostnames` is disabled, a workernode’s identity depends on its
+When `acceptDHCPHostnames` is disabled, a worker node’s identity depends on its
 detected network interface and MAC address. Replacing a network adapter or
 changing the interface detection order may therefore cause the node to receive a
 different hostname.
 
-> **Note:** the "acceptDHCPHostnames" feature is currently not stable and
-> therefore not available. Set this option to `false`!
+> **Note:** The `acceptDHCPHostnames` feature is not currently stable or
+> available. Set this option to `false`.
 
-##### User Configuration
+#### User configuration
 
 The `users` section defines the user accounts created on the cluster. Each child
 entry beneath `users` represents one account, and the entry name becomes the
@@ -302,16 +302,16 @@ Both usernames and numeric user IDs must be unique.
 > original password. The hash included in the configuration template is public
 > and must not be used in a real deployment.
 
-##### Telemetry Configuration
+#### Telemetry configuration
 
 The `telemetry` section controls whether the project’s telemetry functionality
 is enabled.
 
-_About Telemetry:_
+**About telemetry:**
 
-This is a research project. Thus we are interested in gathering basic, anonymous
-usage data to measure interest in this project. Example datapoint that we
-periodically send on each deployed cluster to our backend:
+This is a research project, so we are interested in gathering basic, anonymous
+usage data to measure interest in it. The following is an example data point
+periodically sent from each deployed cluster to our backend:
 
 ```json
 {
@@ -346,18 +346,19 @@ periodically send on each deployed cluster to our backend:
 }
 ```
 
-**We do not gather any other data. Telemetry can be opted out!**
+No other data is collected. You can opt out of telemetry by setting `enabled` to
+`false`.
 
 | Option    | Type    | Description                                                        |
 | --------- | ------- | ------------------------------------------------------------------ |
 | `enabled` | Boolean | Enables or disables telemetry collection and its related services. |
 
-#### What You Need to Configure
+### Required configuration
 
 This section summarizes the configuration values that must be provided before
 you can continue with the deployment guide.
 
-##### Tailscale Credentials
+#### Tailscale credentials
 
 You must provide all three options in the `tailscale` section:
 
@@ -379,7 +380,7 @@ keys. This section must also explain how to configure the tailnet’s access rul
 so that the headnode and workernodes can communicate as required. Tailscale
 recommends using grants for new access-policy configurations.
 
-##### Grafana Credentials
+#### Grafana credentials
 
 The Grafana administrator account is primarily required for development,
 troubleshooting, and changes to the Grafana configuration.
@@ -393,7 +394,7 @@ with deployment-specific credentials. Do not reuse the Grafana password for any
 other account or service. Remember that the configured password is readable from
 the Nix store and generated build artifacts.
 
-##### User Accounts
+#### User accounts
 
 At least one complete entry must be added to the `users` section before building
 the cluster. Without a configured user account, you will not be able to sign in
@@ -416,7 +417,7 @@ on **every node** in the cluster. A user entry requires:
 Usernames and UIDs must remain consistent across the cluster because shared file
 ownership and permissions are associated with numeric UIDs.
 
-###### Generating a Password Hash
+**Generate a password hash**
 
 The project development shell provides the `mkpasswd` command. Generate a
 SHA-512 crypt password hash by running:
@@ -436,7 +437,7 @@ as sensitive information. Anyone who obtains it can attempt to recover the
 password through offline guessing attacks. Use a strong, unique password and
 store the hash only in the selected cluster configuration.
 
-###### Adding SSH Keys
+**Add SSH keys**
 
 To enable SSH key authentication, add the user’s public SSH keys to `sshKeys`.
 Public keys commonly begin with identifiers such as `ssh-ed25519` or
@@ -446,25 +447,24 @@ Never add a private SSH key to the cluster configuration. Private keys must
 remain exclusively on the client devices from which users connect.
 
 > **Important:** Users cannot be added or removed at runtime through an
-> administrative interface or the command line etc. User management is
-> intentionally declarative: all required accounts must be defined before the
-> images are built.
+> administrative interface or the command line. User management is intentionally
+> declarative: all required accounts must be defined before the images are
+> built.
 >
 > Adding, removing, or changing a user requires updating the configuration,
 > rebuilding the affected images, and redeploying them. The `small-data-cluster`
 > is not designed to support dynamic runtime user administration.
 
-### Configuring the Flash Tool
+### Configure the flash tool
 
 **THIS SECTION MAY BE SPLIT UP INTO A CONFIG AND A DEPLOYMENT PART**
 
-The flash tool writes the generated workernode ISO image to one or more
-authorized USB drives. Because this process overwrites the selected devices
-completely, the tool uses an authorization file to restrict which drives it may
-access.
+The flash tool writes the generated worker ISO image to one or more authorized
+USB drives. Because this process overwrites the selected devices completely, the
+tool uses an authorization file to restrict which drives it may access.
 
-**You will need to flash later as the last step before deployment - if you want,
-you can skip this section for now.**
+You will flash the images as the final step before deployment. You may skip this
+section for now and return to it after building the images.
 
 > **Warning:** Flashing a device destroys its existing partition table,
 > filesystems, and data. Carefully verify every device identifier before adding
@@ -479,7 +479,7 @@ Using identifiers from `/dev/disk/by-id/` is safer than directly using names
 such as `/dev/sdb`, because names under `/dev/sd*` may change when devices are
 connected, removed, or detected in a different order.
 
-#### Identifying USB Drives
+#### Identify USB drives
 
 Connect the USB drives that you intend to use and inspect the available block
 devices:
@@ -524,7 +524,7 @@ Such an identifier may refer to an SD-card reader rather than a permanently
 attached storage device. Authorize it only when you have confirmed that the
 inserted card is an intended flashing target.
 
-#### Creating the Authorization File
+#### Create the authorization file
 
 Add one verified device identifier per line to:
 
@@ -551,7 +551,7 @@ when the corresponding device should no longer be writable by the flash tool.
 > current contents of a drive. You remain responsible for confirming that every
 > authorized identifier belongs to the intended target.
 
-#### Verifying the Script Paths
+#### Verify the script paths
 
 The flash script uses relative paths for both the ISO image and the
 authorization file. In the provided script, these are configured as:
@@ -571,8 +571,8 @@ script is started from the repository root, configure the script to use:
 AUTH_FILE="dev/.write_authorization"
 ```
 
-The ISO path assumes that the generated workernode image exists at (which is
-where the `build-batch` script puts it):
+The ISO path assumes that the generated worker image exists at the location
+where the `build-batch` script places it:
 
 ```text
 results/worker/iso/workernode.iso
@@ -581,7 +581,7 @@ results/worker/iso/workernode.iso
 Ensure that the image has finished building before attempting to flash any
 drives.
 
-#### Performing a Dry Run
+#### Perform a dry run
 
 You may perform a dry run before writing to the USB drives:
 
@@ -597,13 +597,13 @@ Review the output carefully and confirm that:
 - Every listed device is an intended target.
 - No internal disk or unrelated external drive appears.
 - The device identifiers match the authorization file.
-- The workernode ISO path is correct.
+- The worker ISO path is correct.
 - The selected devices have the expected model and capacity.
 
 The script silently ignores connected USB devices that are not present in the
 authorization file.
 
-#### Flashing the Authorized Drives
+#### Flash the authorized drives
 
 After confirming the dry-run output, execute the script without `--dry`:
 
@@ -611,7 +611,7 @@ After confirming the dry-run output, execute the script without `--dry`:
 ./dev/flash.sh
 ```
 
-The script uses `sudo dd` to write the workernode ISO to every connected and
+The script uses `sudo dd` to write the worker ISO to every connected and
 authorized device. Multiple authorized drives are written concurrently.
 
 You may be prompted for your `sudo` password. Do not disconnect a drive, shut
@@ -633,4 +633,4 @@ or write to a device unless you have positively identified it.
 
 After the script completes, allow the system to finish processing the devices
 before physically removing them. The resulting USB drives can then be used to
-boot the workernodes.
+boot the worker nodes.

@@ -1,4 +1,4 @@
-# Building Your Images
+# Build the images
 
 This section covers the available build outputs and the process of building
 images for your `small-data-cluster`.
@@ -16,7 +16,7 @@ successfully. A successful build therefore confirms that the source code
 evaluates and compiles, but it does not confirm that the resulting cluster
 configuration is deployable.
 
-## Available Images and Packages
+## Available images and packages
 
 The build outputs of the `small-data-cluster` are exposed through the flake’s
 Nix package outputs. They can therefore be built, inspected, or otherwise
@@ -28,18 +28,18 @@ This reference is particularly useful when modifying or developing the project.
 
 The following package outputs are available for `x86_64-linux` systems:
 
-| Package attribute                     | Description                                                                                                                |
-| ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| `packages.x86_64-linux.default`       | Default package output. This is an alias for `packages.x86_64-linux.head`.                                                 |
-| `packages.x86_64-linux.head`          | Builds the bootable ISO image for the headnode.                                                                            |
-| `packages.x86_64-linux.worker`        | Builds the bootable ISO image for workernodes.                                                                             |
-| `packages.x86_64-linux.headnode`      | Exposes the headnode system configuration for development purposes. It is not intended to be built directly as an image.   |
-| `packages.x86_64-linux.workernode`    | Exposes the workernode system configuration for development purposes. It is not intended to be built directly as an image. |
-| `packages.x86_64-linux.vm_headnode`   | Builds a QEMU virtual-machine image of the headnode for local development and testing.                                     |
-| `packages.x86_64-linux.vm_workernode` | Builds a QEMU virtual-machine image of a workernode for local development and testing.                                     |
-| `packages.x86_64-linux.devel`         | Contains additional development, documentation, monitoring, and cluster-management packages provided by the project.       |
+| Package attribute                     | Description                                                                                                                 |
+| ------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `packages.x86_64-linux.default`       | Default package output. This is an alias for `packages.x86_64-linux.head`.                                                  |
+| `packages.x86_64-linux.head`          | Builds the bootable ISO image for the headnode.                                                                             |
+| `packages.x86_64-linux.worker`        | Builds the bootable ISO image for worker nodes.                                                                             |
+| `packages.x86_64-linux.headnode`      | Exposes the headnode system configuration for development purposes. It is not intended to be built directly as an image.    |
+| `packages.x86_64-linux.workernode`    | Exposes the worker node system configuration for development purposes. It is not intended to be built directly as an image. |
+| `packages.x86_64-linux.vm_headnode`   | Builds a QEMU virtual-machine image of the headnode for local development and testing.                                      |
+| `packages.x86_64-linux.vm_workernode` | Builds a QEMU virtual-machine image of a worker node for local development and testing.                                     |
+| `packages.x86_64-linux.devel`         | Contains additional development, documentation, monitoring, and cluster-management packages provided by the project.        |
 
-### Development Packages
+### Development packages
 
 The `packages.x86_64-linux.devel` output contains the following additional
 packages:
@@ -56,7 +56,7 @@ The `head` and `worker` outputs are the primary packages required for physical
 deployment. The `vm_headnode` and `vm_workernode` outputs are intended for
 testing changes without immediately writing images to physical USB drives.
 
-## The `build-batch` Utility
+## The `build-batch` utility
 
 The `small-data-cluster` includes a script named `build-batch.sh`, which is the
 recommended method for building the deployment and virtual-machine images. The
@@ -67,7 +67,7 @@ When `direnv` loads the project environment, it normally creates a `tmux`
 session named `small-data-cluster`. This session contains prepared windows for
 building images, running virtual machines, and flashing USB drives.
 
-### Setting Up the `tmux` Session
+### Set up the `tmux` session
 
 The [tmux](https://github.com/tmux/tmux/wiki) session is normally created
 automatically when the project’s `direnv` environment is loaded. When `direnv`
@@ -99,7 +99,7 @@ For example, to recreate the session automatically:
 > inside the existing session. Ensure that no build, flashing, or development
 > process is still required before using `-y`.
 
-### Opening the `tmux` Session
+### Open the `tmux` session
 
 Attach to the prepared session by running:
 
@@ -109,17 +109,17 @@ tmux attach-session -t small-data-cluster
 
 The session contains the following windows:
 
-| Window        | Description                                                                     |
-| ------------- | ------------------------------------------------------------------------------- |
-| `vms`         | Contains two panes prepared for starting a virtualized workernode and headnode. |
-| `flash`       | Opens the `dev/` directory and prepares the flash-tool command.                 |
-| `batch-build` | Prepares the recommended command for building all standard images.              |
+| Window        | Description                                                                      |
+| ------------- | -------------------------------------------------------------------------------- |
+| `vms`         | Contains two panes prepared for starting a virtualized worker node and headnode. |
+| `flash`       | Opens the `dev/` directory and prepares the flash-tool command.                  |
+| `batch-build` | Prepares the recommended command for building all standard images.               |
 
 The commands in these windows are generally inserted into the shell but are not
-executed automatically. On the first execution you just press **Enter** when you
-are ready to run it. Later on you can use your shell history system to restore
-the last command (usually by pressing the "arrow up" key on your keyboard while
-in the prompt), and rerun it.
+executed automatically. For the first execution, press **Enter** when you are
+ready to run the command. Later, you can use your shell history to restore the
+previous command, usually by pressing the up arrow at the shell prompt, and run
+it again.
 
 Common `tmux` navigation shortcuts include:
 
@@ -135,7 +135,7 @@ Detaching from the session leaves running builds and virtual machines active.
 You can reconnect later using the same `tmux attach-session` (short: `tmux a`)
 command.
 
-### Building the Images
+### Build the images
 
 Open the `batch-build` window. The following command should already be prepared:
 
@@ -149,9 +149,8 @@ using only the unencrypted configuration (`config.toml`) in the repository, a
 pure build can be performed by omitting this option. This purity flag controls
 which configuration backend is used.
 
-Press **Enter** to start the build. Wait for it to finish, depending on your
-network connection and your hardware on your build machine it may take some
-time.
+Press **Enter** to start the build. It may take some time to finish, depending
+on your network connection and the build machine’s hardware.
 
 The script builds the following targets in order:
 
@@ -181,7 +180,7 @@ the command is run again.
 After all four targets have been built successfully, the generated physical and
 virtual images are ready for testing or deployment.
 
-### `build-batch.sh` Command Reference
+### `build-batch.sh` command reference
 
 The general command syntax is:
 
@@ -202,10 +201,10 @@ The following options are supported:
 
 Options beginning with `--` that are not included in this list are not forwarded
 to Nix. The script does not provide an option for building only one of the four
-targets, because you shall never use diverged headnode and worker images
-together.
+targets because headnode and worker images from different builds must not be
+used together.
 
-#### Impure Builds
+#### Impure builds
 
 When `--impure` is supplied, the script prints the following notice before
 starting:
@@ -214,12 +213,12 @@ starting:
 Building impure results!
 ```
 
-An impure build does access values outside the flake’s explicitly declared
+An impure build can access values outside the flake’s explicitly declared
 inputs. In the `small-data-cluster`, this is used to make decrypted
 configuration secrets available during evaluation by reading an environment
-variable called SDC-SECRETS.
+variable called `SDC_SECRETS`.
 
-#### Cleaning Build Results
+#### Clean build results
 
 To remove all result links created by the script, run:
 
@@ -246,10 +245,10 @@ Terminating QEMU processes may cause unsaved state inside the virtual machines
 to be lost.
 
 > **Note:** Deleting the `results/` directory removes the result links but does
-> not remove the corresponding build outputs from the Nix store. It just
-> sanatizes your working directory
+> not remove the corresponding build outputs from the Nix store. It only cleans
+> the result links from your working directory.
 
-#### Rebuilding Outputs
+#### Rebuild outputs
 
 The `--rebuild` option instructs Nix to rebuild the requested outputs instead of
 relying exclusively on existing valid build results:

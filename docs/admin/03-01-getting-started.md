@@ -1,4 +1,4 @@
-# Getting Started
+# Getting started
 
 This chapter guides you through the steps required to prepare for the deployment
 of your own `small-data-cluster`.
@@ -23,15 +23,14 @@ The following instructions assume that you have:
 
 All subsequent steps are based on these assumptions.
 
-## Enable Experimental Nix Features
+## Enable experimental Nix features
 
 Nix is a package manager, a configuration language, and the foundation of the
 NixOS operating system. Some commonly used Nix features are still classified as
 experimental and must be explicitly enabled before they can be used.
 Experimental features are not considered stable and may change incompatibly or
-be removed in future versions of Nix - for our "experimental features" this is
-highly unlikely as they are the de-facto standard when it comes to working with
-nix today.
+be removed in future versions of Nix. However, these features are widely used
+and are the de facto standard for working with modern Nix projects.
 
 The `small-data-cluster` relies on the following experimental features:
 
@@ -107,22 +106,22 @@ after changing the configuration. On Linux distributions using `systemd`, run:
 sudo systemctl restart nix-daemon
 ```
 
-## Optional: Install direnv
+## Optional: install `direnv`
 
 `direnv` is a shell extension that automatically loads and unloads
 project-specific environment variables when you enter or leave a directory. It
 uses an `.envrc` file stored in the project directory to define the environment
 that should be activated.
 
-Learn more about `direnv` on their official website
+Learn more about `direnv` on its official website,
 [direnv.net](https://direnv.net/).
 
 The `small-data-cluster` repository uses `direnv` to provide convenient access
 to its development environment and automatically make relevant tools and
-settings available. `direnv` also configures tools for you and handles some part
-of the secret management system. Without `direnv`, you may need to enter the
+settings available. `direnv` also configures tools and handles part of the
+secret-management system. Without `direnv`, you may need to enter the
 development environment manually whenever you start working with the repository
-and you will not profit from automatic tool setup.
+and will not benefit from automatic tool setup.
 
 You can install `direnv` using your operating system’s package manager. On a
 Nix-enabled system, you can install it for the current user with:
@@ -134,9 +133,9 @@ nix profile install nixpkgs#direnv
 The `nix profile install` command adds the selected package to the user’s Nix
 profile.
 
-> Note: When you are a bit more fammilar with Nix, i personally strongly
-> recommend not to use `nix profiles` and opt for more reproducable solutions
-> like adding it to your system Packages via the configuration.
+> **Note:** For a reproducible setup, experienced Nix users may prefer to add
+> `direnv` to their declarative system or home configuration instead of using
+> `nix profile install`.
 
 After installation, `direnv` must be connected to your shell using a shell hook.
 Add the appropriate command for your shell to its configuration file.
@@ -180,7 +179,7 @@ whenever you enter the repository directory and unloaded when you leave it.
 
 We will come to this after cloning the repository.
 
-## Cloning the Repository
+## Clone the repository
 
 The `small-data-cluster` is distributed as a Git repository. Cloning the
 repository downloads a local copy of the source code, documentation,
@@ -238,7 +237,7 @@ The `direnv` environment also creates or connects to a `tmux` session containing
 windows for several common development and deployment tasks:
 
 - `build-batch` provides commands for building ISO and virtual-machine images.
-- `vms` provides commands for testing a virtualized headnode and workernode as
+- `vms` provides commands for testing a virtualized headnode and worker node as
   QEMU virtual machines on the build machine.
 - `flash` provides access to the flashing utility used to write
   `small-data-cluster` images to bootable USB drives.
