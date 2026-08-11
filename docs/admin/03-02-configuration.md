@@ -370,7 +370,7 @@ The following procedure uses the hosted Tailscale service and its web-based
 [admin console](https://login.tailscale.com/admin). Interface labels can change,
 but the required policy and credentials remain the same.
 
-**Create or select the tailnet**
+##### Create or select the tailnet
 
 1. Sign in to the [Tailscale admin console](https://login.tailscale.com/admin)
    with the identity that will administer the cluster network. Signing in for
@@ -389,7 +389,7 @@ and
 [auth key documentation](https://tailscale.com/docs/features/access-control/auth-keys)
 for the current role requirements.
 
-**Enable name resolution and record the domain**
+##### Enable name resolution and record the domain
 
 The project uses Tailscale names rather than fixed IP addresses. For example,
 workers contact Slurm, NFS, Dask, Prometheus, Loki, and JupyterHub through the
@@ -417,7 +417,7 @@ for people; the DNS name is the suffix used to form addresses such as
 [MagicDNS documentation](https://tailscale.com/docs/features/magicdns) for more
 information about Tailscale name resolution.
 
-**Configure the tailnet policy**
+##### Configure the tailnet policy
 
 Tailscale denies connections that are not permitted by the tailnet policy. The
 cluster needs two types of communication:
@@ -431,11 +431,12 @@ authentication key created later applies this tag during enrollment. Keep
 administrator workstations associated with their human Tailscale identities so
 that removing a person from the administrator group also removes their access.
 
-Open **Access controls** in the admin console and select the JSON editor. The
-policy file uses human JSON (HuJSON), which permits comments and trailing
-commas. If this is a new tailnet used only for the cluster, replace the default
-policy with a policy based on the following example. Replace `admin@example.com`
-with the exact identity shown for your administrator in Tailscale:
+Open **Access controls** in the admin console and select the JSON editor.
+Tailscale calls the policy format _HuJSON_, short for human JSON. It extends
+JSON with conveniences such as comments and trailing commas. If this is a new
+tailnet used only for the cluster, replace the default policy with the following
+policy. Replace `admin@example.com` with the exact identity shown for your
+administrator in Tailscale:
 
 ```json
 {
@@ -459,10 +460,18 @@ with the exact identity shown for your administrator in Tailscale:
       "ip": ["*"]
     },
     {
-      // Administrators reach the dashboard, SSH, and diagnostic services.
+      // Administrators reach the cluster.
       "src": ["group:sdc-admins"],
       "dst": ["tag:cluster"],
       "ip": ["*"]
+    }
+  ],
+
+  "nodeAttrs": [
+    {
+      // Keep cluster nodes in one identifiable Tailscale address range.
+      "target": ["tag:cluster"],
+      "ipPool": ["100.81.0.0/24"]
     }
   ]
 }
@@ -475,10 +484,7 @@ or a GitHub identity such as `username@github`.
 
 This example deliberately uses Tailscale
 [grants](https://tailscale.com/docs/features/access-control/grants), which are
-the recommended replacement for older ACL rules. The first grant is essential:
-Slurm, NFS, monitoring, logging, Dask, and JupyterHub create connections between
-tagged cluster nodes. The second grant provides administrators with access from
-devices signed in under their Tailscale identities.
+the recommended replacement for older ACL rules.
 
 > **Security warning:** The example permits all network protocols and ports
 > between cluster nodes and from the administrator group to cluster nodes. This
@@ -503,33 +509,35 @@ Save the policy only after the editor reports that it is valid. Tailscale's
 [tailnet policy documentation](https://tailscale.com/docs/features/tailnet-policy-file)
 explains how to preview effective permissions before applying changes.
 
-**Assign an IP pool**
+##### Assign the cluster IP pool
 
-TODO: An earlier project policy example assigned addresses from `100.81.0.0/24`
-to cluster nodes. The project does not require this. Tag-based grants and
-MagicDNS continue to work with addresses assigned from Tailscale's default
-range.
+The policy above assigns cluster nodes addresses from `100.81.0.0/24`. We
+recommend using a dedicated pool because it keeps cluster addresses in one
+identifiable range and separates them from other Tailscale devices. Tag-based
+grants and MagicDNS remain the primary means of identifying and addressing
+nodes. Do not assume that a node retains one particular address across boots.
 
-If predictable address allocation is operationally useful, add the following
-top-level entry to the policy:
+When merging the cluster rules into an existing tailnet policy, include the
+following top-level entry:
 
 ```json
 "nodeAttrs": [
   {
     "target": ["tag:cluster"],
-    "ipPool": ["100.81.0.0/24"],
-  },
-],
+    "ipPool": ["100.81.0.0/24"]
+  }
+]
 ```
 
-Choose a range that does not overlap another pool or a network used by your
-organization. Tailscale IP pools must be subsets of `100.64.0.0/10`, and some
-subranges are reserved. IP pools are currently a beta Tailscale feature. Check
-the current restrictions in the official
-[IP pool documentation](https://tailscale.com/docs/reference/ip-pool) before
-using this optional configuration.
+Before saving the policy, confirm that `100.81.0.0/24` does not overlap another
+Tailscale IP pool or a network used by your organization. If it does, choose a
+different suitable range and update the policy consistently. Tailscale IP pools
+must be subsets of `100.64.0.0/10`, and some subranges are reserved. IP pools
+are currently a beta Tailscale feature. Check the current restrictions in the
+official [IP pool documentation](https://tailscale.com/docs/reference/ip-pool)
+before selecting the range.
 
-**Generate the cluster authentication key**
+##### Generate the cluster authentication key
 
 Define and save `tag:cluster` in the policy before creating the key. The tag is
 then available in the key form.
@@ -551,8 +559,7 @@ then available in the key form.
    the selected cluster secrets configuration as `authKey`.
 
 An authentication key normally starts with `tskey-auth`. It is case-sensitive
-and is displayed in full only when generated. Do not paste it into a shell,
-issue tracker, chat, or documentation.
+and is displayed in full only when generated.
 
 > **Security warning:** A reusable authentication key allows anyone who obtains
 > it to enroll additional devices with `tag:cluster` until the key expires or is
@@ -564,7 +571,7 @@ the project's boot model. A one-off key can enroll only one node. A non-reusable
 key therefore cannot support a cluster image that boots on several machines or
 reenrolls after shutdown.
 
-**Generate the API access token**
+##### Generate the API access token
 
 The current implementation expects a Tailscale API access token, historically
 called an API key. It does not implement the OAuth client flow.
@@ -587,7 +594,7 @@ devices and delete matching device records through the Tailscale API.
 > more narrowly scoped trust credentials, but the current project does not yet
 > implement the token exchange required to use them.
 
-**Complete the project configuration**
+##### Complete the project configuration
 
 Enter the DNS name and both newly generated secrets in the same selected
 configuration backend. For an unencrypted test configuration, the result has
@@ -613,45 +620,7 @@ Before building, verify that:
 - The saved tailnet policy permits `tag:cluster` to reach itself.
 - The administrator identity can reach `tag:cluster`.
 
-**Verify the deployed nodes**
-
-After booting the headnode, open **Machines** in the Tailscale admin console. A
-device named `headnode` should appear with the `tag:cluster` and **Ephemeral**
-indicators. Then start the workers and verify that each unique worker hostname
-appears with the same tag.
-
-From the administrator workstation, run:
-
-```console
-tailscale ping headnode
-```
-
-Then open the cluster dashboard:
-
-```text
-http://headnode
-```
-
-On a node, inspect the enrollment services with:
-
-```console
-systemctl status tailscale-tidy tailscale-autoconnect
-```
-
-If enrollment fails, view their logs:
-
-```console
-journalctl --no-pager -u tailscale-tidy -u tailscale-autoconnect
-```
-
-An HTTP `401` or `403` response from `tailscale-tidy` usually indicates an
-expired, revoked, or incorrect API access token. An authentication failure from
-`tailscale-autoconnect` usually indicates an invalid, expired, or revoked
-authentication key. If enrollment succeeds but nodes cannot connect, inspect the
-assigned tag and grants. A name-resolution failure after successful enrollment
-may indicate an incorrect `domain` value or disabled MagicDNS.
-
-**Plan credential rotation**
+##### Plan credential rotation
 
 Both Tailscale credentials expire no later than 90 days after generation. Track
 both expiration dates outside the volatile cluster. Generate replacements before
