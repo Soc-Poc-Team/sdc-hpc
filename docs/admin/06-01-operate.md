@@ -262,6 +262,167 @@ current scheduler state before taking administrative action.
 
 ## Use JupyterHub
 
-**TODO:** Add an in-depth guide to signing in to JupyterHub, selecting a
-resource profile, starting and stopping a notebook server, using the provided
-`small-data-cluster` kernel, and understanding where the notebook process runs.
+JupyterHub is the cluster's managed entry point for browser-based interactive
+work. Administrators should understand that the headnode does not start a
+notebook process directly when a user signs in. It authenticates the user,
+submits a Slurm job for the selected resource profile, and connects the browser
+to the JupyterLab process started by that job.
+
+### Understand authentication and access
+
+Users open the main dashboard at `http://headnode` and select **JupyterHub**.
+JupyterHub authenticates through the Linux Pluggable Authentication Modules
+(PAM) service. The username and password are therefore those defined in the
+`users` section of the cluster configuration.
+
+### Understand notebook server placement
+
+After authentication, the user chooses one of the available profiles. JupyterHub
+turns the selected profile into a Slurm job in the `debug` partition. Slurm
+chooses a node that can satisfy the request. This may be the headnode or a
+worker node because all registered nodes belong to the partition. The notebook
+server remains pending until resources become available. JupyterHub allows up to
+600 seconds for the server to start and up to 300 seconds for it to answer an
+HTTP request.
+
+Every notebook server job has the name `spawner-jupyterhub`. Its working
+directory is `/homes/<username>`, and its output is written to:
+
+```text
+/homes/<username>/jupyterhub_slurmspawner_<JOB_ID>.log
+```
+
+Because `/homes` is the shared NFS filesystem, JupyterHub on the headnode and a
+notebook process on any worker see the same files. The job also places its
+temporary files and Python package cache below the user's `/homes` directory.
+These files remain subject to the RAM-backed storage limitations described in
+[Store files on the cluster](#store-files-on-the-cluster).
+
+### Understand the web terminal
+
+JupyterLab provides a terminal in the browser. A user opens it through **File**,
+**New**, **Terminal**, or from the JupyterLab launcher. This terminal does not
+necessarily run on the headnode. It runs inside the same Slurm job and on the
+same node as that user's JupyterLab server.
+
+This distinction matters during administration:
+
+- Commands run in the web terminal consume the CPU and memory assigned to the
+  selected JupyterHub profile.
+- Files in the user's home directory remain available through `/homes`.
+- Closing the browser tab does not necessarily stop the Slurm job. The user must
+  stop the JupyterHub server to release its allocation.
+
+### Understand the provided kernel
+
+The images provide one project-specific notebook kernel named **Python 3.13
+small-data-cluster**. It uses a Nix-built Python environment, so each node
+receives the same interpreter and package versions. Its packages include:
+
+- NumPy, SciPy, pandas, and scikit-learn.
+- PyTorch and Torchvision.
+- Plotly and Beautiful Soup.
+- PyArrow.
+- Dask, Distributed, and Dask Gateway.
+
+To provide an additional package consistently, add it to
+`common/environments/jlabkernels.nix`, rebuild all images, and reflash the
+cluster.
+
+> **Note:** Internally we are thinking about a very nice and nix compatible way
+> to dispatch slurm jobs with locked dependencies. At this point of time, we
+> dont provide an on-runtime way to install packages.
+
+### Inspect JupyterHub
+
+Run the following commands on the headnode. First, check whether the central
+JupyterHub service is running:
+
+```console
+systemctl status jupyterhub
+```
+
+The service should report `active (running)`. It starts as part of the cluster
+services and restarts automatically if its process exits unexpectedly.
+
+View recent messages from the central service with:
+
+```console
+journalctl --no-pager -u jupyterhub
+```
+
+Follow new messages while reproducing a problem with:
+
+```console
+journalctl --no-pager -f -u jupyterhub
+```
+
+List notebook server jobs with:
+
+```console
+squeue --name=spawner-jupyterhub
+```
+
+To inspect servers belonging to one configured user, add the user filter:
+
+```console
+squeue --name=spawner-jupyterhub --user=<username>
+```
+
+Replace `<username>` with the configured account name. The `NODELIST(REASON)`
+column shows a node for a running job or a reason for a pending job.
+
+### Stop a notebook server administratively
+
+The normal method is for the user to stop their server from JupyterHub. When
+that is not possible, find its job ID with `squeue` and cancel the Slurm job:
+
+```console
+scancel <JOB_ID>
+```
+
+Replace `<JOB_ID>` with the exact ID of the `spawner-jupyterhub` job. Confirm
+that the correct username and job are selected before running the command.
+Cancelling the job terminates the notebook process and any computation running
+inside it. Files already written to `/homes` remain available until the headnode
+stops.
+
+> **Caution:** Restarting the central `jupyterhub` service is not a substitute
+> for cancelling an individual notebook server. A restart interrupts access for
+> every connected user. Use `scancel` when only one server must be stopped.
+
+### Diagnose JupyterHub problems
+
+If a user cannot sign in, verify that the account exists in the running image:
+
+```console
+getent passwd <username>
+```
+
+No output means that the account is not part of the configuration used to build
+that node. If the account exists, review the JupyterHub journal for PAM or
+allowlist errors. Do not print or request the user's plaintext password while
+diagnosing authentication.
+
+If a server remains on the profile-selection or startup page, inspect its Slurm
+state with `squeue`. A pending job may be waiting for the requested CPU or
+memory. Use the reason reported by Slurm and the cluster state from `sinfo` to
+distinguish unavailable resources from a down or drained node.
+
+If the Slurm job starts but JupyterLab does not become available, inspect both
+the central JupyterHub journal and the user's
+`jupyterhub_slurmspawner_<JOB_ID>.log` file. The job log records failures that
+occur on the node selected by Slurm, including startup and Python environment
+errors. The default environment shipped by us, should boot fine and was tested
+by us!
+
+If the JupyterHub page itself is unavailable, check `jupyterhub.service` and
+verify that the headnode has reached `cluster.target`:
+
+```console
+systemctl status jupyterhub cluster.target
+```
+
+Configuration changes to authentication, profiles, timeouts, the batch script,
+or the kernel must be made in the repository and deployed through rebuilt
+images.
