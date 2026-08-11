@@ -208,11 +208,21 @@ short list or sequence is easier to read.
 Keep cells concise. Put the identifier or option in the first column and the
 explanation in a later column. Format literal values as code.
 
+Pandoc uses the lengths of the separator cells to calculate relative column
+widths in the PDF. Allocate enough dashes to columns containing long,
+nonbreaking identifiers; do not size columns merely to align the Markdown
+source. For a three-column option table, start with approximately 25% for the
+option, 18% for the type, and 57% for the description:
+
 ```markdown
 | Option    | Type    | Description                               |
 | --------- | ------- | ----------------------------------------- |
 | `enabled` | Boolean | Enables or disables telemetry collection. |
 ```
+
+Adjust those proportions for the longest nonbreaking value in each column. A
+column containing identifiers such as `packages.x86_64-linux.vm_workernode`
+needs substantially more width than a column containing `-y` or `String`.
 
 Write descriptions as parallel phrases or sentences. Avoid embedding multiple
 procedural steps, long code samples, or lists in a table cell. Wide tables must
