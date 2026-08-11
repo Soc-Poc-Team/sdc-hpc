@@ -160,3 +160,104 @@ This is normal and does not indicate a problem.
 For detailed information about Slurm commands and node states, refer to the
 [Slurm Quick Start User Guide](https://slurm.schedmd.com/quickstart.html) and
 the [`sinfo` command reference](https://slurm.schedmd.com/sinfo.html).
+
+## Store files on the cluster
+
+The `small-data-cluster` provides a shared filesystem through the Network File
+System (NFS). NFS allows one machine to make a directory available to other
+machines over a network. Programs can then read and write files in that
+directory much as they would use a local disk.
+
+The headnode provides the `/homes` directory as the NFS server. Every worker
+node mounts the same directory at `/homes`. A file written to `/homes` on one
+node is therefore available at the same path on the other nodes. This shared
+path allows a Slurm job or Jupyter environment running on a worker to access a
+user's files.
+
+Configured cluster users have their home directories at `/homes/<username>`.
+This differs from the conventional `/home/<username>` path. Local system
+accounts that are not part of the cluster configuration, such as the live
+system's `nixos` account, may still use `/home`.
+
+You can use your directory under `/homes` for notebooks, scripts, job logs,
+temporary results, and datasets that fit within the available memory. JupyterHub
+also uses it as the notebook directory and stores each notebook server's Slurm
+log there.
+
+> **Warning:** In the current live system, `/homes` resides in the headnode's
+> RAM. Its contents are lost when the headnode shuts down, reboots, or fails.
+> Copy any file that you need to keep to persistent storage before stopping the
+> headnode. NFS makes the directory available across the cluster; it does not
+> make the data persistent or create a backup.
+
+Large datasets can also consume memory needed by the headnode's services. For
+larger or persistent datasets, use an external storage service or storage server
+that the cluster can reach over the network. The current configuration does not
+mount or configure external storage automatically. You must arrange the
+connection, credentials, access controls, and backups required by the selected
+storage system.
+
+## Monitor the cluster with Grafana
+
+Grafana presents metrics and logs collected from the cluster as web dashboards.
+Open the headnode dashboard at `http://headnode`, and then select **Grafana**.
+Grafana permits anonymous read-only access in the current configuration, so you
+can inspect the provisioned dashboards without signing in.
+
+The dashboards update as Prometheus collects new metrics. Use Grafana's time
+range and refresh controls in the upper-right corner when investigating current
+activity or an earlier event.
+
+### `small-data-cluster` dashboard
+
+Use the `small-data-cluster` dashboard for a high-level operational overview. It
+combines the following cluster information:
+
+- Headnode CPU, memory, and network activity.
+- Overall CPU and memory allocation reported by Slurm.
+- Slurm job states and worker node states over time.
+- Logs from the headnode's `slurmctld` and `jupyterhub` systemd services.
+
+Start with this dashboard when checking capacity, node availability, or the
+general health of the cluster. The log panels are useful when a job cannot be
+scheduled or a Jupyter environment does not start. Expand a panel or narrow the
+time range to inspect an event in more detail.
+
+### Node Exporter Full dashboard
+
+The **Node Exporter Full** dashboard shows operating-system metrics for one
+machine at a time. Prometheus collects these metrics from the headnode and from
+worker nodes discovered through Slurm.
+
+Select a machine from the **Nodename** list at the top of the dashboard. Use the
+panels to inspect information such as:
+
+- CPU utilization, load, and time spent waiting for input and output.
+- Available and used memory, including cache and swap where present.
+- Filesystem capacity and filesystem input/output activity.
+- Network traffic and errors by interface.
+- System uptime and the state of systemd services.
+
+This dashboard helps distinguish a machine-level resource problem from a Slurm
+scheduling problem. For example, sustained CPU use may be expected while a job
+runs, while low available memory or a nearly full filesystem may require
+administrative attention. Some panels may remain empty when the underlying
+hardware, filesystem, or collector is not present on the selected node.
+
+### Slurm Dashboard
+
+The **Slurm Dashboard** provides detailed scheduler and workload information. It
+includes partition capacity and load, node states, job counts, CPU and memory
+allocation by account or user, job resource usage, and Slurm controller remote
+procedure call (RPC) activity.
+
+Use the dashboard's partition, job-state, user, account, and job selectors to
+narrow the displayed data. The job panels can help compare allocated resources
+with observed CPU, memory, and input/output use. The controller diagnostics can
+help identify unusually frequent or slow RPC requests. Empty account, user, or
+job panels usually mean that no matching workload exists in the selected time
+range.
+
+Grafana is an observation interface. It does not change Slurm node or job
+states. Use command-line tools such as `sinfo` and `squeue` to confirm the
+current scheduler state before taking administrative action.
