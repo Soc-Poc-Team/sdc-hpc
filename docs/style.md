@@ -9,8 +9,12 @@ LuaLaTeX. Write for both the Markdown source and the generated document.
 
 ## Audience and purpose
 
-Write for administrators and users who understand basic Linux concepts but may
-not be familiar with Nix, NixOS, high-performance computing, or this project.
+Write for administrators and users who understand very basic Linux concepts but
+may not be familiar with Nix, NixOS, high-performance computing, or this
+project.
+
+The documentation for developers targets an audience fammiliar with linux and
+already informed about nix in general.
 
 Documentation should help readers complete a task safely and understand:
 
@@ -160,6 +164,8 @@ Use emphasis intentionally:
 - Do not use all caps for emphasis.
 
 Do not use inline HTML when standard Markdown can express the same result.
+
+You can run `nix fmt` in the repo to ensure correct wrapping.
 
 ## Code, commands, and output
 
