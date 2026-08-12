@@ -42,7 +42,7 @@ personal, or otherwise sensitive data.
 > Physical security is therefore an important part of the cluster's overall
 > security model.
 
-### Secure Boot
+### Disable Secure Boot before deployment
 
 The current `small-data-cluster` images do not support Secure Boot.
 
@@ -606,7 +606,7 @@ We do not provide general support for the `small-data-cluster`. However, we are
 interested in learning about problems encountered during deployment or
 operation, especially when you have identified a possible cause or solution.
 
-Feel free to contact us at TODO ADD CONTACT INFORMATION.
+**TODO:** Add the project contact address for deployment and operation reports.
 
 When reporting a problem, include as much relevant information as possible:
 

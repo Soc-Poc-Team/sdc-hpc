@@ -59,7 +59,7 @@ currently be written manually using `dd`.
 First, identify the complete target device under `/dev` or `/dev/disk/by-id/`.
 Then run:
 
-```console
+```bash
 sudo dd \
   if=results/head/iso/headnode.iso \
   of=/dev/disk/by-id/<HEADNODE_USB_DEVICE> \

@@ -142,7 +142,7 @@ public recipient key does not reveal the private identity.
 
 From the root of the repository, run:
 
-```console
+```bash
 create-secret [--user USER] [--force]
 ```
 
@@ -152,7 +152,7 @@ appropriate secrets available to the Nix build environment.
 
 You can use the `--user` option to specify a different configuration name:
 
-```console
+```bash
 create-secret --user alice
 ```
 
@@ -182,7 +182,7 @@ If a secrets file with the selected name already exists, the tool will normally
 refuse to overwrite it. Use the `--force` option only when you intentionally
 want to replace the existing file:
 
-```console
+```bash
 create-secret --user alice --force
 ```
 
@@ -683,7 +683,7 @@ ownership and permissions are associated with numeric UIDs.
 The project development shell provides the `mkpasswd` command. Generate a
 SHA-512 crypt password hash by running:
 
-```console
+```bash
 mkpasswd --method=sha-512
 ```
 
@@ -717,8 +717,6 @@ remain exclusively on the client devices from which users connect.
 > is not designed to support dynamic runtime user administration.
 
 ### Configure the flash tool
-
-**THIS SECTION MAY BE SPLIT UP INTO A CONFIG AND A DEPLOYMENT PART**
 
 The flash tool writes the generated worker ISO image to one or more authorized
 USB drives. Because this process overwrites the selected devices completely, the
@@ -868,7 +866,7 @@ authorization file.
 
 After confirming the dry-run output, execute the script without `--dry`:
 
-```console
+```bash
 ./dev/flash.sh
 ```
 

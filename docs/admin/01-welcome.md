@@ -13,11 +13,15 @@ operations.
 
 The SDC provides an on-demand high-performance computing environment using
 hardware you already own. It offers a simple yet powerful platform for running
-small HPC workloads, such as data analysis. [TODO: Add source]
+small HPC workloads, such as data analysis.
+
+**TODO:** Add a source for the statement about the intended workload scale.
 
 The `small-data-cluster` is distributed as a Git repository that you can easily
-check out, configure, and build. You can begin deploying it to your hardware in
-less than 30 minutes.
+check out, configure, and build. Plan several hours for the initial setup,
+configuration, image build, and deployment. The time required depends on the
+build machine, internet connection, number and speed of the USB drives, and
+whether Nix can obtain dependencies from a binary cache.
 
 ## Considerations
 
@@ -33,7 +37,8 @@ control over, your cluster:
 - A copy of the ISO images, including any physical drives onto which the images
   were written
 - The `config.toml` file in your checked-out repository, unless secrets are
-  managed using SOPS
+  managed using Secrets OPerationS (SOPS), the encrypted secret-file tool used
+  by this project
 
 ### Shared filesystem access and data confidentiality
 
@@ -63,8 +68,8 @@ You should also consider implementing additional safeguards, including:
 
 - File and directory permissions appropriate to each user and workload
 - Separation of users, projects, and datasets
-- Encryption of sensitive data at rest and in transit (probably external data
-  sources)
+- Encryption of sensitive data at rest and in transit, including data kept in
+  external storage
 - Secure management and regular rotation of credentials and secrets
 - Logging, monitoring, and auditing of access to sensitive resources
 - Regular vulnerability assessments

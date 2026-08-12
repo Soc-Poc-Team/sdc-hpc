@@ -184,7 +184,7 @@ virtual images are ready for testing or deployment.
 
 The general command syntax is:
 
-```console
+```bash
 ./build-batch.sh [OPTIONS]
 ```
 
@@ -222,7 +222,7 @@ variable called `SDC_SECRETS`.
 
 To remove all result links created by the script, run:
 
-```console
+```bash
 ./build-batch.sh --clean
 ```
 

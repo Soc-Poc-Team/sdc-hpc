@@ -28,7 +28,7 @@ When your workstation is connected to the same Tailscale tailnet as the cluster,
 you can connect to a node using its Tailscale hostname. For example, connect to
 the headnode with:
 
-```console
+```bash
 ssh <username>@headnode
 ```
 
@@ -99,21 +99,14 @@ without requiring them to interact directly with the cluster's command-line
 tools. For this reason, JupyterHub is the primary interface intended for users
 who are not familiar with Linux administration, SSH, or Slurm.
 
-In the `small-data-cluster`, Jupyter environments are started as Slurm workloads
-and can therefore execute on the resources managed by the cluster. The user's
-home and working files are provided through the shared NFS filesystem hosted by
-the headnode. This filesystem currently resides in the headnode's RAM. As a
-result, notebook execution and file storage are separate concerns: a notebook
-may execute on a worker node while its working files remain available through
-the shared filesystem.
-
 > **Warning:** The shared filesystem resides in the headnode's RAM. Its contents
 > do not survive a shutdown, reboot, or failure of the headnode. Move results
 > that you need to keep to external persistent storage before stopping the
 > cluster.
 
-A later section describes how to use the provided Jupyter environments,
-available kernels, and cluster-specific notebook behavior in more detail.
+The administrator-focused [Use JupyterHub](#use-jupyterhub) section describes
+how notebook servers use Slurm and shared storage, how to inspect them, and how
+to diagnose failures.
 
 ## Verify cluster health
 
@@ -127,7 +120,7 @@ another node with access to the Slurm controller.
 
 Run:
 
-```console
+```bash
 sinfo
 ```
 
@@ -140,7 +133,7 @@ in an idle or mix state, depending on whether they are currently running jobs.
 
 Use:
 
-```console
+```bash
 sinfo -N -l
 ```
 
@@ -148,7 +141,7 @@ to display more detailed information for individual nodes.
 
 You can also inspect jobs currently known to Slurm with:
 
-```console
+```bash
 squeue
 ```
 
@@ -338,7 +331,7 @@ cluster.
 Run the following commands on the headnode. First, check whether the central
 JupyterHub service is running:
 
-```console
+```bash
 systemctl status jupyterhub
 ```
 
@@ -347,25 +340,25 @@ services and restarts automatically if its process exits unexpectedly.
 
 View recent messages from the central service with:
 
-```console
+```bash
 journalctl --no-pager -u jupyterhub
 ```
 
 Follow new messages while reproducing a problem with:
 
-```console
+```bash
 journalctl --no-pager -f -u jupyterhub
 ```
 
 List notebook server jobs with:
 
-```console
+```bash
 squeue --name=spawner-jupyterhub
 ```
 
 To inspect servers belonging to one configured user, add the user filter:
 
-```console
+```bash
 squeue --name=spawner-jupyterhub --user=<username>
 ```
 
@@ -377,7 +370,7 @@ column shows a node for a running job or a reason for a pending job.
 The normal method is for the user to stop their server from JupyterHub. When
 that is not possible, find its job ID with `squeue` and cancel the Slurm job:
 
-```console
+```bash
 scancel <JOB_ID>
 ```
 
@@ -395,7 +388,7 @@ stops.
 
 If a user cannot sign in, verify that the account exists in the running image:
 
-```console
+```bash
 getent passwd <username>
 ```
 
@@ -413,13 +406,14 @@ If the Slurm job starts but JupyterLab does not become available, inspect both
 the central JupyterHub journal and the user's
 `jupyterhub_slurmspawner_<JOB_ID>.log` file. The job log records failures that
 occur on the node selected by Slurm, including startup and Python environment
-errors. The default environment shipped by us, should boot fine and was tested
-by us!
+errors. The project team tests the default environment included in the images,
+but deployment-specific failures may still require investigation through these
+logs.
 
 If the JupyterHub page itself is unavailable, check `jupyterhub.service` and
 verify that the headnode has reached `cluster.target`:
 
-```console
+```bash
 systemctl status jupyterhub cluster.target
 ```
 

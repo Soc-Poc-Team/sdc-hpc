@@ -88,6 +88,14 @@ configuration should normally be required. However, be aware that the cluster
 uses an external coordination service to establish and manage the VPN mesh
 between its nodes.
 
+In operational terms, unrestricted internet access means that the nodes can make
+outbound connections directly. The network must not require a proxy, browser
+login, captive portal, per-user authentication, or additional client software.
+It must not block Tailscale coordination or peer-to-peer traffic, DNS
+resolution, or downloads from the package and source services used during the
+build. An organization that filters outbound traffic must verify that its rules
+permit these operations.
+
 The cluster nodes must be connected through a wired Ethernet network (commonly
 also known as "LAN Port & LAN Cable"). The network connection must be available
 automatically and must not require interactive authentication, a captive portal,
@@ -138,11 +146,11 @@ and requires changes to the project.
 > **Note:** We are considering support for Headscale, but it is not currently
 > planned for an upcoming release.
 
-During the setup process, you will need to generate an API key and an
-authentication key for the `small-data-cluster`. You will also need your tailnet
-DNS name, referred to as the "Tailscale domain" in parts of this project. This
-name commonly ends in `.ts.net` and identifies your tailnet for DNS and
-API-related configuration.
+During the setup process, you will need to generate the Tailscale API access
+token stored in `apiKey` and the authentication key stored in `authKey`. You
+will also need your tailnet DNS name, referred to as the "Tailscale domain" in
+parts of this project. This name commonly ends in `.ts.net` and identifies your
+tailnet for DNS and API-related configuration.
 
 We recommend [creating a Tailscale account](https://login.tailscale.com/start)
 before starting with the cluster setup.
@@ -153,7 +161,7 @@ Before continuing, ensure that you have:
 
 - A Nix-enabled Linux machine
 - One USB drive per node
-- Internet
+- A working internet connection
 - A [Tailscale](https://tailscale.com) account
 
 ## Issues and pitfalls

@@ -100,7 +100,8 @@ Follow these structural rules:
 - A file may begin at level two when it deliberately continues the chapter in
   the preceding file, as with split chapters.
 - Do not skip heading levels.
-- Limit the hierarchy to four heading levels whenever possible.
+- Use as many heading levels as the document structure requires. Do not add
+  depth merely to style or emphasize a heading.
 - Do not create a heading for a single short paragraph.
 - Keep headings concise and unique within a rendered document.
 - Do not end headings with a colon or semicolon.
@@ -169,7 +170,7 @@ Use fenced code blocks and always specify the most accurate language:
 nix build .#worker
 ```
 
-```console
+```bash
 create-secret --user alice
 ```
 
@@ -180,8 +181,9 @@ Expected unformatted output
 
 Use:
 
-- `bash`, `fish`, `nix`, `json`, `toml`, or `ini` for source or configuration
-- `console` for commands where shell interaction is the focus
+- `bash` for Bash commands, scripts, and shell interactions
+- `fish`, `nix`, `json`, `toml`, or `ini` for source or configuration in those
+  languages
 - `text` for paths, directory trees, messages, and unformatted output
 
 Commands must be safe to copy. Do not include a shell prompt such as `$` unless

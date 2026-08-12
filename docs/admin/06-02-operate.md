@@ -116,7 +116,7 @@ The tool performs the following actions:
 First, use `sinfo -N` to find the exact node names. Then shut down a worker, for
 example:
 
-```console
+```bash
 sudo sdc-hitman worker-a1b2c3d4e5f6
 ```
 
@@ -128,7 +128,7 @@ to inspect those jobs.
 The tool accepts `*` patterns. Quote a pattern so that the shell passes it to
 `sdc-hitman` instead of expanding it as a filename:
 
-```console
+```bash
 sudo sdc-hitman 'worker-*'
 ```
 
@@ -137,7 +137,7 @@ value derived from a network-interface address.
 
 After all workers are off, shut down the headnode separately:
 
-```console
+```bash
 sudo sdc-hitman headnode
 ```
 
@@ -238,7 +238,7 @@ To run it:
 
 To cancel the entire array before it finishes, run:
 
-```console
+```bash
 scancel <JOB_ID>
 ```
 
@@ -255,7 +255,7 @@ available from the headnode dashboard on port `8787`.
 
 The scheduler coordinates work but does not normally perform the computation.
 The workers execute submitted tasks and return their results. The project's
-`Python 3.13 small-data-cluster` Jupyter kernel contains the required Dask and
+**Python 3.13 small-data-cluster** Jupyter kernel contains the required Dask and
 Distributed Python packages. The ordinary command-line Python environment is not
 the documented interface for this operation.
 
@@ -286,13 +286,13 @@ dashboard to see connected workers, running tasks, memory use, and task
 progress. If the client cannot connect, verify that the cluster lists worker
 nodes and check the scheduler on the headnode:
 
-```console
+```bash
 systemctl status dask-scheduler
 ```
 
 Run the following command on an affected worker node:
 
-```console
+```bash
 systemctl status dask-worker
 ```
 

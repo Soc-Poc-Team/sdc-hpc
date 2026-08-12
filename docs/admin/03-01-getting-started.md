@@ -10,8 +10,10 @@ security information and assess the associated risks.
 
 Unfortunately, we cannot provide universal support for every hardware
 configuration, network environment, or deployment scenario. Some troubleshooting
-and adaptation may therefore be required. The software tries its best to work in
-any environment it is deployed in.
+and adaptation may therefore be required. The images use NixOS's broad hardware
+profile to include drivers and firmware for varied `x86_64` machines. This
+improves hardware coverage but does not guarantee compatibility with every
+machine or network environment.
 
 ## Assumptions
 
@@ -177,7 +179,8 @@ with repositories obtained from an untrusted source.
 Once authorized, the development environment will be loaded automatically
 whenever you enter the repository directory and unloaded when you leave it.
 
-We will come to this after cloning the repository.
+We will come to this after cloning the repository, when the instructions ask you
+to enter the cloned directory and run `direnv allow`.
 
 ## Clone the repository
 
@@ -217,7 +220,7 @@ direnv allow
 
 > **Note:** Before running `direnv allow`, ensure that `direnv` is installed and
 > connected to your shell as described in
-> [Optional: Install direnv](#optional-install-direnv). The command authorizes
+> [Optional: install direnv](#optional-install-direnv). The command authorizes
 > the repository’s `.envrc` file, which may execute shell commands on your build
 > machine. Review the file before authorizing it when working with a modified or
 > untrusted copy of the repository.
