@@ -372,8 +372,8 @@ source ~/.bashrc
 
 ### Fish
 
-Fish is the default shell on the `small-data-cluster`. Add the following line to
-`~/.config/fish/config.fish`:
+Fish is the default shell on the `small-data-cluster`. Add the hook to your Fish
+configuration file at `~/.config/fish/config.fish`:
 
 ```fish
 direnv hook fish | source
@@ -474,7 +474,175 @@ git clone git@git.fh-aachen.de:bigdata/cape-canaveral/small-data-cluster.git
 ```
 
 > **Note:** SSH access requires connecting from inside the FH Aachen network.
-> Fun Fact: This security restriction was put into place after AI training from
-> Anthropic and co started scraping my personal public repos on our gitlab and
-> produced milions of requests causing our gitlab server to crash and be
-> unavailable from time to time for about 2 weeks in 2026...
+> Use HTTPS when working outside that network.
+
+## Activate the development shell
+
+Enter the cloned repository:
+
+```bash
+cd small-data-cluster
+```
+
+Because the repository's `.envrc` has not been authorized yet, `direnv` prints a
+message similar to:
+
+```text
+direnv: error /path/to/small-data-cluster/.envrc is blocked. Run `direnv allow` to approve its content
+```
+
+Review `.envrc` before authorizing it. The file executes commands on your
+workstation and loads the flake with impure evaluation enabled. After reviewing
+it, authorize the file:
+
+```bash
+direnv allow
+```
+
+`direnv` remembers the authorization until `.envrc` changes. It then loads the
+development environment whenever you enter the repository and unloads it when
+you leave. The initial load may take some time while Nix downloads or builds the
+required packages.
+
+The environment also creates a `tmux` session named `small-data-cluster` with
+windows prepared for common development operations. A later section describes
+the session and its commands.
+
+If a secrets file for your system username does not exist, `.envrc` prints an
+informational message similar to:
+
+```text
+-------------------------------
+No secrets file for <username> at secrets/<username>.json
+Create one from secrets/template.json and encrypt with sops.
+You can use the 'create-secret' command to do that for you!
+-------------------------------
+```
+
+The missing file does not prevent the development shell from loading. Until you
+create it, impure evaluations do not receive a developer-specific configuration
+through `SDC_SECRETS`.
+
+## Create SOPS secrets
+
+[SOPS](https://getsops.io/) is a tool for editing structured files whose values
+are encrypted at rest. This project combines SOPS with
+[age](https://github.com/FiloSottile/age), a file-encryption tool whose public
+recipient keys can encrypt data and whose private identities decrypt it.
+
+Developers should use a SOPS-encrypted JSON configuration instead of placing
+real credentials in `config.toml`. The encrypted file can remain beside the
+source and can be shared with explicitly configured recipients without exposing
+its plaintext values. This reduces the risk of accidentally committing Tailscale
+credentials, password hashes, or other deployment configuration in cleartext.
+
+SOPS protects the configuration file at rest. It does not keep values encrypted
+throughout the build. `.envrc` decrypts the file into `SDC_SECRETS`, and
+`flake.nix` parses that value during impure evaluation. Evaluated values may
+therefore appear in process environments, the Nix store, generated images, or
+build output.
+
+> **Security warning:** Treat the age private identity, authorized development
+> shell, Nix store, generated images, and build workstation as sensitive. SOPS
+> does not make secrets safe to print, log, pass to untrusted processes, or
+> embed in publicly distributed images.
+
+### Create an age identity
+
+SOPS expects the developer's age identity at:
+
+```text
+~/.config/sops/age/keys.txt
+```
+
+If you do not already have an identity at that path, create one:
+
+```bash
+mkdir -p ~/.config/sops/age
+age-keygen -o ~/.config/sops/age/keys.txt
+chmod 600 ~/.config/sops/age/keys.txt
+```
+
+The private identity in `keys.txt` begins with `AGE-SECRET-KEY-1`. Do not commit
+it, copy it into the repository, or share it. Anyone who obtains the private
+identity can decrypt files encrypted for its corresponding recipient.
+
+Display the public recipient key when you need to add it to `.sops.yaml`:
+
+```bash
+age-keygen -y ~/.config/sops/age/keys.txt
+```
+
+The public recipient begins with `age1` and may be shared with other project
+developers.
+
+> **Advice:** Keep a secure backup of the private identity. An encrypted file
+> cannot be recovered if every identity authorized to decrypt it is lost.
+
+### Create the encrypted configuration
+
+From the repository root, run:
+
+```bash
+create-secret
+```
+
+The command uses your system username and performs the following operations:
+
+1. Copies `secrets/template.json` to `secrets/<username>.json`.
+2. Encrypts the new file using the matching rule in `.sops.yaml`.
+3. Opens the encrypted file with SOPS so that you can edit its plaintext view.
+4. Requests a `direnv` reload after the editor closes.
+
+Replace every template credential and example user value with configuration for
+your development cluster. At minimum, verify the Tailscale configuration. Save
+and close the editor; SOPS writes the encrypted representation to disk.
+
+> **Caution:** Make at least one change before closing the SOPS editor. If
+> creation fails or leaves a partial target file, correct the creation rule and
+> run `create-secret --force` only after confirming that the partial file does
+> not contain values you need.
+
+If the target file already exists, `create-secret` refuses to replace it. The
+`--force` option permits replacement:
+
+```bash
+create-secret --force
+```
+
+> **Warning:** `--force` overwrites the existing encrypted configuration with a
+> new copy of the template before opening the editor. Preserve any values you
+> still need before using this option.
+
+The helper also supports `--user <username>`, but `.envrc` selects the current
+system username. Use the override only when you want to create that file
+explicitly.
+
+### Edit and load the encrypted configuration
+
+Edit an existing configuration through SOPS:
+
+```bash
+sops secrets/<username>.json
+```
+
+Use the secrets filename selected by `.envrc` in place of the example. SOPS
+decrypts the values for the editor and encrypts them again when it writes the
+file. If the edited content is not valid JSON, SOPS asks you to correct the
+error or abort.
+
+Because `.envrc` watches `secrets/`, saving the file causes `direnv` to reload.
+You can request a reload explicitly when necessary:
+
+```bash
+direnv reload
+```
+
+During the reload, `.envrc` decrypts the selected file, compacts the JSON with
+`jq`, and exports it as `SDC_SECRETS`. It also derives `TAILSCALE_APIKEY` and
+`TAILSCALE_DOMAIN` for the development utility described earlier.
+
+Do not manually decrypt the configuration into the repository or save a
+plaintext copy beside it. Before committing, inspect the staged diff and confirm
+that the secrets file still contains a top-level `sops` object and encrypted
+values rather than plaintext credentials.
