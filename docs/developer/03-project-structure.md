@@ -122,8 +122,9 @@ role-specific services.
 
 `roles/headnode/headnode-configuration.nix` is the headnode entry point. It sets
 the fixed `headnode` hostname, enables the Dask scheduler, imports the central
-services, and configures the bootable image. It also provides the experimental
-`persist-to-disk` command.
+services, and configures the bootable image. It also provides an experimental
+`persist-to-disk` command, which was inherited from version 1.0 and
+unfourtunatly never maintained or updated.
 
 The services below `roles/headnode/services/` provide:
 
@@ -137,7 +138,8 @@ The services below `roles/headnode/services/` provide:
 
 `roles/headnode/modules/` contains packages or modules used only by headnode
 services. This currently includes the Slurm node exporter and local WrapSpawner
-packaging.
+packaging, which allows jupyterhub to spawn notebook servers via slurm on any
+node of the cluster.
 
 ### Worker role
 
@@ -173,8 +175,11 @@ temporarily unreachable.
 ### Cluster shutdown utility
 
 `packages/sdc-hitman/` packages the `sdc-hitman` shell application. The utility
-drains selected Slurm nodes, optionally waits for allocations, updates or
-removes their scheduler records, and shuts them down over SSH.
+drains selected Slurm nodes, optionally waits for the nodes to become fully
+drained and shuts them down over SSH.
+
+This tool is an admin utility that might be useful when working with a full size
+`small-data-cluster`.
 
 ### Secret creation helper
 
@@ -245,14 +250,19 @@ locations.
 `.gitlab-ci.yml` and `.github/workflows/` define continuous integration builds.
 Review both systems when changing build attributes, output paths, or image
 names. A successful CI image build verifies that the default configuration can
-be evaluated and built; it does not prove that its placeholder credentials form
-a deployable cluster.
+be evaluated and built; it does not prove that the a cluster resulting from
+booting the images would form working deployable `small-data-clister`. This is
+due to things like configuration only beeing actually fully evaluated on runtime
+(eg. API Keys for tailscale).
 
 ### Git hooks
 
 `.githooks/` contains the project-managed Git hooks and their installer. The
 pre-commit hook runs `nix fmt -- --fail-on-change`. Installing the hooks changes
 the local `.git/hooks` directory and is therefore an explicit developer action.
+
+I strongly suggest you to use the shipped `githooks`, because this will avoid
+you forgetting to run `nix fmt` before committing or even failing the pipeline.
 
 ## Decide where a change belongs
 
