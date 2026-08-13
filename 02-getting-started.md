@@ -1,4 +1,4 @@
-# Workflow
+# Getting started
 
 This chapter describes the recommended workflow for getting started with the
 `small-data-cluster`.
@@ -661,6 +661,4 @@ During the reload, `.envrc` decrypts the selected file, compacts the JSON with
 `TAILSCALE_DOMAIN` for the development utility described earlier.
 
 Do not manually decrypt the configuration into the repository or save a
-plaintext copy beside it. Before committing, inspect the staged diff and confirm
-that the secrets file still contains a top-level `sops` object and encrypted
-values rather than plaintext credentials.
+plaintext copy beside it.
