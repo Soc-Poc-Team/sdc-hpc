@@ -93,9 +93,6 @@ on the `x86_64-linux` platform.
 | `nix build .#vm_headnode`   | Headnode QEMU launcher under `result/bin/`. |
 | `nix build .#vm_workernode` | Worker QEMU launcher under `result/bin/`.   |
 
-The repository's default package is the headnode ISO, so `nix build` is
-equivalent to `nix build .#head`.
-
 ### Build the standard set
 
 Use `build-batch.sh` to build the worker ISO, worker virtual machine, headnode
@@ -137,18 +134,15 @@ Use `--clean` to remove the `results/` links:
 
 ### Run the generated virtual machines
 
-The flake provides applications for a headnode and a worker virtual machine:
+Run required virtual-machine target.
 
 ```bash
-nix run .
-nix run .#worker
+nix run .#vm_headnode
+
+nix run .#vm_workernode
 ```
 
-The default application starts the headnode. The worker application starts a
-worker node. Both use the NixOS QEMU virtual-machine configuration and require
-the relevant image output to be built or buildable.
-
-You can also run the launchers produced by `build-batch.sh`:
+`build-batch.sh` creates equivalent launchers under `results/`:
 
 ```bash
 ./results/vm_headnode/bin/run-headnode-vm
@@ -182,8 +176,70 @@ with a profile filename without the `.conf` suffix. The script creates a qcow2
 overlay under `.vml/runtime/overlays/`, starts QEMU in the background, and
 prints the assigned SSH and VNC ports.
 
-> **Note:** This launcher requires image and profile files to be created or
-> copied into `.vml/`. The repository does not provide a default profile.
+### Provide images and profiles
+
+Place an ISO and its profile in the following layout:
+
+```text
+.vml/
+├── images/
+│   └── development-headnode.iso
+└── profiles/
+    └── development.conf
+```
+
+For this layout, start the virtual machine with:
+
+```bash
+./dev/vm_launcher.sh development-headnode development
+```
+
+The profile is a line-oriented `KEY=VALUE` file. Empty lines and lines beginning
+with `#` are ignored. The following example uses every supported setting:
+
+```ini
+# QEMU virtual-machine profile
+DISK_SIZE=20G
+MEMORY=4096
+CORES=4
+CPU=host
+EXTRA=-nographic
+```
+
+| Setting     | Default | Meaning                                            |
+| ----------- | ------- | -------------------------------------------------- |
+| `DISK_SIZE` | `20G`   | Size of the new qcow2 overlay disk.                |
+| `MEMORY`    | `2048`  | Guest memory in MiB, passed to QEMU's `-m` option. |
+| `CORES`     | `2`     | Guest virtual CPU cores, passed to `-smp`.         |
+| `CPU`       | `host`  | QEMU CPU model, passed to `-cpu`.                  |
+| `EXTRA`     | Empty   | One additional argument passed unchanged to QEMU.  |
+
+`EXTRA=-nographic` is useful for a terminal-only virtual machine. The launcher
+passes `EXTRA` as one argument. Do not use it for a multi-argument QEMU option,
+such as `-device <value>`, because the script does not split that value into
+separate arguments.
+
+The script creates a unique qcow2 overlay for every invocation and does not
+modify the source ISO. It selects an unused host SSH port from `2200` through
+`7199` and a VNC display number from `1` through `99`. Record the printed values
+before connecting to the virtual machine or opening the VNC display.
+
+You can override the default directories without modifying the script:
+
+```bash
+IMAGES_ROOT=<images-directory> \
+PROFILES_ROOT=<profiles-directory> \
+RUNTIME_ROOT=<runtime-directory> \
+./dev/vm_launcher.sh development-headnode development
+```
+
+Replace each placeholder with an existing directory. This is useful for testing
+an image outside the repository or keeping large VM artifacts on another
+filesystem.
+
+> **Note:** The repository does not provide a default ISO or profile for this
+> launcher. It requires a bootable ISO and a matching profile created or copied
+> by the developer.
 
 ## Use the prepared tmux session
 
@@ -364,10 +420,19 @@ Some project tools are installed in the cluster images instead of the default
 development shell. They are useful when testing a complete deployment but are
 not ordinary workstation development commands.
 
-| Tool              | Location and purpose                                                  |
-| ----------------- | --------------------------------------------------------------------- |
-| `sdc-hitman`      | Installed on cluster nodes; drains, stops, and removes Slurm nodes.   |
-| `persist-to-disk` | Installed on the headnode; invokes `disko-install` for a target disk. |
-| `pharos`          | Compatibility-check client used by a worker during startup.           |
-| `pharosd`         | Compatibility-check server running on the headnode.                   |
-| `telemetry`       | Headnode service command that sends configured telemetry data.        |
+| Tool              | Available on              | Purpose                                    |
+| ----------------- | ------------------------- | ------------------------------------------ |
+| `sdc-hitman`      | Headnode and worker nodes | Drains, stops, and removes Slurm nodes.    |
+| `persist-to-disk` | Headnode                  | Invokes `disko-install` for a target disk. |
+| `pharos`          | Worker nodes              | Checks headnode compatibility at startup.  |
+| `pharosd`         | Headnode                  | Serves worker compatibility checks.        |
+| `telemetry`       | Headnode when enabled     | Sends configured telemetry data.           |
+
+> **Warning:** `sdc-hitman` stops nodes over SSH, and `persist-to-disk` erases
+> its target disk. Do not use either command on a shared or production-like
+> deployment without confirming the targets and expected consequences.
+
+> **Important:** `persist-to-disk` is inherited from an earlier project version.
+> It is currently unmaintained and has not been tested with recent
+> `small-data-cluster` versions. Do not rely on it for a deployment until you
+> have reviewed, updated, and tested its installation path.
