@@ -19,8 +19,10 @@ changes to the project.
 This chapter provides a basic overview of the project. The following chapters
 describe specific services, features, and tools in more detail.
 
-> **Note:** If required, you can try to contact me, including after I have left
-> the BigDataLab, through my alumni email at `ture.bentzin@alumni.fh-aachen.de`.
+> **Note:** If required because you hit the limits of this documentation and
+> cant find information you really need, you can try to contact me, including
+> after I have left the BigDataLab, through my alumni email at
+> `ture.bentzin@alumni.fh-aachen.de`.
 
 ## Project purpose
 
