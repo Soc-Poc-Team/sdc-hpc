@@ -426,7 +426,6 @@ not ordinary workstation development commands.
 | `persist-to-disk` | Headnode                  | Invokes `disko-install` for a target disk. |
 | `pharos`          | Worker nodes              | Checks headnode compatibility at startup.  |
 | `pharosd`         | Headnode                  | Serves worker compatibility checks.        |
-| `telemetry`       | Headnode when enabled     | Sends configured telemetry data.           |
 
 > **Warning:** `sdc-hitman` stops nodes over SSH, and `persist-to-disk` erases
 > its target disk. Do not use either command on a shared or production-like
