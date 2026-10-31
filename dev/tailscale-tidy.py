@@ -8,7 +8,7 @@ API_KEY = os.getenv("TAILSCALE_APIKEY")
 TAILNET = os.getenv("TAILSCALE_DOMAIN")
 
 if not API_KEY or not TAILNET:
-    print("Set TAILSCALE_APIKEY and TAILSCALE_DOMAIN. Maybe try `direnv allow`?")
+    print("Задайте TAILSCALE_APIKEY и TAILSCALE_DOMAIN. Може би опитайте `direnv allow`?")
     sys.exit(1)
 
 BASE_URL = f"https://api.tailscale.com/api/v2/tailnet/{TAILNET}"
@@ -42,11 +42,11 @@ def delete_by_hostname(hostname):
     ]
 
     if not matches:
-        print(f"No device found: {hostname}")
+        print(f"Не е открито устройство: {hostname}")
         sys.exit(1)
 
     if len(matches) > 1:
-        print("Multiple matches found:")
+        print("Открити са множество съвпадения:")
         for d in matches:
             print(f"{d['hostname']}  {d['id']}")
         sys.exit(1)
@@ -57,13 +57,13 @@ def delete_by_hostname(hostname):
     r = api_delete(url)
 
     if r.status_code == 200:
-        print(f"Deleted {hostname}")
+        print(f"Изтрихме {hostname}")
     else:
-        print(f"Failed: {r.status_code} {r.text}")
+        print(f"Неуспех: {r.status_code} {r.text}")
 
 def usage():
     print(f"""
-Usage:
+Употреба:
   {sys.argv[0]} list
   {sys.argv[0]} delete <hostname>
 """.strip())

@@ -42,17 +42,17 @@ targets=(
 )
 
 if $impure; then
-  echo "Building impure results!"
+  echo "Изграждаме резултати в impure режим!"
 fi
 
 if $clean; then
   if pgrep -af qemu | grep -q "$(realpath results)" 2>/dev/null; then
-    echo "Warning: qemu process using results directory detected. Maybe one of the VMs is still up?"
+    echo "Внимание: открит е qemu процес, който използва директорията с резултати. Може би един от VM-овете все още е стартиран?"
     pgrep -af qemu | grep "$(realpath results)" || true
-    echo "Choose action:"
-    echo "a) continue with cleanup"
-    echo "b) kill process and continue"
-    echo "c) abort"
+    echo "Изберете действие:"
+    echo "a) продължи с почистването"
+    echo "b) спри процеса и продължи"
+    echo "c) прекъсни"
     read -r -p "[a/b/c]: " choice
 
     case "$choice" in
@@ -61,26 +61,26 @@ if $clean; then
       pgrep -af qemu | grep "$(realpath results)" | awk '{print $1}' | xargs -r kill
       ;;
     c)
-      echo "Aborting."
+      echo "Прекъсване."
       exit 1
       ;;
     *)
-      echo "Invalid option."
+      echo "Невалидна опция."
       exit 2
       ;;
     esac
   fi
 
-  echo "Deleting the results directory..."
+  echo "Изтриване на директорията с резултати..."
   rm -rf results
-  echo "cleanup completed!"
+  echo "Почистването завърши!"
   exit 0
 fi
 
 mkdir -p results
 
 for target in "${targets[@]}"; do
-  echo "Building ${target}"
+  echo "Изграждане на ${target}"
   nix build "${pre_opts[@]}" ".#${target}" \
     --out-link "results/${target}" \
     --log-format bar-with-logs \

@@ -7,11 +7,11 @@ GITHOOKS_DIR="$REPO_ROOT/.githooks"
 TARGET_DIR="$REPO_ROOT/.git/hooks"
 
 if [[ ! -d $TARGET_DIR ]]; then
-  echo "Error: .git/hooks directory not found."
+  echo "Грешка: директорията .git/hooks не беше намерена."
   exit 1
 fi
 
-echo "Installing hooks from $GITHOOKS_DIR to $TARGET_DIR"
+echo "Инсталиране на hook-ове от $GITHOOKS_DIR към $TARGET_DIR"
 echo
 
 for hook in "$GITHOOKS_DIR"/*; do
@@ -26,21 +26,21 @@ for hook in "$GITHOOKS_DIR"/*; do
   target="$TARGET_DIR/$filename"
 
   if [[ -e $target || -L $target ]]; then
-    echo "Hook '$filename' already exists in .git/hooks"
+    echo "Hook-ът '$filename' вече съществува в .git/hooks"
 
-    read -r -p "Overwrite it? [y/N]: " answer
+    read -r -p "Да го презапиша? [д/Н]: " answer
     case "$answer" in
     [yY])
       rm -rf "$target"
       ;;
     *)
-      echo "Skipping $filename"
+      echo "Пропускане на $filename"
       continue
       ;;
     esac
   fi
 
   ln -s "$hook" "$target"
-  echo "Installed $filename"
+  echo "Инсталиран $filename"
 done
 echo

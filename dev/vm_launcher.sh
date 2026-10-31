@@ -9,11 +9,11 @@ mkdir -p "$RUNTIME_ROOT/instances" "$RUNTIME_ROOT/overlays" "$IMAGES_ROOT" "$PRO
 cmd="$1"
 
 if [[ $cmd == "list" ]]; then
-  echo "ISOs:"
+  echo "ISO изображения:"
   find "$IMAGES_ROOT" -type f -name "*.iso" | sed "s|$IMAGES_ROOT/||"
 
   echo ""
-  echo "Profiles:"
+  echo "Профили:"
   find "$PROFILES_ROOT" -type f -name "*.conf" | sed "s|$PROFILES_ROOT/||"
   exit 0
 fi
@@ -22,7 +22,7 @@ img="$1"
 profile="$2"
 
 if [[ -z $img || -z $profile ]]; then
-  echo "usage:"
+  echo "употреба:"
   echo "  $0 <iso> <profile>"
   echo "  $0 list"
   exit 1
@@ -32,12 +32,12 @@ iso_path=$(find "$IMAGES_ROOT" -type f -iname "${img}.iso" | head -n 1)
 profile_path="$PROFILES_ROOT/${profile}.conf"
 
 if [[ ! -f $iso_path ]]; then
-  echo "ISO not found: $img"
+  echo "ISO изображението не беше намерено: $img"
   exit 1
 fi
 
 if [[ ! -f $profile_path ]]; then
-  echo "profile not found: $profile"
+  echo "профилът не беше намерен: $profile"
   exit 1
 fi
 
@@ -77,8 +77,8 @@ nohup qemu-system-x86_64 \
   "${cfg[EXTRA]}" \
   >"$log" 2>&1 &
 
-echo "started: $name"
+echo "стартирано: $name"
 echo "iso: $iso_path"
-echo "disk: $disk"
+echo "диск: $disk"
 echo "ssh: localhost:$port"
 echo "vnc: :$vnc"
