@@ -95,21 +95,15 @@ in
 
   services.openssh.enable = true;
 
-  environment.etc."munge/munge.key" = {
-    mode = "0600";
-    uid = config.users.users.munge.uid;
-    text = ''
-      bigdatalabbigdatalab
-      bigdatalabbigdatalab
-      bigdatalabbigdatalab
-      bigdatalabbigdatalab
-      bigdatalabbigdatalab
-      bigdatalabbigdatalab
-      bigdatalabbigdatalab
-      bigdatalabbigdatalab
-      bigdatalabbigdatalab
-    '';
+  sops.secrets."munge-key" = {
+    sopsFile = ../secrets/munge.json;
+    format = "json";
+    key = "mungeKey";
+    owner = "munge";
+    group = "munge";
+    mode = "0400";
   };
+  services.munge.password = config.sops.secrets."munge-key".path;
 
   services.getty.extraArgs = [ "--delay=5" ];
   environment.etc.issue.text = ''
