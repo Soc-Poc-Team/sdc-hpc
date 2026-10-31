@@ -7,7 +7,7 @@ shopt -s nullglob
 checks=(ci/checks/*.check.sh)
 
 if ((${#checks[@]} == 0)); then
-  echo "No check scripts found." >&2
+  echo "Не са открити скриптове за проверка." >&2
   exit 1
 fi
 
@@ -41,7 +41,7 @@ for check in "${checks[@]}"; do
   fi
 
   if [[ -n ${used_names[$job_name]+x} ]]; then
-    echo "Duplicate check job name: $job_name" >&2
+    echo "Дублирано име на check job: $job_name" >&2
     exit 1
   fi
 

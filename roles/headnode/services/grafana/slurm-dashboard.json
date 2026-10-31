@@ -2297,7 +2297,7 @@
           "refId": "C"
         }
       ],
-      "title": "Scrape Errors",
+      "title": "Грешки при изтегляне",
       "type": "timeseries"
     },
     {
