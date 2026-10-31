@@ -13,6 +13,8 @@ grafana_enable_admin = false
 grafana_admin = "admin"
 # This password is readable from the nix store!
 grafana_password = "admin"
+# private SSH key to allow headnode admin a jump to workers
+private_ssh_key = ""
 
 [worker]
 # If set to false, unique mac based hostnames will be used 

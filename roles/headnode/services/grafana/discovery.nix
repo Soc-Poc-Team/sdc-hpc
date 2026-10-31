@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ config, pkgs, ... }:
 let
   slurmWorkerListFile = "/var/lib/prometheus/slurm-workers.json";
 
@@ -26,7 +26,7 @@ let
             }
             {
               if (n++) print ","
-              printf "    \"%s:9002\"", $1
+              printf "    \"%s:${toString config.services.prometheus.exporters.node.port}\"", $1
             }
             END {
               print ""

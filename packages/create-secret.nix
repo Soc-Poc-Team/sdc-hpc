@@ -10,6 +10,8 @@ writeShellScriptBin "create-secret" ''
   USER_OVERRIDE=""
   FORCE=0
 
+  CODEOWNERS="CODEOWNERS"
+
   while [ "$#" -gt 0 ]; do
     case "$1" in
       --user)
@@ -70,7 +72,7 @@ writeShellScriptBin "create-secret" ''
     exit 1
   fi
 
-  if ! grep -F 'path_regex: secrets(/|\\)test\.json$' $SOPS_CONFIG; then
+  if ! grep -F "path_regex: secrets(/|\\\\)$U\\.json$" "$SOPS_CONFIG" >/dev/null; then
     printf '\n  - path_regex: secrets(/|\\\\)%s\\.json$\n    key_groups:\n      - age:\n          - %s\n' "$U" "$PUB_KEY" >> "$SOPS_CONFIG"
     echo "Added creation rule for $U"
   fi
@@ -88,6 +90,26 @@ writeShellScriptBin "create-secret" ''
   if command -v direnv >/dev/null 2>&1; then
     direnv reload >/dev/null 2>&1 || true
   fi
+
+  GIT_EMAIL="$(git config --get user.email || true)"
+
+  if [ -z "$GIT_EMAIL" ]; then
+    echo "No Git email configured. Please set 'git config user.email'."
+    exit 1
+  fi
+
+  echo "Setting up CODEOWNERS rule..."
+  touch "$CODEOWNERS"
+
+  ENTRY="/secrets/$U.json $GIT_EMAIL"
+
+  grep -Fxq "$ENTRY" "$CODEOWNERS" || {
+    grep -v "^/secrets/$U\.json " "$CODEOWNERS" > "$CODEOWNERS.tmp"
+    printf "%s\n" "$ENTRY" >> "$CODEOWNERS.tmp"
+    mv "$CODEOWNERS.tmp" "$CODEOWNERS"
+  }
+
+  echo "CODEOWNER was setup based on your email '$GIT_EMAIL'. If you want to use a different email or your username, pelase update the CODEOWNERS file now!"
 
   echo "OK: $TARGET"
 ''

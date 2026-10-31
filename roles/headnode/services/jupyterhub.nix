@@ -1,6 +1,7 @@
 {
   config,
   pkgs,
+  lib,
   userConfig,
   ...
 }:
@@ -21,35 +22,90 @@ let
     ]
   );
 
+  profileConfig = builtins.fromTOML (builtins.readFile ../../../profiles.toml);
+
+  defaults = profileConfig.defaults or { };
+
+  mkProfile =
+    rawProfile:
+    let
+      profile = defaults // rawProfile;
+
+      cores = profile.cores or 1;
+      gpus = profile.gpus or 0;
+
+      coreLabel = "${toString cores} core" + lib.optionalString (cores != 1) "s";
+
+      gpuLabel = lib.optionalString (gpus > 0) (
+        ", ${toString gpus} GPU" + lib.optionalString (gpus != 1) "s"
+      );
+
+      generatedLabel = "${profile.name}: ${coreLabel}, ${profile.memory}${gpuLabel}";
+
+      gres =
+        if profile ? gres then
+          profile.gres
+        else if gpus == 0 then
+          null
+        else if profile ? gpu_type then
+          "gpu:${profile.gpu_type}:${toString gpus}"
+        else
+          "gpu:${toString gpus}";
+    in
+    {
+      display = profile.label or generatedLabel;
+      key = profile.id;
+
+      options = {
+        req_partition = profile.partition;
+        req_nprocs = toString cores;
+        req_runtime = profile.runtime;
+        req_memory = profile.memory;
+      }
+      // lib.optionalAttrs (gres != null) {
+        req_gres = gres;
+      };
+    };
+
+  profiles = map mkProfile profileConfig.profiles;
+
+  profilesJson = builtins.toJSON profiles;
+
   jupyterhubConfig = pkgs.writeText "jupyterhub_config.py" ''
     import batchspawner
+    import json
     import os
 
     c.JupyterHub.hub_ip = "headnode.${tailscaleDomain}"
     c.JupyterHub.ip = "0.0.0.0"
     c.JupyterHub.authenticator_class = "jupyterhub.auth.PAMAuthenticator"
-    #c.JupyterHub.spawner_class = 'batchspawner.SlurmSpawner'
     c.JupyterHub.spawner_class = 'wrapspawner.ProfilesSpawner'
 
     c.Authenticator.allowed_users = set(${"[${builtins.concatStringsSep ", " quotedUserNames}]"})
-
 
     c.Spawner.notebook_dir = '${userDataDir}/{username}'
     c.Spawner.http_timeout = 300
     c.Spawner.start_timeout = 600
 
-    c.Spawner.env_keep = ["PATH"]
-
     c.Spawner.default_url = '/lab'
 
     c.SlurmSpawner.batch_submit_cmd = "${pkgs.slurm}/bin/sbatch --parsable"
+    c.SlurmSpawner.batch_query_cmd = "${pkgs.slurm}/bin/squeue -h -j {job_id} -o '%T %B'"
+    c.SlurmSpawner.batch_cancel_cmd = "${pkgs.slurm}/bin/scancel {job_id}"
     c.SlurmSpawner.exec_prefix = "${pkgs.sudo}/bin/sudo -E -u {username}"
     c.SlurmSpawner.batchspawner_singleuser_cmd = '${jupyterhubEnv}/bin/.batchspawner-singleuser-wrapped'
     c.SlurmSpawner.cmd = "${jupyterhubEnv}/bin/.jupyterhub-singleuser-wrapped"
+
+    # https://git.fh-aachen.de/bigdata/cape-canaveral/small-data-cluster/-/work_items/175
+    profiles = json.loads(${builtins.toJSON profilesJson})
     c.ProfilesSpawner.profiles = [
-    ('Small: 1 core, 128 MB', 'slurm1c128mb0gpu', 'batchspawner.SlurmSpawner', dict(req_partition='debug', req_nprocs='1', req_runtime='1-00:00:00', req_memory='128M')),
-    ('Medium: 1 core, 2048 MB', 'slurm1c2gb0gpu', 'batchspawner.SlurmSpawner', dict(req_partition='debug', req_nprocs='1', req_runtime='1-00:00:00', req_memory='2048M')),
-    ('Medium+: 2 core, 2048 MB', 'slurm2c2gb0gpu', 'batchspawner.SlurmSpawner', dict(req_partition='debug', req_nprocs='2', req_runtime='1-00:00:00', req_memory='2048M')),
+        (
+            profile["display"],
+            profile["key"],
+            "batchspawner.SlurmSpawner",
+            profile["options"],
+        )
+        for profile in profiles
     ]
 
     c.SlurmSpawner.batch_script = """#!/usr/bin/env bash
@@ -68,7 +124,7 @@ let
     echo "Spawning..."
     export JUPYTERHUB_API_TOKEN JUPYTERHUB_API_URL JPY_API_TOKEN JUPYTERHUB_CLIENT_ID JUPYTERHUB_OAUTH_CALLBACK JUPYTERHUB_USER JUPYTERHUB_BASE_URL JUPYTERHUB_SERVICE_PREFIX
     export JUPYTER_PATH=${jlabKernels}
-    export PATH=/run/wrappers/bin:$PATH
+    export PATH
 
     echo $JUPYTERHUB_SERVICE_URL
 
@@ -85,7 +141,6 @@ let
     {{prologue}}
     ${jupyterhubEnv}/bin/batchspawner-singleuser ${jupyterhubEnv}/bin/.jupyterhub-singleuser-wrapped --debug
     {{epilogue}}
-
     """
   '';
 in
@@ -97,23 +152,22 @@ in
     after = [ "pre-cluster.target" ];
     requiredBy = [ "cluster.target" ];
 
-    path = with pkgs; [
-      python3Packages.jupyterlab
-      python3Packages.jupyterhub
-      python3Packages.jupyter
-      python3Packages.notebook
+    path = [
+      jupyterhubEnv
+      # https://github.com/NixOS/nixpkgs/tree/nixos-26.05/nixos/modules/system
+      config.system.path
     ];
 
     environment = {
-      LD_LIBRARY_PATH = "$LD_LIBRARY_PATH:${pkgs.lib.makeLibraryPath [ pkgs.stdenv.cc.cc ]}";
+      LD_LIBRARY_PATH = "${pkgs.lib.makeLibraryPath [ pkgs.stdenv.cc.cc ]}";
     };
+
     serviceConfig = {
       Restart = "always";
       ExecStart = "${jupyterhubEnv}/bin/jupyterhub --config ${jupyterhubConfig}";
       User = "root";
       StateDirectory = "jupyterhub";
       WorkingDirectory = "/var/lib/jupyterhub";
-      Environment = "PATH=${jupyterhubEnv}/bin:/run/current-system/sw/bin/:$PATH";
     };
   };
 
