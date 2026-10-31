@@ -620,21 +620,20 @@ explicitly.
 
 > **Note:** If you use different system usernames on different development
 > machines, create one canonical encrypted configuration and add a relative
-> symbolic link for each additional username. For example, this repository uses
-> `secrets/bentzin.json` as the encrypted file and `secrets/ture.json` as a
-> symbolic link to it. Create the same arrangement from the repository root
-> with:
+> symbolic link for each additional username. For example, to use the
+> configuration for `alice` on a machine where your username is `bob`, create
+> the link from the repository root with:
 >
 > ```bash
-> ln -s bentzin.json secrets/ture.json
+> ln -s alice.json secrets/bob.json
 > ```
 >
-> Replace `bentzin.json` with the existing encrypted filename and `ture.json`
-> with the filename expected on the other machine. Use only the filename as the
-> link target so that the relative link continues to resolve within `secrets/`
-> when the repository is moved. Do not run the command if the destination
-> already exists. `.envrc` follows the link and loads the same encrypted
-> configuration for either system username.
+> Replace `alice.json` with the existing encrypted filename and `bob.json`
+> with the filename expected on the other machine. Use only the filename as
+> the link target so that the relative link continues to resolve within
+> `secrets/` when the repository is moved. Do not run the command if the
+> destination already exists. `.envrc` follows the link and loads the same
+> encrypted configuration for either system username.
 
 ### Edit and load the encrypted configuration
 
