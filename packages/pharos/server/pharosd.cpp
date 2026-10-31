@@ -53,7 +53,7 @@ static void handle_client(int client_fd,
 
     std::string response;
 
-    if (allowed.contains(request))
+    if (allowed.find(request) != allowed.end())
         response = "OK\n";
     else
         response = "NO\n";
@@ -65,7 +65,7 @@ int main(int argc, char* argv[])
 {
     if (argc != 3)
     {
-        std::cerr << "Usage: " << argv[0] << " <port> <file>\n";
+        std::cerr << "Употреба: " << argv[0] << " <port> <file>\n";
         return 1;
     }
 
@@ -103,7 +103,7 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    std::cout << "Pharosd running on port " << port << "\n";
+    std::cout << "Pharosd работи на порт " << port << "\n";
 
     while (true)
     {

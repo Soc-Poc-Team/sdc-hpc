@@ -71,8 +71,8 @@ int main(int argc, char* argv[])
 {
     if (argc != 3)
     {
-        std::cerr << "Usage: " << argv[0] << " <host> <port>\n";
-        std::cerr << "Specify the version by setting 'PHAROS_VERSION'\n";
+        std::cerr << "Употреба: " << argv[0] << " <host> <port>\n";
+        std::cerr << "Посочете версията чрез задаване на 'PHAROS_VERSION'\n";
         return 2;
     }
 
@@ -80,7 +80,7 @@ int main(int argc, char* argv[])
 
     if (!token)
     {
-        std::cerr << "PHAROS_VERSION not set\n";
+        std::cerr << "PHAROS_VERSION не е зададен\n";
         return 2;
     }
 

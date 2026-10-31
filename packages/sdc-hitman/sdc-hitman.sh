@@ -8,7 +8,7 @@ DIRTY=0
 NODES=()
 
 usage() {
-  echo "Usage: $0 [--now] [--dirty] <node names|ALL>"
+  echo "Употреба: $0 [--now] [--dirty] <node names|ALL>"
   exit 1
 }
 
@@ -52,24 +52,24 @@ if [[ -z $TARGETS ]]; then
   exit 1
 fi
 
-echo "The following nodes will be shut down:"
+echo "Следните възли ще бъдат изключени:"
 echo "$TARGETS"
 echo
 
-read -rp "Continue? (y/n): " ANSWER
+read -rp "Продължаване? (д/н): " ANSWER
 
 if [[ ! $ANSWER =~ ^[Yy]$ ]]; then
-  echo "Aborted."
+  echo "Прекъснато."
   exit 0
 fi
 
-echo "Draining nodes..."
+echo "Изваждане на възлите от обслужване..."
 for node in $TARGETS; do
   scontrol update NodeName="$node" State=DRAIN Reason="sdc-hitman shutdown"
 done
 
 if [[ $NOW -eq 0 ]]; then
-  echo "Waiting for allocations to finish..."
+  echo "Изчакване на заданията да завършат..."
 
   while true; do
     BUSY=0
@@ -88,24 +88,24 @@ if [[ $NOW -eq 0 ]]; then
   done
 fi
 
-echo "Marking nodes DOWN..."
+echo "Маркиране на възлите като DOWN..."
 
 for node in $TARGETS; do
   scontrol update NodeName="$node" State=DOWN Reason="sdc-hitman shutdown"
 done
 
 if [[ $DIRTY -eq 0 ]]; then
-  echo "Removing nodes from Slurm..."
+  echo "Премахване на възлите от Slurm..."
 
   for node in $TARGETS; do
     scontrol delete NodeName="$node"
   done
 fi
 
-echo "Shutting down nodes..."
+echo "Изключване на възлите..."
 
 for node in $TARGETS; do
-  echo "Stopping $node..."
+  echo "Спиране на $node..."
 
   if [[ $node == "headnode" ]]; then
     ssh "$node" halt
@@ -114,4 +114,4 @@ for node in $TARGETS; do
   fi
 done
 
-echo "Shutdown complete."
+echo "Изключването завърши."

@@ -3,7 +3,7 @@ writeShellScriptBin "create-secret" ''
   set -euo pipefail
 
   usage() {
-    echo "Usage: create-secret [--user USER] [--force]"
+    echo "Употреба: create-secret [--user USER] [--force]"
     exit 1
   }
 
@@ -51,35 +51,35 @@ writeShellScriptBin "create-secret" ''
   fi
 
   while [ -z "''${PUB_KEY:-}" ]; do
-    read -r -p "Please enter your age public key: " PUB_KEY
+    read -r -p "Моля, въведете публичния ключ на age: " PUB_KEY
   done
 
 
-  echo "Using public key ending in: ...''${PUB_KEY: -5}"
+  echo "Използва се публичен ключ, завършващ на: ...''${PUB_KEY: -5}"
 
   if [ ! -f "$TEMPLATE" ]; then
-    echo "Missing $TEMPLATE"
+    echo "Липсва $TEMPLATE"
     exit 1
   fi
 
   if [ ! -f "$SOPS_CONFIG" ]; then
-    echo "Missing $SOPS_CONFIG"
+    echo "Липсва $SOPS_CONFIG"
     exit 1
   fi
 
   if [ -e "$TARGET" ] && [ "$FORCE" -ne 1 ]; then
-    echo "$TARGET already exists. Use --force to overwrite."
+    echo "$TARGET вече съществува. Използвайте --force, за да го презапишете."
     exit 1
   fi
 
   if ! grep -F "path_regex: secrets(/|\\\\)$U\\.json$" "$SOPS_CONFIG" >/dev/null; then
     printf '\n  - path_regex: secrets(/|\\\\)%s\\.json$\n    key_groups:\n      - age:\n          - %s\n' "$U" "$PUB_KEY" >> "$SOPS_CONFIG"
-    echo "Added creation rule for $U"
+    echo "Добавено е правило за създаване за $U"
   fi
 
   cp -f "$TEMPLATE" "$TARGET"
 
-  echo "Creating new secrets file..."
+  echo "Създаване на нов файл със тайни..."
 
   if ! grep -q "sops:" "$TARGET" 2>/dev/null; then
     sops -e -i "$TARGET"
@@ -94,11 +94,11 @@ writeShellScriptBin "create-secret" ''
   GIT_EMAIL="$(git config --get user.email || true)"
 
   if [ -z "$GIT_EMAIL" ]; then
-    echo "No Git email configured. Please set 'git config user.email'."
+    echo "Няма конфигуриран Git имейл. Моля, задайте 'git config user.email'."
     exit 1
   fi
 
-  echo "Setting up CODEOWNERS rule..."
+  echo "Настройване на правило за CODEOWNERS..."
   touch "$CODEOWNERS"
 
   ENTRY="/secrets/$U.json $GIT_EMAIL"
@@ -109,7 +109,7 @@ writeShellScriptBin "create-secret" ''
     mv "$CODEOWNERS.tmp" "$CODEOWNERS"
   }
 
-  echo "CODEOWNER was setup based on your email '$GIT_EMAIL'. If you want to use a different email or your username, pelase update the CODEOWNERS file now!"
+  echo "CODEOWNER беше настроен според имейла ви '$GIT_EMAIL'. Ако искате да използвате друг имейл или потребителско име, моля, актуализирайте файла CODEOWNERS сега!"
 
   echo "OK: $TARGET"
 ''

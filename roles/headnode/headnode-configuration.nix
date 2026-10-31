@@ -4,43 +4,43 @@ let
     set -euo pipefail
 
     usage() {
-      echo "Usage: persist-to-disk <disk-path>"
-      echo "Example: persist-to-disk /dev/disk/by-id/disk1id"
+      echo "Употреба: persist-to-disk <disk-path>"
+      echo "Пример: persist-to-disk /dev/disk/by-id/disk1id"
       exit 1
     }
 
     if [ "$#" -ne 1 ]; then
-      echo "Error: Missing disk path argument."
+      echo "Грешка: липсва аргумент за пътя до диска."
       usage
     fi
 
     DISK_PATH="$1"
 
     if [ ! -b "$DISK_PATH" ]; then
-      echo "Error: '$DISK_PATH' is not a valid block device."
+      echo "Грешка: '$DISK_PATH' не е валидно блоково устройство."
       exit 1
     fi
 
-    echo "Preparing to persist configuration to disk at: $DISK_PATH"
-    echo "This will erase all data on the specified disk."
-    read -r -p "Are you sure you want to continue? [y/N] " confirm
+    echo "Подготовка за запазване на конфигурацията на диска в: $DISK_PATH"
+    echo "Това ще изтрие всички данни на посочения диск."
+    read -r -p "Сигурни ли сте, че искате да продължите? [д/Н] " confirm
     case "$confirm" in
       [yY][eE][sS]|[yY])
         ;;
       *)
-        echo "Aborted by user."
+        echo "Прекъснато от потребителя."
         exit 0
         ;;
     esac
 
-    echo "Running disko-install with flake 'small-data-cluster#headnode'..."
+    echo "Изпълняване на disko-install с flake 'small-data-cluster#headnode'..."
     nix run 'github:nix-community/disko/latest#disko-install' -- --flake '/iso/repo/small-data-cluster#headnode' --disk main "$DISK_PATH"
     status=$?
 
     if [ "$status" -eq 0 ]; then
-      echo "Disk installation completed successfully."
+      echo "Инсталирането на диска завърши успешно."
     else
-      echo "Error: Disk installation failed with exit code $status."
+      echo "Грешка: инсталирането на диска се провали с код на грешка $status."
       exit "$status"
     fi
   '';
