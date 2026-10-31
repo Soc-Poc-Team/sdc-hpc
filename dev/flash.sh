@@ -18,7 +18,7 @@ for dev in "$USB_PATH"/usb-*; do
   base="$(basename "$dev")"
 
   if grep -Fxq "$base" "$AUTH_FILE" 2>/dev/null; then
-    echo "Authorized: $base -> starting write"
+    echo "Оторизирано: $base -> започва запис"
     if [[ $DRY -eq 1 ]]; then
       echo "DRY RUN: sudo dd if=\"$ISO\" of=\"$dev\" status=progress conv=fsync && sync"
     else

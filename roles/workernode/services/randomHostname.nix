@@ -27,7 +27,7 @@ in
     systemd.services."rndhn" =
 
       {
-        description = "random hostname generation";
+        description = "генериране на произволно име на хост";
 
         # https://www.freedesktop.org/software/systemd/man/latest/systemd.special.html#network-pre.target
         # https://www.freedesktop.org/wiki/Software/systemd/NetworkTarget/
@@ -58,11 +58,11 @@ in
                 )
               }
               set -o pipefail
-              echo "Current hostname is  :'$(hostname)'"
+              echo "Текущото име на хост е  :'$(hostname)'"
               NEW_HOSTNAME=worker-$((cat /sys/class/net/*/address | grep -Ev '^$|^00:00:00:00:00:00$' | head -n 1 | tr -d ':') || exit 1)
-              echo "Updating hostname to : '$NEW_HOSTNAME'"
+              echo "Актуализиране на името на хост към : '$NEW_HOSTNAME'"
               hostname "$NEW_HOSTNAME" || exit 2
-              echo "Updated hostname is  : '$(hostname)'"
+              echo "Актуализираното име на хост е  : '$(hostname)'"
             ''
           );
           RemainAfterExit = "yes";

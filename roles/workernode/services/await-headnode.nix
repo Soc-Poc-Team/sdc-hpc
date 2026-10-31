@@ -22,7 +22,7 @@ in
 {
   config = lib.mkIf enable {
     systemd.services.awaitHeadnode = {
-      description = "Wait for headnode to become available";
+      description = "Изчакване на headnode да стане наличен";
 
       requiredBy = [
         "pre-cluster.target"
@@ -50,8 +50,8 @@ in
 
       script = ''
         export PHAROS_VERSION=${clientVersion}
-        echo "We are at version: ''${PHAROS_VERSION}"
-        echo "Waiting for ${headnode}..."
+        echo "Ние сме на версия: ''${PHAROS_VERSION}"
+        echo "Изчакване на ${headnode}..."
 
         TIMEOUT_SECONDS=${builtins.toString timeout}
         START_TIME=$(date +%s)
@@ -63,7 +63,7 @@ in
           ELAPSED=$((NOW - START_TIME))
 
           if [ "$ELAPSED" -ge "$TIMEOUT_SECONDS" ]; then
-            echo "Timed out waiting for ${headnode}"
+            echo "Изтече времето за изчакване на ${headnode}"
             exit 1
           fi
 
@@ -88,11 +88,11 @@ in
 
           case "$rc" in
             0)
-              echo "Headnode reachable."
+              echo "Headnode е достъпен."
               exit 0
               ;;
             1)
-              echo "The version of this workernode is not supported by the headnode: ''${output}"
+              echo "Версията на този workernode не се поддържа от headnode: ''${output}"
               exit 1
               ;;
             2)
@@ -103,7 +103,7 @@ in
               continue
               ;;
             *)
-              echo "Unexpected exit code: $rc"
+              echo "Неочакван код на изход: $rc"
               exit "$rc"
               ;;
           esac

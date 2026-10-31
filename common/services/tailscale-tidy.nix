@@ -38,21 +38,21 @@
             r = api_delete(url)
 
             if r.status_code == 200:
-                print(f"Deleted {device['hostname']} ({device['id']})")
+                print(f"Изтрито {device['hostname']} ({device['id']})")
                 return True
             else:
-                print(f"Failed: {r.status_code} {r.text}")
+                print(f"Неуспех: {r.status_code} {r.text}")
                 return False
 
         def delete_by_hostname(hostname):
             try:
                 matches = [d for d in get_devices() if d["hostname"] == hostname]
             except Exception as e:
-                print(f"API error: {e}")
+                print(f"Грешка в API: {e}")
                 sys.exit(1)
 
             if not matches:
-                print(f"No device found: {hostname}")
+                print(f"Не е открито устройство: {hostname}")
                 sys.exit(0)
 
             success = True
@@ -70,7 +70,7 @@
       '';
     in
     {
-      description = "clear machine entry on tailscale api";
+      description = "изчистване на запис на машината в tailscale API";
 
       requiredBy = [
         "tailscale-autoconnect.service"
