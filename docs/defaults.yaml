@@ -1,0 +1,38 @@
+from: markdown+smart+yaml_metadata_block+fenced_divs+bracketed_spans
+to: pdf
+standalone: true
+pdf-engine: lualatex
+toc: true
+toc-depth: 6
+number-sections: true
+highlight-style: tango
+variables:
+  documentclass: scrreprt
+  classoption:
+    - open=any
+    - headings=normal
+  papersize: a4
+  fontsize: 11pt
+  geometry:
+    - top=25mm
+    - bottom=30mm
+    - left=25mm
+    - right=25mm
+  mainfont: Libertinus Serif
+  sansfont: Libertinus Sans
+  monofont: Source Code Pro
+  mathfont: Libertinus Math
+  linestretch: 1.08
+  colorlinks: true
+  linkcolor: BrandColor
+  urlcolor: BrandColor
+  citecolor: ForestGreen
+  links-as-notes: false
+  code-block-font-size: \small
+  table-use-row-colors: true
+metadata:
+  lang: en
+  csquotes: true
+  link-citations: true
+  creator: Small Data Cluster documentation
+  reference-section-title: References

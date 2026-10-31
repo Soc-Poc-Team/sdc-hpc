@@ -71,6 +71,14 @@
             ++ modules;
         });
 
+      docsEnvironment = import ./docs/docsshell.nix {
+        inherit pkgs;
+      };
+
+      render-docs = import ./docs/render-docs.nix {
+        inherit pkgs;
+        inherit (docsEnvironment) packages;
+      };
     in
     {
       inherit userConfig;
@@ -94,6 +102,7 @@
             customPackages = [
               create-secret
               sdc-keygen
+              render-docs
             ];
           in
           pkgs.mkShell {
@@ -116,6 +125,17 @@
           packages = with pkgs; [
             gnused
           ];
+        };
+
+        docsshell = pkgs.mkShell {
+          packages = docsEnvironment.packages ++ [ render-docs ];
+
+          shellHook = ''
+            export TEXMFHOME="$PWD/.texmf"
+            export XDG_CACHE_HOME="''${XDG_CACHE_HOME:-$PWD/.cache}"
+
+            mkdir -p "$TEXMFHOME" "$XDG_CACHE_HOME"
+          '';
         };
       };
       nixosConfigurations = {
@@ -193,6 +213,7 @@
           slurm = pkgs.slurm;
           pharos = pkgs.callPackage ./packages/pharos { };
           sdc-hitman = pkgs.callPackage ./packages/sdc-hitman { };
+          docs = pkgs.callPackage ./docs { inherit render-docs; };
         };
         default = headnode.config.system.build.isoImage;
         head = headnode.config.system.build.isoImage;

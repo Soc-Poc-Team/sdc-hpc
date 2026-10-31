@@ -1,0 +1,38 @@
+{
+  pkgs,
+  render-docs,
+}:
+pkgs.stdenvNoCC.mkDerivation {
+  name = "small-data-cluster-docs";
+
+  src = ./.;
+
+  nativeBuildInputs = [
+    render-docs
+  ];
+
+  dontConfigure = true;
+
+  buildPhase = ''
+    runHook preBuild
+
+    export HOME="$TMPDIR"
+    export TEXMFHOME="$TMPDIR/.texmf"
+    export XDG_CACHE_HOME="$TMPDIR/.cache"
+
+    mkdir -p "$TEXMFHOME" "$XDG_CACHE_HOME"
+
+    OUTPUT_ROOT="$PWD/rendered-docs" DOCS_ROOT=$src render-docs
+
+    runHook postBuild
+  '';
+
+  installPhase = ''
+    runHook preInstall
+
+    mkdir -p "$out"
+    cp rendered-docs/*.pdf "$out/"
+
+    runHook postInstall
+  '';
+}

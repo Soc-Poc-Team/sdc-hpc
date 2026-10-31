@@ -1,0 +1,14 @@
+title: SDC Developer Manual
+subtitle: Information for developers of the small-data-cluster
+author:
+  - Ture Bentzin
+  - BigDataLab
+subject: small-data-cluster development
+description: Architecture and development guide for the Small Data Cluster
+keywords:
+  - documentation
+  - development
+  - Nix
+  - NixOS
+  - high-performance computing
+  - Small Data Cluster

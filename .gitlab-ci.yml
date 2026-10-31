@@ -55,6 +55,21 @@ pharos:
   image: nixos/nix
   script:
     - nix --accept-flake-config --extra-experimental-features "nix-command flakes" build .#devel.pharos
+docs:
+  stage: build
+  timeout: 10m
+  tags:
+    - bigdatalab-sdc
+  image: nixos/nix
+  script:
+    - nix --accept-flake-config --extra-experimental-features "nix-command flakes" build .#devel.docs --out-link result
+    - mkdir -p artifacts
+    - cp -aL result/. artifacts/
+  artifacts:
+    name: "docs-${CI_COMMIT_REF_SLUG}-${CI_COMMIT_SHORT_SHA}"
+    expose_as: "Documentation"
+    paths:
+      - artifacts/
 worker:
   stage: build
   timeout: 1h
